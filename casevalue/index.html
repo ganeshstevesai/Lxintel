@@ -34,9 +34,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   </head>
 
-  <body class="min-h-screen p-4 text-white">
-    <div class="video-background"></div>
-    <div class="overlay"></div>
+  <body class="min-h-screen p-4 text-[#111]">
+    
+    
 
     <!-- LOGIN PAGE CONTAINER -->
     <div
@@ -54,14 +54,14 @@
       <!-- LOGIN FORM -->
       <div class="dark-theme-card p-6 space-y-5">
         <h2
-          class="text-[36px] font-extrabold uppercase tracking-[0.5px] text-center text-[#4dd2ff] mt-0 mb-0"
+          class="text-[36px] font-extrabold uppercase tracking-[0.5px] text-center text-[#0d6efd] mt-0 mb-0"
         >
           Login
         </h2>
 
         <!-- Email Input -->
         <div>
-          <label class="block text-[#4dd2ff] font-semibold mb-2">Email</label>
+          <label class="block text-[#0d6efd] font-semibold mb-2">Email</label>
           <input
             type="email"
             placeholder="Enter your email"
@@ -83,12 +83,12 @@
             ></span>
             <span class="status-text">
               <span x-show="emailChecking">Checking email...</span>
-              <span x-show="!emailChecking && emailValid" style="color: #4dd2ff"
+              <span x-show="!emailChecking && emailValid" style="color: #111111"
                 >Email authorized</span
               >
               <span
                 x-show="!emailChecking && !emailValid"
-                style="color: #4dd2ff"
+                style="color: #111111"
                 >Email not authorized</span
               >
             </span>
@@ -141,7 +141,7 @@
               style="width: 50px; height: auto"
             />
             <h2
-              class="mb-0 text-[#4dd2ff]"
+              class="mb-0 text-[#0d6efd]"
               style="font-size: 20px; font-weight: 600"
             >
               Billing Summary Generator
@@ -153,7 +153,7 @@
               class="flex items-center gap-2 text-xs font-semibold px-2 py-1 rounded hover:bg-cyan-500/10"
               title="Active users"
             >
-              <span class="w-2 h-2 bg-green-500 rounded-full shadow"></span>
+              <span class="w-2 h-2 bg-green-500 rounded-none "></span>
               <span id="active-user-count">0</span>
               Active Users
             </button>
@@ -167,8 +167,8 @@
                 style="
                   padding: 8px 0;
                   margin-bottom: 8px;
-                  border-bottom: 1px solid rgba(77, 210, 255, 0.3);
-                  color: #4dd2ff;
+                  border-bottom: 1px solid rgba(17, 17, 17, 0.3);
+                  color: #0d6efd;
                   font-size: 12px;
                   font-weight: 600;
                 "
@@ -182,9 +182,9 @@
             style="display: flex; align-items: center; gap: 20px"
             class="top_header_space"
           >
-            <div style="text-align: right; font-size: 0.9rem; color: #aaa">
+            <div style="text-align: right; font-size: 0.9rem; color: #6c757d">
               <span
-                style="display: block; color: #4dd2ff; font-weight: 600"
+                style="display: block; color: #0d6efd; font-weight: 600"
                 x-text="userEmail"
                 class="heading_top_mail"
               ></span>
@@ -216,9 +216,9 @@
       <div class="p-8 max-w-3xl mx-auto space-y-8">
         <!-- CASE NUMBER INPUT -->
         <template x-if="!caseNumber && status !== 'completed'">
-          <div class="dark-theme-card p-10 rounded-2xl text-center space-y-8">
+          <div class="dark-theme-card p-10 rounded-none text-center space-y-8">
             <div>
-              <h3 class="text-3xl font-bold text-[#4dd2ff] mb-4">
+              <h3 class="text-3xl font-bold text-[#0d6efd] mb-4">
                 Enter Case Number
               </h3>
             </div>
@@ -228,15 +228,15 @@
                 placeholder="e.g. 268315"
                 x-model="inputCaseNumber"
                 @keyup.enter="startProcessing()"
-                class="flex-1 px-4 py-3 text-base font-medium text-white bg-black border border-gray-600 rounded-lg focus:border-cyan-500 focus:outline-none transition placeholder-gray-500"
+                class="flex-1 px-4 py-3 text-base font-medium text-[#111] bg-white border border-gray-600 rounded-none focus:border-cyan-500 focus:outline-none transition placeholder-gray-500"
               />
 
               <button
                 @click="startProcessing()"
                 :disabled="!inputCaseNumber.trim() || loading"
-                class="px-6 py-3 text-base font-bold rounded-lg transition flex items-center justify-center gap-2 min-w-[140px]"
+                class="px-6 py-3 text-base font-bold rounded-none transition flex items-center justify-center gap-2 min-w-[140px]"
                 :class="inputCaseNumber.trim() && !loading 
-                      ? 'dark-theme-btn-primary hover:shadow-md hover:shadow-cyan-500/25' 
+                      ? 'dark-theme-btn-primary ' 
                       : 'bg-gray-700 text-gray-500 cursor-not-allowed'"
               >
                 <span x-show="!loading">START</span>
@@ -254,25 +254,25 @@
         <template
           x-if="caseNumber && status !== 'completed' && status !== 'failed'"
         >
-          <div class="dark-theme-card p-8 rounded-2xl space-y-6">
+          <div class="dark-theme-card p-8 rounded-none space-y-6">
             <div class="text-center">
               <p class="text-gray-400">Case Number</p>
               <p
-                class="text-3xl font-mono font-bold text-[#4dd2ff]"
+                class="text-3xl font-mono font-bold text-[#0d6efd]"
                 x-text="caseNumber"
               ></p>
             </div>
 
             <div class="space-y-4">
               <div class="flex justify-between text-sm">
-                <span style="color: #4dd2ff">Status</span>
+                <span style="color: #111111">Status</span>
                 <span
                   x-text="status === 'processing' ? 'Processing...' : 'Waiting for result...'"
                 ></span>
               </div>
-              <div class="w-full bg-gray-800 rounded-full h-4 overflow-hidden">
+              <div class="w-full bg-gray-800 rounded-none h-4 overflow-hidden">
                 <div
-                  class="bg-gradient-to-r from-blue-600 to-blue-400 h-full rounded-full transition-all duration-1000"
+                  class="bg-[#0d6efd]   h-full rounded-none transition-all duration-1000"
                   :style="{ width: progress + '%' }"
                 ></div>
               </div>
@@ -285,11 +285,11 @@
 
         <!-- ERROR STATE -->
         <template x-if="status === 'failed'">
-          <div class="dark-theme-card p-8 rounded-2xl space-y-6">
+          <div class="dark-theme-card p-8 rounded-none space-y-6">
             <div class="text-center">
               <p class="text-gray-400">Case Number</p>
               <p
-                class="text-3xl font-mono font-bold text-[#4dd2ff]"
+                class="text-3xl font-mono font-bold text-[#0d6efd]"
                 x-text="caseNumber"
               ></p>
             </div>
@@ -305,7 +305,7 @@
             <div class="text-center">
               <button
                 @click="reset()"
-                class="dark-theme-btn-primary px-6 py-3 text-base font-medium rounded-lg"
+                class="dark-theme-btn-primary px-6 py-3 text-base font-medium rounded-none"
               >
                 Try Another Case
               </button>
@@ -332,57 +332,13 @@
               ></p>
             </div>
 
-            <div class="dark-theme-card rounded-2xl overflow-hidden">
+            <div class="dark-theme-card rounded-none overflow-hidden">
               <div
                 class="border-b border-gray-700 px-8 py-5 flex justify-between items-center heading_billing_report"
-                style="background-color: #222"
+                style="background-color: #0d6efd;"
               >
-                <h3 class="text-2xl font-bold" style="color: #4dd2ff">
-                  Final Billing Report
-                </h3>
-                <button
-                  x-show="markdownRaw && !errorMessage"
-                  @click="downloadPDF()"
-                  class="text-lg mr-2 flex items-center gap-2 px-5 py-3 rounded-lg bg-cyan-600 hover:bg-cyan-500 transition font-medium"
-                >
-                  <svg
-                    class="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                    />
-                  </svg>
-                  Download PDF
-                </button>
-
-                <button
-                  x-show="regenerateMessage"
-                  @click="renegrate()"
-                  :disabled="!inputCaseNumber.trim() || loading"
-                  class="px-6 py-3 text-base font-bold rounded-lg transition flex items-center justify-center gap-2 min-w-[140px]"
-                  :class="inputCaseNumber.trim() && !loading 
-                      ? 'dark-theme-btn-primary hover:shadow-md hover:shadow-blue-500/25' 
-                      : 'bg-gray-700 text-gray-500 cursor-not-allowed'"
-                >
-                  <span x-show="!loading">regenerate</span>
-
-                  <span x-show="loading" class="flex items-center gap-2">
-                    <span class="spinner"></span>
-                    regenerating...
-                  </span>
-                </button>
+                <h3 class="text-xl font-bold text-white">Billing Report</h3>
               </div>
-              <div
-                id="billing-report-content"
-                class="billing-report-preview"
-                x-html="markdown"
-              ></div>
             </div>
           </div>
         </template>
@@ -390,8 +346,7 @@
     </div>
 
     <script>
-      const API_BASE_URL = "https://slimy-leonia-kyphotic.ngrok-free.dev";
-
+      const API_BASE_URL = window.location.origin;
       // Shared state between login and upload
       const appState = {
         loggedIn: false,
@@ -593,7 +548,7 @@
             div.style.gap = "16px";
 
             const emailSpan = document.createElement("span");
-            emailSpan.style.color = "#4dd2ff";
+            emailSpan.style.color = "#111111";
             emailSpan.style.fontWeight = "500";
             emailSpan.style.flex = "1";
             emailSpan.innerText = user.email;

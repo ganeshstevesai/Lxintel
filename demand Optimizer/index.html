@@ -21,8 +21,8 @@
     ></script>
   </head>
   <body>
-    <div class="video-background"></div>
-    <div class="overlay"></div>
+    
+    
 
     <!-- LOGIN PAGE -->
     <div
@@ -114,7 +114,7 @@
           class="loading-spinner"
           style="width: 50px; height: 50px; border-width: 5px"
         ></div>
-        <p id="processing-message" style="color: #fff; margin-top: 20px">
+        <p id="processing-message" style="color: #111; margin-top: 20px">
           This may take a minute or two...
         </p>
       </div>
@@ -143,12 +143,12 @@
                 <button
                   onclick="toggleActiveUsers()"
                   style="
-                    background: #05101a;
-                    color: #4dd2ff;
-                    border: 1px solid #4dd2ff;
+                    background: #f8f9fa;
+                    color: #0d6efd;
+                    border: 1.5px solid #0d6efd;
                     padding: 6px 10px;
                     font-size: 13px;
-                    border-radius: 6px;
+                    border-radius: 0;
                     cursor: pointer;
                   "
                 >
@@ -159,12 +159,12 @@
                   onclick="refreshActiveUsers()"
                   title="Refresh active users"
                   style="
-                    background: #05101a;
-                    color: #4dd2ff;
-                    border: 1px solid #4dd2ff;
+                    background: #f8f9fa;
+                    color: #0d6efd;
+                    border: 1.5px solid #0d6efd;
                     padding: 6px 10px;
                     font-size: 13px;
-                    border-radius: 6px;
+                    border-radius: 0;
                     cursor: pointer;
                     display: flex;
                     align-items: center;
@@ -180,9 +180,9 @@
             style="display: flex; align-items: center; gap: 20px"
             class="top_header_space_oth"
           >
-            <div style="text-align: right; font-size: 0.9rem; color: #aaa">
+            <div style="text-align: right; font-size: 0.9rem; color: #6c757d">
               <span
-                style="display: block; color: #4dd2ff; font-weight: 600"
+                style="display: block; color: #0d6efd; font-weight: 600"
                 x-text="userEmail"
               ></span>
               <span style="font-size: 0.85rem">Logged in</span>
@@ -192,14 +192,14 @@
               class="dark-theme-btn-primary"
               style="
                 padding: 0.5rem 1rem;
-                background: linear-gradient(135deg, #4dd2ff, #1ab2ff);
+                background: linear-gradient(135deg, #0d6efd, #1ab2ff);
                 color: #000;
-                border: 1px solid rgba(77, 210, 255, 0.6);
-                box-shadow: 0 0 18px rgba(77, 210, 255, 0.4);
+                border: 1px solid rgba(13, 110, 253, 0.6);
+                box-shadow: none;
                 border-radius: 8px;
                 font-size: 0.9rem;
                 cursor: pointer;
-                border-radius: 6px;
+                border-radius: 0;
               "
             >
               Logout
@@ -262,7 +262,7 @@
                 <h5 class="mb-0">Instructions</h5>
               </div>
               <div class="card-body">
-                <ol style="color: #ddd">
+                <ol style="color: #111">
                   <li>Select a medical document (PDF, DOC, DOCX, TXT)</li>
                   <li>
                     Click "Process Document" to upload and generate a report
@@ -680,11 +680,11 @@
             if (processData.status === "success" && processData.report) {
               const htmlReport = marked.parse(processData.report);
               summaryContainer.innerHTML = `
-              <div class="card" style="background-color: #05101a; border: 1px solid #1ab2ff; color: #ddd;">
-                <div class="card-header" style="background-color: #05101a; border-bottom: 1px solid #1ab2ff; color: #4dd2ff;">
+              <div class="card" style="background-color: #0d6efd; border: 1px solid #1ab2ff; color: #111;">
+                <div class="card-header" style="background-color: #0d6efd; border-bottom: 1px solid #0d6efd; color: #0d6efd;">
                   <h5 class="mb-0">Generated Report</h5>
                 </div>
-                <div class="card-body p-4" style="color: #ddd;">
+                <div class="card-body p-4" style="color: #111;">
                   <div class="report-content" style="max-height: 800px; overflow-y: auto; line-height: 1.6;">
                     ${htmlReport}
                   </div>
@@ -1159,7 +1159,7 @@
             div.style.gap = "16px";
 
             const emailSpan = document.createElement("span");
-            emailSpan.style.color = "#4dd2ff";
+            emailSpan.style.color = "#0d6efd";
             emailSpan.style.fontWeight = "500";
             emailSpan.style.flex = "1";
             emailSpan.innerText = user.email || user;
@@ -1229,14 +1229,14 @@
         top: 72px;
         left: 50%;
         transform: translateX(-50%);
-        background-color: #1a1a1a;
+        background-color: #0d6efd;
         border: 1px solid rgba(241, 196, 15, 0.4);
-        border-radius: 8px;
+        border-radius: 0;
         padding: 12px;
         min-width: 220px;
         display: none;
         z-index: 100000;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+        box-shadow: none;
       "
     >
       <div

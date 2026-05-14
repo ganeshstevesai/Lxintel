@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en" class="lx-sky hub-panel-cursor">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VICP Case Outcome Predictor</title>
+    <link rel="icon" type="image/webp" href="/Designer.png" />
+    <script
+      defer
+      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <link rel="stylesheet" href="/static/css/common-sky-typography.css" />
+    <link rel="stylesheet" href="index.css" />
+    <link rel="stylesheet" href="/static/css/common-theme.css" />
+    <link rel="stylesheet" href="/static/css/common-sky-typography.css" />
+
+    <script src="/static/js/common-cursor.js" defer></script>
+  </head>
+
+  <body>
+    
+    
+    <!-- LOGIN PAGE -->
+    <div
+      id="login-page-wrapper"
+      class="login-page-wrapper"
+      x-data="loginApp()"
+      style="display: none"
+    >
+      <div class="login-page-content">
+        <div class="login-logo-section">
+          <img src="/Designer.png" alt="Logo" />
+          <h1>VICP Predictor</h1>
+          <p>Case Outcome &amp; Award Prediction Platform</p>
+        </div>
+        <div class="login-form-card">
+          <h2>Login</h2>
+          <div x-show="error" class="login-error-message" x-text="error"></div>
+          <form @submit.prevent="login()">
+            <div class="login-form-group">
+              <label for="login-email">Email Address</label>
+              <input
+                type="email"
+                id="login-email"
+                x-model="email"
+                @input.debounce.500="verifyEmail()"
+                @keydown.enter="emailValid && login()"
+                placeholder="Enter your email"
+                required
+              />
+              <div
+                class="login-email-status"
+                :class="{ visible: emailChecking || emailValid !== null }"
+              >
+                <span
+                  class="status-icon"
+                  :class="emailChecking ? 'checking' : (emailValid ? 'valid' : 'invalid')"
+                ></span>
+                <span
+                  x-text="emailChecking ? 'Checking...' : (emailValid ? 'Email verified' : 'Email not found')"
+                ></span>
+              </div>
+            </div>
+            <button
+              type="submit"
+              class="login-btn"
+              :disabled="emailValid !== true || loggingIn"
+            >
+              <span x-show="!loggingIn">LOGIN</span>
+              <span x-show="loggingIn" class="login-btn-spinner">
+                <span class="spinner-inline"></span> Logging in...
+              </span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- MAIN APP -->
+    <div id="main-app-wrapper" class="app-container" style="display: none">
+      <header class="app-header">
+        <div class="header-left">
+          <img class="logo" src="/Designer.png" alt="logo-img" />
+          <div class="header-title">
+            <h1>VICP Case Outcome &amp; Award Predictor</h1>
+          </div>
+        </div>
+        <div class="header-right">
+          <span class="user-email-label" id="header-email"></span>
+          <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+      </header>
+      <div class="main-content">
+        <!-- Form Card -->
+        <div class="form-card">
+          <h2>Case Characteristics</h2>
+          <p class="subtitle">
+            Enter case details below to generate a model-based prediction.
+          </p>
+          <div class="grid-2">
+            <div class="field-group">
+              <label for="injury">Injury Type</label>
+              <select id="injury">
+                <option value="SIRVA">SIRVA</option>
+                <option value="GBS">GBS</option>
+                <option value="STROKE">Stroke</option>
+                <option value="Neuropathy">Neuropathy</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label for="vaccine">Vaccine</label>
+              <select id="vaccine">
+                <option value="flu">Flu</option>
+                <option value="hpv">HPV</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="checkbox-single">
+            <label class="checkbox-row" for="procedure_present">
+              <input type="checkbox" id="procedure_present" checked />
+              <span class="custom-checkbox"></span>
+              <div class="checkbox-text-group">
+                <span class="cb-label"
+                  >Medical procedure(s) clearly documented</span
+                >
+                <span class="cb-hint"
+                  >Was a surgical or invasive procedure mentioned?</span
+                >
+              </div>
+            </label>
+          </div>
+          <div class="section-heading">Case Process Signals</div>
+          <div class="checks-grid">
+            <label class="checkbox-row" for="stipulation_flag">
+              <input type="checkbox" id="stipulation_flag" />
+              <span class="custom-checkbox"></span>
+              <div class="checkbox-text-group">
+                <span class="cb-label">Stipulation present</span>
+                <span class="cb-hint"
+                  >Case resolved via settlement agreement</span
+                >
+              </div>
+            </label>
+            <label class="checkbox-row" for="has_hearing">
+              <input type="checkbox" id="has_hearing" />
+              <span class="custom-checkbox"></span>
+              <div class="checkbox-text-group">
+                <span class="cb-label">Hearing conducted</span>
+                <span class="cb-hint"
+                  >Formal hearing before special master</span
+                >
+              </div>
+            </label>
+            <label class="checkbox-row" for="has_expert">
+              <input type="checkbox" id="has_expert" />
+              <span class="custom-checkbox"></span>
+              <div class="checkbox-text-group">
+                <span class="cb-label">Expert testimony present</span>
+                <span class="cb-hint">Indicates contested medical issues</span>
+              </div>
+            </label>
+            <label class="checkbox-row" for="has_motion">
+              <input type="checkbox" id="has_motion" checked />
+              <span class="custom-checkbox"></span>
+              <div class="checkbox-text-group">
+                <span class="cb-label">Motion practice present</span>
+                <span class="cb-hint"
+                  >Any procedural / legal motions filed</span
+                >
+              </div>
+            </label>
+          </div>
+          <button
+            class="submit-btn"
+            id="predict-btn"
+            onclick="submitPrediction()"
+          >
+            Predict Case Outcome
+          </button>
+          <div class="error-banner" id="error-banner"></div>
+          <div class="success-banner" id="success-banner">
+            ✓ Prediction complete!
+          </div>
+        </div>
+        <!-- Results Card -->
+        <div class="results-card" id="results-card">
+          <h3>Prediction Result</h3>
+          <!-- Top metrics grid (excludes attorney hours) -->
+          <div id="metrics-container" class="metrics-grid"></div>
+          <!-- Attorney hours shown below Predicted Award (Point Estimate) -->
+          <div
+            id="attorney-hours-container"
+            class="attorney-hours-row"
+            style="display: none"
+          >
+            <div class="metric-box">
+              <div class="metric-label">Estimated Attorney Hours</div>
+              <div class="metric-value" id="attorney-hours-value">—</div>
+            </div>
+          </div>
+          <!-- String / text results -->
+          <div id="text-results-container"></div>
+          <div class="result-timestamp" id="result-timestamp"></div>
+          <div class="expander">
+            <div class="expander-header" onclick="toggleExpander()">
+              <span>Raw Result Dictionary</span>
+              <span class="expander-chevron" id="expander-chevron">▾</span>
+            </div>
+            <div class="expander-body" id="expander-body">
+              <pre id="raw-json"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const API_BASE_URL =
+        " https://unpossessable-marylee-unsnobbish.ngrok-free.dev";
+
+      /* ───────── AUTH ───────── */
+      function checkAuthToken() {
+        const token = localStorage.getItem("jwtvicpmodel");
+        const loginEl = document.getElementById("login-page-wrapper");
+        const appEl = document.getElementById("main-app-wrapper");
+
+        if (token) {
+          loginEl.style.display = "none";
+          appEl.style.display = "flex";
+          const email = localStorage.getItem("vicpModelEmail") || "";
+          document.getElementById("header-email").textContent = email;
+        } else {
+          loginEl.style.display = "flex";
+          appEl.style.display = "none";
+        }
+      }
+
+      function logout() {
+        localStorage.removeItem("jwtvicpmodel");
+        localStorage.removeItem("vicpModelEmail");
+        document.getElementById("results-card").classList.remove("visible");
+        clearError();
+        document.getElementById("success-banner").classList.remove("visible");
+        checkAuthToken();
+      }
+
+      document.addEventListener("DOMContentLoaded", checkAuthToken);
+      window.addEventListener("login-success", () =>
+        setTimeout(checkAuthToken, 100),
+      );
+
+      /* ───────── LOGIN ───────── */
+      function loginApp() {
+        return {
+          email: "",
+          emailValid: null,
+          emailChecking: false,
+          error: "",
+          loggingIn: false,
+
+          verifyEmail() {
+            if (!this.email) {
+              this.emailValid = null;
+              this.emailChecking = false;
+              return;
+            }
+
+            this.emailChecking = true;
+            this.error = "";
+
+            fetch(
+              `${API_BASE_URL}/vicp_prediction/verify-email?email=${encodeURIComponent(this.email)}`,
+              {
+                method: "GET",
+                headers: { "ngrok-skip-browser-warning": "true" },
+              },
+            )
+              .then((r) => r.json())
+              .then((json) => {
+                this.emailValid = json.valid;
+                this.emailChecking = false;
+                if (!json.valid)
+                  this.error =
+                    "Access denied: Your email is not on the authorized list.";
+              })
+              .catch(() => {
+                this.emailValid = false;
+                this.emailChecking = false;
+                this.error =
+                  "Access denied: Your email is not on the authorized list.";
+              });
+          },
+
+          login() {
+            if (!this.emailValid) {
+              this.error = "Email not authorized";
+              return;
+            }
+
+            this.loggingIn = true;
+
+            const body = new URLSearchParams();
+            body.append("username", this.email);
+            body.append("password", "not-used-but-required");
+
+            fetch(`${API_BASE_URL}/vicp_prediction/login`, {
+              method: "POST",
+              headers: { "ngrok-skip-browser-warning": "true" },
+              body,
+            })
+              .then((r) => {
+                if (!r.ok) throw new Error("Unauthorized");
+                return r.json();
+              })
+              .then((json) => {
+                localStorage.setItem("jwtvicpmodel", json.access_token);
+                localStorage.setItem("vicpModelEmail", this.email);
+                this.loggingIn = false;
+                window.dispatchEvent(new CustomEvent("login-success"));
+              })
+              .catch(() => {
+                this.error = "Login failed.";
+                this.loggingIn = false;
+              });
+          },
+        };
+      }
+
+      /* ───────── HELPERS ───────── */
+      function getVal(id) {
+        return document.getElementById(id).value;
+      }
+
+      function getCheck(id) {
+        return document.getElementById(id).checked;
+      }
+
+      function setError(msg) {
+        const el = document.getElementById("error-banner");
+        el.textContent = "⚠ " + msg;
+        el.classList.add("visible");
+      }
+
+      function clearError() {
+        document.getElementById("error-banner").classList.remove("visible");
+      }
+
+      function showSuccess() {
+        const el = document.getElementById("success-banner");
+        el.classList.add("visible");
+        setTimeout(() => el.classList.remove("visible"), 3000);
+      }
+
+      /* ───────── API CALL ───────── */
+      async function submitPrediction() {
+        clearError();
+
+        const btn = document.getElementById("predict-btn");
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-inline"></span>Predicting...';
+
+        const params = new URLSearchParams({
+          injury: getVal("injury"),
+          vaccine: getVal("vaccine"),
+          procedure_present: getCheck("procedure_present"),
+          stipulation_flag: getCheck("stipulation_flag"),
+          has_expert: getCheck("has_expert"),
+          has_hearing: getCheck("has_hearing"),
+          has_motion: getCheck("has_motion"),
+        });
+
+        const token = localStorage.getItem("jwtvicpmodel");
+
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/vicp_prediction/predict?${params.toString()}`,
+            {
+              method: "POST",
+              headers: {
+                "ngrok-skip-browser-warning": "true",
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+              },
+            },
+          );
+
+          if (!response.ok) throw new Error("Request failed");
+
+          const result = await response.json();
+          renderResults(result);
+          showSuccess();
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = "Predict Case Outcome";
+        }
+      }
+
+      /* ───────── FORMAT ───────── */
+      function formatNumber(key, value) {
+        const k = key.toLowerCase();
+
+        if (k.includes("percent")) return value.toFixed(2);
+        if (k.includes("award") || k.includes("fee"))
+          return "$" + Number(value).toLocaleString();
+        if (k.includes("hour")) return Math.round(value).toLocaleString();
+
+        return value;
+      }
+
+      function escapeHtml(text) {
+        const d = document.createElement("div");
+        d.textContent = text;
+        return d.innerHTML;
+      }
+
+      /* ───────── ORDER ───────── */
+      const KEY_ORDER = [
+        "probability_of_compensation (%)",
+        "predicted_outcome",
+        "expected_award_range",
+        "predicted_award (point estimate)",
+        "estimated_attorney_hours",
+        "estimated_attorney_fees",
+      ];
+
+      /* ───────── RENDER RESULTS ───────── */
+      function renderResults(result) {
+        const textEl = document.getElementById("text-results-container");
+        textEl.innerHTML = "";
+
+        const orderedKeys = [
+          ...KEY_ORDER.filter((k) => k in result),
+          ...Object.keys(result).filter((k) => !KEY_ORDER.includes(k)),
+        ];
+
+        for (const key of orderedKeys) {
+          const value = result[key];
+          const label = key
+            .replace(/_/g, " ")
+            .replace(/\b\w/g, (c) => c.toUpperCase());
+
+          const block = document.createElement("div");
+          block.className = "text-result";
+
+          block.innerHTML = `
+            <div class="tr-key">${escapeHtml(label)}</div>
+            <div class="tr-val">${escapeHtml(
+              typeof value === "number"
+                ? formatNumber(key, value)
+                : String(value),
+            )}</div>
+        `;
+
+          textEl.appendChild(block);
+        }
+
+        document.getElementById("raw-json").textContent = JSON.stringify(
+          result,
+          null,
+          2,
+        );
+        document.getElementById("results-card").classList.add("visible");
+        document
+          .getElementById("results-card")
+          .scrollIntoView({ behavior: "smooth" });
+      }
+
+      /* ───────── EXPANDER ───────── */
+      function toggleExpander() {
+        document.getElementById("expander-body").classList.toggle("open");
+        document.getElementById("expander-chevron").classList.toggle("open");
+      }
+    </script>
+  </body>
+</html>

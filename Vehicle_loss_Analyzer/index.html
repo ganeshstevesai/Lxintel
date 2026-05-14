@@ -1,28 +1,30 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="hub-panel-cursor">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Injury Intelligence:Vision</title>
-    <link rel="icon" type="image/webp" href="/Designer.png" />
+    <title>Vehicle Loss Analyzer</title>
+    <link
+      rel="icon"
+      type="image/webp"
+      href="/Designer.png"
+    />
     <link rel="stylesheet" href="index.css" />
+
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script
       defer
       src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
     ></script>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="stylesheet" href="/static/css/common-theme.css" />
   </head>
 
   <body>
     <script>
       // Simple check: if token exists, show main app, else show login
       function updateDisplay() {
-        const hasToken = localStorage.getItem("jwtinjury");
+        const hasToken = localStorage.getItem("jwtvehicleloss");
         const loginPage = document.querySelector(".login-page-wrapper");
         const mainApp = document.getElementById("main-app-container");
 
@@ -97,9 +99,9 @@
       <div class="login-page-content">
         <!-- LOGO AND TITLE -->
         <div class="login-logo-section">
-          <img src="/Designer.png" alt="" />
-          <h1>Injury Intelligence:Vision</h1>
-          <p>Secure Access for Authorized Users</p>
+          <img src="/Designer.png" alt="logo-img" />
+          <h1>Vehicle Loss Analyzer</h1>
+          <p>Secure Access for Authorized Ramos Law Users</p>
         </div>
 
         <!-- LOGIN FORM -->
@@ -153,7 +155,7 @@
                   height: 14px;
                   border-width: 2px;
                   margin-left: 0;
-                  border: 2px solid rgba(0, 0, 0, 0.3);
+                  border: 2px solid rgba(0, 0, 0, 0.05);
                   border-top-color: #000;
                 "
               ></span>
@@ -167,18 +169,18 @@
     <!-- MAIN APPLICATION CONTAINER -->
     <div
       id="main-app-container"
-      x-data="injuryApp()"
+      x-data="vehicleLossApp()"
       x-init="init()"
       x-show="isLoggedIn"
       style="display: none"
     >
       <div class="app-header">
         <div class="header-left">
-          <img src="/Designer.png" alt="" class="logo" />
+          <img src="/Designer.png" alt="logo-img" class="logo" />
           <div class="header-title">
-            <h1>Injury Intelligence:Vision</h1>
+            <h1>Vehicle Loss Analyzer</h1>
             <div style="display: flex; align-items: center; gap: 12px">
-              <p>AI-Powered Injury Intelligence</p>
+              <p>AI-Powered Vehicle Loss Analysis</p>
               <!-- Active Users Count -->
               <button
                 id="active-users-btn"
@@ -281,49 +283,11 @@
           <div class="input-content">
             <textarea
               id="message-input"
-              placeholder="Type message or paste images (JPG/PNG) and links (starting with http)"
+              placeholder="Type your message here..."
               onkeydown="handleKeyPress(event)"
               onpaste="handlePaste(event)"
             ></textarea>
             <div id="attachment-indicators" class="attachment-indicators"></div>
-            <button
-              class="upload-icon-btn"
-              id="upload-btn"
-              title="Upload Image (JPG/PNG)"
-              onclick="document.getElementById('image-file-input').click()"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 200 200"
-                width="36"
-                height="36"
-                style="display: inline-block"
-              >
-                <path
-                  d="M 150 80 C 150 65 138 53 123 53 C 121 53 119 53.2 117 53.5 C 112 38 98 27 81 27 C 60 27 43 44 43 65 C 43 66 43 67 43.1 68 C 32 71 24 81 24 93 C 24 107 35 118 49 118 L 145 118 C 162 118 176 104 176 87 C 176 72 165 60 150 60 C 150 66.5 150 73 150 80 Z"
-                  fill="#111111"
-                  stroke="#111111"
-                  stroke-width="6"
-                  stroke-linejoin="round"
-                />
-                <g
-                  fill="#111111"
-                  stroke="#111111"
-                  stroke-width="8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <line x1="100" y1="170" x2="100" y2="95" />
-                  <polyline points="75,120 100,95 125,120" fill="none" />
-                </g>
-              </svg>
-            </button>
-            <input
-              type="file"
-              id="image-file-input"
-              accept=".jpg,.jpeg,.png"
-              onchange="handleFileUpload(event)"
-            />
           </div>
           <!-- Templates Button -->
           <button
@@ -343,7 +307,7 @@
               height: 44px;
               border-radius: 0;
             "
-            onmouseover="this.style.background = 'rgba(17, 17, 17, 0.1)'"
+            onmouseover="this.style.background = 'rgba(var(--lx-sky-rgb), 0.1)'"
             onmouseout="this.style.background = 'none'"
             onclick="toggleTemplatesPopover(event)"
             title="Load template message"
@@ -382,7 +346,7 @@
           left: 0;
           width: 100%;
           height: 100%;
-          background: rgba(0, 0, 0, 0.8);
+          background: #ffffff;
           display: none;
           align-items: center;
           justify-content: center;
@@ -395,7 +359,7 @@
         <div
           style="
             background: #ffffff;
-            border: 1px solid rgba(17, 17, 17, 0.4);
+            border: 1px solid rgba(var(--lx-sky-rgb), 0.4);
             border-radius: 0;
             padding: 32px;
             max-width: 500px;
@@ -437,7 +401,7 @@
                 justify-content: center;
               "
             >
-              �
+              ×
             </button>
           </div>
           <p style="color: #6c757d; margin: 0 0 20px 0; font-size: 14px">
@@ -467,15 +431,17 @@
                   width: 100%;
                   padding: 10px 12px;
                   background: #ffffff;
-                  border: 1px solid rgba(17, 17, 17, 0.3);
+                  border: 1px solid #dee2e6;
                   border-radius: 0;
                   color: #0d6efd;
                   font-family: &quot;Montserrat&quot;, sans-serif;
                   font-size: 14px;
                   transition: all 0.3s;
                 "
-                onfocus="this.style.borderColor = 'rgba(17, 17, 17, 0.6)'"
-                onblur="this.style.borderColor = 'rgba(17, 17, 17, 0.3)'"
+                onfocus="
+                  this.style.borderColor = 'rgba(var(--lx-sky-rgb), 0.6)'
+                "
+                onblur="this.style.borderColor = '#dee2e6'"
               />
             </div>
             <div>
@@ -497,7 +463,7 @@
                   width: 100%;
                   padding: 10px 12px;
                   background: #ffffff;
-                  border: 1px solid rgba(17, 17, 17, 0.3);
+                  border: 1px solid #dee2e6;
                   border-radius: 0;
                   color: #0d6efd;
                   font-family: &quot;Montserrat&quot;, sans-serif;
@@ -506,8 +472,10 @@
                   min-height: 80px;
                   transition: all 0.3s;
                 "
-                onfocus="this.style.borderColor = 'rgba(17, 17, 17, 0.6)'"
-                onblur="this.style.borderColor = 'rgba(17, 17, 17, 0.3)'"
+                onfocus="
+                  this.style.borderColor = 'rgba(var(--lx-sky-rgb), 0.6)'
+                "
+                onblur="this.style.borderColor = '#dee2e6'"
               ></textarea>
             </div>
             <div
@@ -526,9 +494,9 @@
                 type="button"
                 onclick="closeSaveTemplateModal()"
                 style="
-                  background: rgba(17, 17, 17, 0.1);
+                  background: rgba(var(--lx-sky-rgb), 0.1);
                   color: #0d6efd;
-                  border: 1px solid rgba(17, 17, 17, 0.3);
+                  border: 1px solid #dee2e6;
                   padding: 10px 20px;
                   border-radius: 0;
                   font-weight: 600;
@@ -543,7 +511,7 @@
                 id="save-template-btn"
                 type="submit"
                 style="
-                  background: #111111;
+                  background: #0d6efd;
                   color: #000;
                   border: none;
                   padding: 10px 20px;
@@ -570,7 +538,7 @@
           left: 0;
           width: 100%;
           height: 100%;
-          background: rgba(0, 0, 0, 0.8);
+          background: #ffffff;
           display: none;
           align-items: center;
           justify-content: center;
@@ -584,7 +552,7 @@
         <div
           style="
             background: #ffffff;
-            border: 1px solid rgba(17, 17, 17, 0.4);
+            border: 1px solid rgba(var(--lx-sky-rgb), 0.4);
             border-radius: 0;
             padding: 32px;
             max-width: 400px;
@@ -626,7 +594,7 @@
                 justify-content: center;
               "
             >
-              �
+              ×
             </button>
           </div>
           <p style="color: #6c757d; margin: 0 0 24px 0; font-size: 14px">
@@ -647,9 +615,9 @@
               type="button"
               onclick="closeDeleteTemplateModal()"
               style="
-                background: rgba(17, 17, 17, 0.1);
+                background: rgba(var(--lx-sky-rgb), 0.1);
                 color: #0d6efd;
-                border: 1px solid rgba(17, 17, 17, 0.3);
+                border: 1px solid #dee2e6;
                 padding: 10px 20px;
                 border-radius: 0;
                 font-weight: 600;
@@ -690,7 +658,7 @@
           bottom: 90px;
           right: 32px;
           background-color: #0d6efd;
-          border: 1px solid rgba(17, 17, 17, 0.4);
+          border: 1px solid rgba(var(--lx-sky-rgb), 0.4);
           border-radius: 0;
           padding: 12px;
           min-width: 280px;
@@ -705,7 +673,7 @@
           style="
             padding: 8px 0;
             margin-bottom: 8px;
-            border-bottom: 1px solid rgba(17, 17, 17, 0.3);
+            border-bottom: 1px solid #dee2e6;
             color: #0d6efd;
             font-size: 12px;
             font-weight: 600;
@@ -726,7 +694,7 @@
           top: 80px;
           left: 350px;
           background-color: #0d6efd;
-          border: 1px solid rgba(17, 17, 17, 0.4);
+          border: 1px solid rgba(var(--lx-sky-rgb), 0.4);
           border-radius: 0;
           padding: 12px;
           min-width: auto;
@@ -742,7 +710,7 @@
           style="
             padding: 8px 0;
             margin-bottom: 8px;
-            border-bottom: 1px solid rgba(17, 17, 17, 0.3);
+            border-bottom: 1px solid #dee2e6;
             color: #0d6efd;
             font-size: 12px;
             font-weight: 600;
@@ -761,11 +729,10 @@
 
     <script>
       const API_BASE_URL =
-        "https://unpossessable-marylee-unsnobbish.ngrok-free.dev";
+        " https://unpossessable-marylee-unsnobbish.ngrok-free.dev";
       let threadId = null;
       let isProcessing = false;
       let uploadedImages = [];
-      let imageLinks = [];
       let currentMessageToSave = ""; // Store message for saving as template
 
       marked.setOptions({
@@ -790,7 +757,7 @@
       });
 
       function getAuthHeaders(extraHeaders = {}) {
-        const token = localStorage.getItem("jwtinjury");
+        const token = localStorage.getItem("jwtvehicleloss");
 
         if (!token) {
           throw new Error("Not authenticated");
@@ -803,200 +770,82 @@
       }
 
       function loadResponseId() {
-        return localStorage.getItem("vicp_response_id");
+        return localStorage.getItem("vehicle_loss_response_id");
       }
 
       function saveResponseId(responseId) {
-        localStorage.setItem("vicp_response_id", responseId);
+        localStorage.setItem("vehicle_loss_response_id", responseId);
       }
 
       function clearResponseId() {
-        localStorage.removeItem("vicp_response_id");
+        localStorage.removeItem("vehicle_loss_response_id");
       }
 
       function loadInitialMessage() {
-        const initialMessage = `
+        // First AI message
+        addMessage(
+          "assistant",
+          "Enter the Year, Make and Model of the car",
+          [],
+          [],
+          false,
+          false,
+        );
 
-# Hello! I'm Injury Intelligence:Vision, your firm's specialized accident and injury evaluation tool.
+        // User message
+        addMessage("user", "Kia Rio 2020", [], [], false, false);
 
-## ?? What I Do
+        // AI report message
+        const reportMessage = `**Bottom line:** For the **2020 Kia Rio**, the available IIHS/HLDI loss profile is **above average for injury-claim activity** and **above average for repair/property-damage losses**, as a contextual signal (not case-specific proof).
 
-I use the picture you upload of a damaged client vehicle to quickly generate a preliminary, data-driven report. I analyze the crash dynamics and visible damage to:
+**Match:** Kia Rio (2018-20), Confidence: **High**.
 
-- **Estimate Crash Severity:** Determine the force and direction of the impact.
-- **Predict Likely Injuries:** Based on the damage, I predict the most probable injuries for the driver.
-- **Calculate a Settlement Estimate:** I run a detailed synthetic case profile (HIPAA Compliant) through the proprietary Settlement Model to give you an estimated settlement range and a strategic analysis.
+**Data snapshot (% vs avg passenger vehicle, context only):**
+| Metric | Value |
+|--------|-------|
+| BI (injury claims) | **116%** |
+| PIP (injury claims) | **117%** |
+| MedPay (injury claims) | **147%** |
+| Collision (overall losses) | **23%** |
+| Property Damage (overall losses) | **62%** |
 
-## ?? How to Use Me
+**Interpretation (plain English):**
 
-### Upload an Image
-The essential step is to upload a picture or provide a link to a picture of the damaged client vehicle. My full capabilities activate only after I see an image of a damaged car.
+Injury-coverage posture: **above average**. Claims involving bodily injury, PIP, and MedPay for this vehicle tend to occur at rates **higher than** the passenger-vehicle average, which is consistent with a greater likelihood of reported occupant injury following real-world crashes.
 
-### Optional: Add Case Details (Recommended for Accuracy)
+Repair/loss posture: **above average**. Collision and property damage losses for this vehicle tend to run **higher than** average, reflecting repair and damage outcomes that are **more** costly than typical passenger vehicles.
 
-While an image is all I strictly need, you can provide any additional case information you have. The more details you provide, the more relevant the synthetic case profile I generate will be, leading to a more useful estimate.
+**How to use (negotiation):**
+- **Rebut:** Use as context that this model line shows **elevated injury-claim and PD activity vs. average**, which can undercut "it was minor so injuries don't happen" rhetoric (without claiming it proves injury here).
+- **Frame:** Argue the medical workup/treatment path is **not surprising** given this vehicle's injury-coverage loss profile trends.
+- **Anchor:** Point out PD losses run **above average** (Property Damage **62%**)—consistent with real-world repairs/damage adding up on this platform.
+- **Ask-for:** Request **full and timely evaluation** of specials and a **fair settlement posture** in light of these comparative loss indicators.
+- **Caution-in-phrasing:** "These IIHS/HLDI figures are **contextual signals** about claim patterns for this vehicle line; they **do not establish** what happened in this specific crash."
 
-#### Helpful Information to Include:
-
-- Year, make, and model of the client's and at-fault vehicles.
-- Age and sex of both the client and the at-fault driver.
-- Insurance carrier for both parties.
-- Client financial distress (e.g., low credit score, foreclosure).
-- Client likability score (1-10) for a jury.
-- At-fault driver aggravated circumstances (DUI, drug use, reckless driving).
-- Ambulance involvement.
-
-#### Example Prompt:
-
-"My client is driving a 2023 Honda Civic. At-fault was a commercial semi-truck. Client is a 25-year-old female, likeability score 9, low estimated credit score insured by Geico. At-fault driver 55, driving 2025 Corvette with USAA insurance was cited for reckless driving."
-
-## ?? Important Note and Disclaimer
-
-The report I generate is a synthetic, data-inspired estimate for preliminary analysis only. It is not legal advice, a medical diagnosis, or a guarantee of any outcome. Always use your professional judgment and consult with qualified medical and legal professionals.`;
-
-        addMessage("assistant", initialMessage, [], [], false, true);
+**Paste-ready script:**
+"IIHS/HLDI insurance loss data for the Kia Rio (2018–20) shows injury-claim coverages running well above the passenger-vehicle average (e.g., BI **116%**, PIP **117%**, MedPay **147%**), with collision and property-damage losses also above average (Collision **23%**, PD **62%**). These figures don't determine what occurred in this specific incident, but they provide relevant context that this vehicle line tends to generate higher injury-claim and repair/loss activity than average."`;
+        addMessage("assistant", reportMessage, [], [], false, true);
       }
 
       function handlePaste(event) {
-        if (isProcessing) {
-          event.preventDefault();
-          return;
-        }
-
-        const clipboardData = event.clipboardData || window.clipboardData;
-        const items = clipboardData.items;
-
-        let hasHandledPaste = false;
-        let isLinkOnly = false;
-
-        for (let i = 0; i < items.length; i++) {
-          const item = items[i];
-
-          // Handle image paste
-          if (item.type.indexOf("image") !== -1) {
-            event.preventDefault();
-            hasHandledPaste = true;
-            const file = item.getAsFile();
-            if (
-              file &&
-              (file.type === "image/jpeg" || file.type === "image/png")
-            ) {
-              uploadedImages.push(file);
-              renderAttachmentPreviews();
-            } else {
-              alert("Only JPG and PNG images are supported");
-            }
-          }
-          // Handle text paste (for links)
-          else if (item.type === "text/plain") {
-            item.getAsString((text) => {
-              const trimmedText = text.trim();
-              // Check if it's a URL
-              if (
-                trimmedText.startsWith("http://") ||
-                trimmedText.startsWith("https://")
-              ) {
-                if (!imageLinks.includes(trimmedText)) {
-                  event.preventDefault();
-                  imageLinks.push(trimmedText);
-                  renderAttachmentPreviews();
-                  // Clear the textarea if only a link was pasted
-                  document.getElementById("message-input").value = "";
-                }
-              }
-            });
-          }
-        }
-      }
-
-      function handleFileUpload(event) {
-        const files = event.target.files;
-        for (let file of files) {
-          if (
-            file.type === "image/jpeg" ||
-            file.type === "image/png" ||
-            file.name.endsWith(".jpg") ||
-            file.name.endsWith(".jpeg") ||
-            file.name.endsWith(".png")
-          ) {
-            uploadedImages.push(file);
-          } else {
-            alert("Only JPG and PNG files are accepted");
-          }
-        }
-        renderAttachmentPreviews();
-        event.target.value = "";
+        // No special paste handling needed - just allow default text paste behavior
+        return;
       }
 
       function disableInput() {
         const textarea = document.getElementById("message-input");
-        const uploadBtn = document.getElementById("upload-btn");
         textarea.disabled = true;
-        uploadBtn.disabled = true;
       }
 
       function enableInput() {
         const textarea = document.getElementById("message-input");
-        const uploadBtn = document.getElementById("upload-btn");
         textarea.disabled = false;
-        uploadBtn.disabled = false;
       }
 
       function resetInput() {
         document.getElementById("message-input").value = "";
         document.getElementById("attachment-indicators").innerHTML = "";
         uploadedImages = [];
-        imageLinks = [];
-      }
-
-      function renderAttachmentPreviews() {
-        const indicatorsContainer = document.getElementById(
-          "attachment-indicators",
-        );
-        if (!indicatorsContainer) return;
-
-        indicatorsContainer.innerHTML = "";
-
-        // Show image icon if images uploaded
-        if (uploadedImages.length > 0) {
-          const imgIndicator = document.createElement("div");
-          imgIndicator.className = "attachment-indicator";
-          imgIndicator.title =
-            uploadedImages.length +
-            " image" +
-            (uploadedImages.length > 1 ? "s" : "");
-          imgIndicator.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75-3.54c-.3-.38-.77-.62-1.3-.62-.92 0-1.66.74-1.66 1.66 0 .53.24 1 .62 1.3l2.75 3.54c.3.38.77.62 1.3.62.92 0 1.66-.74 1.66-1.66 0-.53-.24-1-.62-1.3z"></path>
-            </svg>
-          `;
-          indicatorsContainer.appendChild(imgIndicator);
-        }
-
-        // Show link icon if links added
-        if (imageLinks.length > 0) {
-          const linkIndicator = document.createElement("div");
-          linkIndicator.className = "attachment-indicator";
-          linkIndicator.title =
-            imageLinks.length + " link" + (imageLinks.length > 1 ? "s" : "");
-          linkIndicator.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-            </svg>
-          `;
-          indicatorsContainer.appendChild(linkIndicator);
-        }
-      }
-
-      function removeImage(index) {
-        uploadedImages.splice(index, 1);
-        renderAttachmentPreviews();
-      }
-
-      function removeLink(index) {
-        imageLinks.splice(index, 1);
-        renderAttachmentPreviews();
       }
 
       function handleKeyPress(event) {
@@ -1012,7 +861,6 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
         ) {
           threadId = null;
           uploadedImages = [];
-          imageLinks = [];
           clearResponseId();
           isProcessing = false;
           hideTypingIndicator();
@@ -1041,12 +889,8 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
         const input = document.getElementById("message-input");
         const message = input.value.trim();
 
-        if (
-          !message &&
-          uploadedImages.length === 0 &&
-          imageLinks.length === 0
-        ) {
-          alert("Please enter a message or upload an image/link");
+        if (!message) {
+          alert("Please enter a message");
           return;
         }
 
@@ -1057,40 +901,12 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
 
         disableInput();
 
-        const userSummary = [];
-        if (message) userSummary.push(`Message: ${message}`);
-        if (uploadedImages.length > 0)
-          userSummary.push(`${uploadedImages.length} image(s) uploaded`);
-        if (imageLinks.length > 0)
-          userSummary.push(`${imageLinks.length} link(s) added`);
-
-        addMessage("user", message, uploadedImages, imageLinks);
+        addMessage("user", message, [], []);
         showTypingIndicator();
 
         try {
           const formData = new FormData();
-
-          // Only add user_message if it's not a link (links are handled separately)
-          const isLink =
-            message &&
-            (message.startsWith("http://") || message.startsWith("https://"));
-          if (message && !isLink) {
-            formData.append("user_message", message);
-          } else if (message && !imageLinks.includes(message)) {
-            formData.append("user_message", message);
-          }
-
-          if (uploadedImages.length > 0) {
-            uploadedImages.forEach((file) => {
-              formData.append("damage_images", file);
-            });
-          }
-
-          if (imageLinks.length > 0) {
-            imageLinks.forEach((link) => {
-              formData.append("image_links", link);
-            });
-          }
+          formData.append("user_message", message);
 
           const previousResponseId = loadResponseId();
           if (previousResponseId) {
@@ -1098,7 +914,7 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
           }
 
           const response = await fetch(
-            `${API_BASE_URL}/Injury_Intelligence/injury-intelligence`,
+            `${API_BASE_URL}/Vehicle_Loss_Analyzer/chat`,
             {
               method: "POST",
               mode: "cors",
@@ -1193,41 +1009,61 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
 
           // Display text message
           if (content && content.trim()) {
-            const textEl = document.createElement("div");
-            textEl.textContent = content;
-            textEl.style.display = "block";
-            textEl.style.color = "#000";
-            messageDiv.appendChild(textEl);
+            // Create flex container for button and text
+            const flexContainer = document.createElement("div");
+            flexContainer.style.cssText = `
+                        display: flex;
+                        align-items: flex-start;
+                        gap: 8px;
+                    `;
 
-            // Add save button only if there's text content
+            // Add save button first (on left)
             const saveBtn = document.createElement("button");
             saveBtn.style.cssText = `
-              background: none;
-              border: none;
-              color: #0d6efd;
-              cursor: pointer;
-              padding: 4px 8px;
-              border-radius: 4px;
-              transition: all 0.3s;
-              font-size: 16px;
-              flex-shrink: 0;
-              margin-top: 8px;
-              display: block;
-            `;
+                        background: rgba(var(--lx-sky-rgb), 0.1);
+                        border: 1px solid #dee2e6;
+                        color: #0d6efd;
+                        cursor: pointer;
+                        padding: 6px;
+                        border-radius: 50%;
+                        transition: all 0.3s;
+                        font-size: 14px;
+                        width: 28px;
+                        height: 28px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex-shrink: 0;
+                        margin-top: 2px;
+                    `;
             saveBtn.title = "Save this message as template";
-            saveBtn.innerHTML = "??";
+            saveBtn.innerHTML = "💾";
             saveBtn.onmouseover = function () {
-              this.style.background = "rgba(17, 17, 17, 0.2)";
+              this.style.background = "rgba(var(--lx-sky-rgb), 0.25)";
+              this.style.borderColor = "rgba(var(--lx-sky-rgb), 0.5)";
             };
             saveBtn.onmouseout = function () {
-              this.style.background = "none";
+              this.style.background = "rgba(var(--lx-sky-rgb), 0.1)";
+              this.style.borderColor = "#dee2e6";
             };
             saveBtn.onclick = function (e) {
               e.stopPropagation();
               currentMessageToSave = content;
               openSaveTemplateModal();
             };
-            messageDiv.appendChild(saveBtn);
+
+            // Add text
+            const textEl = document.createElement("div");
+            textEl.textContent = content;
+            textEl.style.cssText = `
+                        display: block;
+                        color: #000;
+                        flex: 1;
+                    `;
+
+            flexContainer.appendChild(saveBtn);
+            flexContainer.appendChild(textEl);
+            messageDiv.appendChild(flexContainer);
           }
         } else {
           let processedContent = processTableContent(content);
@@ -1235,6 +1071,7 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
         }
 
         wrapper.appendChild(messageDiv);
+
         messagesDiv.appendChild(wrapper);
 
         if (shouldScroll) {
@@ -1400,8 +1237,8 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
 
           init() {
             // Check if already logged in
-            const token = localStorage.getItem("jwtinjury");
-            const savedEmail = localStorage.getItem("injuryEmail");
+            const token = localStorage.getItem("jwtvehicleloss");
+            const savedEmail = localStorage.getItem("vehicleLossEmail");
             if (token && savedEmail) {
               this.loggedIn = true;
               appState.loggedIn = true;
@@ -1429,7 +1266,7 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
             this.emailChecking = true;
             this.error = "";
             fetch(
-              `${API_BASE_URL}/Injury_Intelligence/verify-email?email=${encodeURIComponent(this.email)}`,
+              `${API_BASE_URL}/Vehicle_Loss_Analyzer/verify-email?email=${encodeURIComponent(this.email)}`,
               {
                 method: "GET",
                 headers: {
@@ -1472,7 +1309,7 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
             data.append("username", this.email);
             data.append("password", "not-used-but-required");
 
-            fetch(`${API_BASE_URL}/Injury_Intelligence/login`, {
+            fetch(`${API_BASE_URL}/Vehicle_Loss_Analyzer/login`, {
               method: "POST",
               headers: {
                 "ngrok-skip-browser-warning": "true",
@@ -1484,8 +1321,8 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
                 return res.json();
               })
               .then((json) => {
-                localStorage.setItem("jwtinjury", json.access_token);
-                localStorage.setItem("injuryEmail", this.email);
+                localStorage.setItem("jwtvehicleloss", json.access_token);
+                localStorage.setItem("vehicleLossEmail", this.email);
                 this.loggedIn = true;
                 appState.loggedIn = true;
                 appState.email = this.email;
@@ -1502,8 +1339,8 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
           },
 
           logout() {
-            localStorage.removeItem("jwtinjury");
-            localStorage.removeItem("injuryEmail");
+            localStorage.removeItem("jwtvehicleloss");
+            localStorage.removeItem("vehicleLossEmail");
             this.loggedIn = false;
             appState.loggedIn = false;
             this.email = "";
@@ -1513,73 +1350,79 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
         };
       }
 
-      function injuryApp() {
+      function vehicleLossApp() {
         return {
           isLoggedIn: false,
           userEmail: "",
 
           init() {
             // Load login state
-            const token = localStorage.getItem("jwtinjury");
-            const email = localStorage.getItem("injuryEmail");
-            console.log("[injuryApp.init] Token:", token, "Email:", email);
+            const token = localStorage.getItem("jwtvehicleloss");
+            const email = localStorage.getItem("vehicleLossEmail");
+            console.log("[vehicleLossApp.init] Token:", token, "Email:", email);
             if (token && email) {
               this.isLoggedIn = true;
               this.userEmail = email;
-              console.log("[injuryApp.init] Set isLoggedIn to true");
+              console.log("[vehicleLossApp.init] Set isLoggedIn to true");
             } else {
               console.log(
-                "[injuryApp.init] No token/email, keeping isLoggedIn false",
+                "[vehicleLossApp.init] No token/email, keeping isLoggedIn false",
               );
             }
 
             // Log current state and element display
-            console.log("[injuryApp.init] Final isLoggedIn:", this.isLoggedIn);
             console.log(
-              "[injuryApp.init] Main app element display:",
-              document.querySelector('[x-data="injuryApp()"]')?.style.display,
+              "[vehicleLossApp.init] Final isLoggedIn:",
+              this.isLoggedIn,
+            );
+            console.log(
+              "[vehicleLossApp.init] Main app element display:",
+              document.querySelector('[x-data="vehicleLossApp()"]')?.style
+                .display,
             );
 
             // Listen for login success
             window.addEventListener("login-success", () => {
               this.isLoggedIn = true;
-              this.userEmail = localStorage.getItem("injuryEmail");
+              this.userEmail = localStorage.getItem("vehicleLossEmail");
               console.log(
-                "[injuryApp] Login success event - isLoggedIn:",
+                "[vehicleLossApp] Login success event - isLoggedIn:",
                 this.isLoggedIn,
               );
             });
 
             // Listen for logout
             window.addEventListener("logout-success", () => {
-              console.log("[injuryApp] Logout success event received");
+              console.log("[vehicleLossApp] Logout success event received");
               this.isLoggedIn = false;
               this.userEmail = "";
               console.log(
-                "[injuryApp] After logout - isLoggedIn:",
+                "[vehicleLossApp] After logout - isLoggedIn:",
                 this.isLoggedIn,
               );
             });
           },
 
           logout() {
-            console.log("[injuryApp.logout] Starting logout");
-            localStorage.removeItem("jwtinjury");
-            localStorage.removeItem("injuryEmail");
-            console.log("[injuryApp.logout] localStorage cleared");
+            console.log("[vehicleLossApp.logout] Starting logout");
+            localStorage.removeItem("jwtvehicleloss");
+            localStorage.removeItem("vehicleLossEmail");
+            console.log("[vehicleLossApp.logout] localStorage cleared");
             // Dispatch logout event for all apps to listen
             window.dispatchEvent(new Event("logout-success"));
-            console.log("[injuryApp.logout] logout-success event dispatched");
+            console.log(
+              "[vehicleLossApp.logout] logout-success event dispatched",
+            );
             // Reset state
             this.isLoggedIn = false;
             this.userEmail = "";
             console.log(
-              "[injuryApp.logout] State reset - isLoggedIn:",
+              "[vehicleLossApp.logout] State reset - isLoggedIn:",
               this.isLoggedIn,
             );
             // Small delay to ensure event is processed
             setTimeout(() => {
-              console.log("[injuryApp.logout] Reloading page");
+              console.log("[vehicleLossApp.logout] Reloading page");
               location.reload();
             }, 100);
           },
@@ -1589,11 +1432,11 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
       // ============ FEATURE 1: ACTIVE USERS COUNT ============
       async function loadActiveUsers() {
         try {
-          const token = localStorage.getItem("jwtinjury");
+          const token = localStorage.getItem("jwtvehicleloss");
           if (!token) return;
 
           const response = await fetch(
-            `${API_BASE_URL}/Injury_Intelligence/active-today`,
+            `${API_BASE_URL}/Vehicle_Loss_Analyzer/active-today`,
             {
               method: "GET",
               headers: {
@@ -1625,7 +1468,7 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
                     (user) => `
                   <div style="
                     padding: 10px 8px;
-                    border-bottom: 1px solid rgba(17, 17, 17, 0.2);
+                    border-bottom: 1px solid #dee2e6;
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
@@ -1691,7 +1534,7 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
         const popover = document.getElementById("active-users-popover");
         const btn = document.getElementById("active-users-btn");
         if (!btn.contains(event.target) && !popover.contains(event.target)) {
-          popover.style.display = "none";
+          popover.classList.remove("open");
         }
       });
 
@@ -1745,18 +1588,18 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
           saveBtn.disabled = true;
           saveBtn.textContent = "Saving...";
           messageDiv.style.display = "block";
-          messageDiv.style.color = "#111111";
+          messageDiv.style.color = "var(--lx-sky)";
           messageDiv.textContent = "Saving...";
 
-          const token = localStorage.getItem("jwtinjury");
+          const token = localStorage.getItem("jwtvehicleloss");
           const payload = new URLSearchParams();
           payload.append("template_name", templateName);
           payload.append("description", templateDesc);
-          payload.append("tags", "injury-intelligence");
+          payload.append("tags", "vehicle-loss-analyzer");
           payload.append("template_text", templateText);
 
           const response = await fetch(
-            `${API_BASE_URL}/Injury_Intelligence/templates`,
+            `${API_BASE_URL}/Vehicle_Loss_Analyzer/templates`,
             {
               method: "POST",
               headers: {
@@ -1769,10 +1612,9 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
 
           if (response.ok) {
             messageDiv.style.color = "#2ecc71";
-            messageDiv.textContent = "? Template saved successfully";
-            // Clear images and links after saving
+            messageDiv.textContent = "✓ Template saved successfully";
+            // Clear images after saving
             uploadedImages = [];
-            imageLinks = [];
             setTimeout(() => {
               closeSaveTemplateModal();
             }, 1500);
@@ -1797,11 +1639,11 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
       // ============ FEATURE 3: LOAD TEMPLATES ============
       async function loadTemplates() {
         try {
-          const token = localStorage.getItem("jwtinjury");
+          const token = localStorage.getItem("jwtvehicleloss");
           if (!token) return;
 
           const response = await fetch(
-            `${API_BASE_URL}/Injury_Intelligence/templates`,
+            `${API_BASE_URL}/Vehicle_Loss_Analyzer/templates`,
             {
               method: "GET",
               headers: {
@@ -1827,7 +1669,7 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
             <div
               style="
                 padding: 12px 8px;
-                border-bottom: 1px solid rgba(17, 17, 17, 0.2);
+                border-bottom: 1px solid #dee2e6;
                 display: flex;
                 justify-content: space-between;
                 align-items: flex-start;
@@ -1835,7 +1677,7 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
                 transition: all 0.2s;
                 border-radius: 0;
               "
-              onmouseover="this.style.background='rgba(17, 17, 17, 0.1)'"
+              onmouseover="this.style.background='rgba(var(--lx-sky-rgb), 0.1)'"
               onmouseout="this.style.background='transparent'"
             >
               <div
@@ -1864,7 +1706,7 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
                 title="Delete template"
                 onmouseover="this.style.background='rgba(231, 76, 60, 0.2)'"
                 onmouseout="this.style.background='none'"
-              >???</button>
+              >🗑️</button>
             </div>
           `,
             )
@@ -1913,7 +1755,6 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
         // Extract text from template
         let textContent = "";
         uploadedImages = [];
-        imageLinks = [];
 
         // Handle different response formats
         if (template.content_parts && Array.isArray(template.content_parts)) {
@@ -1921,8 +1762,6 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
           template.content_parts.forEach((part) => {
             if (part.type === "input_text") {
               textContent += part.text || "";
-            } else if (part.type === "input_image" && part.image_url) {
-              imageLinks.push(part.image_url);
             }
           });
         } else {
@@ -1931,11 +1770,6 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
         }
 
         input.value = textContent;
-
-        // Update attachment indicators if images/links are present
-        if (imageLinks.length > 0) {
-          updateAttachmentIndicators();
-        }
 
         // Close popover
         const popover = document.getElementById("templates-popover");
@@ -1985,14 +1819,14 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
           deleteBtn.disabled = true;
           deleteBtn.textContent = "Deleting...";
           messageDiv.style.display = "block";
-          messageDiv.style.color = "#111111";
+          messageDiv.style.color = "var(--lx-sky)";
           messageDiv.textContent = "Deleting...";
 
-          const token = localStorage.getItem("jwtinjury");
+          const token = localStorage.getItem("jwtvehicleloss");
           if (!token) return;
 
           const response = await fetch(
-            `${API_BASE_URL}/Injury_Intelligence/templates/${templateId}`,
+            `${API_BASE_URL}/Vehicle_Loss_Analyzer/templates/${templateId}`,
             {
               method: "DELETE",
               headers: {
@@ -2004,7 +1838,7 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
 
           if (response.ok) {
             messageDiv.style.color = "#2ecc71";
-            messageDiv.textContent = "? Template deleted successfully";
+            messageDiv.textContent = "✓ Template deleted successfully";
             setTimeout(() => {
               closeDeleteTemplateModal();
               loadTemplates();
@@ -2060,5 +1894,6 @@ The report I generate is a synthetic, data-inspired estimate for preliminary ana
       document.addEventListener("DOMContentLoaded", initializeFeatures);
       window.addEventListener("login-success", initializeFeatures);
     </script>
+    <script defer src="/static/js/common-cursor.js"></script>
   </body>
 </html>

@@ -1,11 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap");
 
 
-      body,
-      html {
+      body, html {
         font-family: "Montserrat", sans-serif;
         background: radial-gradient(circle at top, #ffffff, #ffffff 70%);
-        color: #0d6efd;
+        color: #111111;
       }
 
       /* Scrollbar styling */
@@ -18,17 +17,17 @@
       }
 
       ::-webkit-scrollbar-thumb {
-        background: #0d6efd;
-        border-radius: 5px;
+        background: #111111;
+        border-radius: 0 !important;
       }
 
       ::-webkit-scrollbar-thumb:hover {
-        background: #0d6efd;
+        background: #111111;
       }
 
       /* Firefox scrollbar */
       * {
-        scrollbar-color: #0d6efd #f1f3f5;
+        scrollbar-color: #111111 #f1f3f5;
         scrollbar-width: thin;
       }
 
@@ -43,9 +42,9 @@
       }
       .glass-card {
         background-color: rgba(248, 249, 250, 0.95);
-        border-radius: 16px;
+        border-radius: 0 !important;
         border: 1px solid #dee2e6;
-        box-shadow: 0 8px 32px rgba(13, 110, 253, 0.06);
+        box-shadow: none !important;
         backdrop-filter: blur(10px);
       }
 
@@ -68,9 +67,9 @@
       }
 
       .spinner {
-        border: 4px solid rgba(13, 110, 253, 0.2);
-        border-top: 4px solid #0d6efd;
-        border-radius: 50%;
+        border: 4px solid rgba(17, 17, 17, 0.2);
+        border-top: 4px solid #111111;
+        border-radius: 0 !important;
         width: 50px;
         height: 50px;
         animation: spin 1s linear infinite;
@@ -96,7 +95,7 @@
       .spinner-small {
         border: 2px solid rgba(255, 255, 255, 0.2);
         border-top: 2px solid #ffffff;
-        border-radius: 50%;
+        border-radius: 0 !important;
         width: 16px;
         height: 16px;
         animation: spin 1s linear infinite;
@@ -124,7 +123,7 @@
       .chat-message-bubble {
         max-width: 80%;
         padding: 10px 14px;
-        border-radius: 8px;
+        border-radius: 0 !important;
         font-size: 14px;
         line-height: 1.4;
         word-wrap: break-word;
@@ -145,16 +144,16 @@
         border-top: 1px solid #dee2e6;
         display: flex;
         gap: 8px;
-        border-radius: 0 0 12px 12px;
+        border-radius: 0 !important;
       }
 
       .chat-window-input input,
       .chat-window-input textarea {
         flex: 1;
         padding: 10px 12px;
-        background-color: #0a0a0a;
+        background-color: #f8f9fa;
         border: 1px solid #2b2b2b;
-        border-radius: 6px;
+        border-radius: 0 !important;
         color: #0d6efd;
         font-family: "Montserrat", sans-serif;
         font-size: 14px;
@@ -168,7 +167,7 @@
       .chat-window-input textarea:focus {
         outline: none;
         border-color: #0d6efd;
-        box-shadow: 0 0 8px rgba(13, 110, 253, 0.2);
+        box-shadow: none !important;
       }
 
       /* Analysis content formatting */
@@ -188,7 +187,7 @@
       #explanation-text h2 {
         font-size: 20px;
         color: #0d6efd;
-        border-bottom: 2px solid rgba(13, 110, 253, 0.3);
+        border-bottom: 2px solid rgba(17, 17, 17, 0.3);
         padding-bottom: 8px;
       }
 
@@ -226,16 +225,16 @@
       }
 
       #explanation-text code {
-        background-color: rgba(13, 110, 253, 0.1);
+        background-color: rgba(17, 17, 17, 0.1);
         padding: 2px 6px;
-        border-radius: 4px;
+        border-radius: 0 !important;
         color: #0d6efd;
         font-family: "Courier New", monospace;
         font-size: 14px;
       }
 
       #explanation-text blockquote {
-        border-left: 4px solid #0d6efd;
+        border-left: 4px solid #111111;
         margin-left: 0;
         padding-left: 16px;
         color: #b0b0b0;
@@ -245,9 +244,9 @@
       /* Analysis bubble styling for chat */
       .analysis-bubble {
         background-color: rgba(248, 249, 250, 0.95);
-        border-left: 4px solid #0d6efd;
+        border-left: 4px solid #111111;
         padding: 16px;
-        border-radius: 8px;
+        border-radius: 0 !important;
         max-width: 100%;
         width: 100%;
       }
@@ -268,7 +267,7 @@
       .analysis-bubble h2 {
         font-size: 18px;
         color: #0d6efd;
-        border-bottom: 2px solid rgba(13, 110, 253, 0.3);
+        border-bottom: 2px solid rgba(17, 17, 17, 0.3);
         padding-bottom: 8px;
       }
 
@@ -306,16 +305,16 @@
       }
 
       .analysis-bubble code {
-        background-color: rgba(13, 110, 253, 0.1);
+        background-color: rgba(17, 17, 17, 0.1);
         padding: 2px 6px;
-        border-radius: 4px;
+        border-radius: 0 !important;
         color: #0d6efd;
         font-family: "Courier New", monospace;
         font-size: 14px;
       }
 
       .analysis-bubble blockquote {
-        border-left: 4px solid #0d6efd;
+        border-left: 4px solid #111111;
         margin-left: 0;
         padding-left: 16px;
         color: #b0b0b0;
@@ -346,7 +345,7 @@
       .chat-message-bubble {
         max-width: 80%;
         padding: 10px 14px;
-        border-radius: 8px;
+        border-radius: 0 !important;
         font-size: 14px;
         line-height: 1.4;
         word-wrap: break-word;
@@ -367,16 +366,16 @@
         border-top: 1px solid #dee2e6;
         display: flex;
         gap: 8px;
-        border-radius: 0 0 12px 12px;
+        border-radius: 0 !important;
       }
 
       .chat-window-input input,
       .chat-window-input textarea {
         flex: 1;
         padding: 10px 12px;
-        background-color: #0a0a0a;
+        background-color: #f8f9fa;
         border: 1px solid #2b2b2b;
-        border-radius: 6px;
+        border-radius: 0 !important;
         color: #0d6efd;
         font-family: "Montserrat", sans-serif;
         font-size: 14px;
@@ -390,7 +389,7 @@
       .chat-window-input textarea:focus {
         outline: none;
         border-color: #0d6efd;
-        box-shadow: 0 0 8px rgba(13, 110, 253, 0.2);
+        box-shadow: none !important;
       }
 
       .chat-window-input button {
@@ -398,7 +397,7 @@
         background-color: #0d6efd;
         color: #ffffff;
         border: none;
-        border-radius: 6px;
+        border-radius: 0 !important;
         cursor: pointer;
         font-weight: 600;
         transition: background-color 0.2s;
@@ -415,7 +414,7 @@
       /* Expandable message styles */
       .expandable-message {
         background-color: #2b2b2b;
-        border-radius: 8px;
+        border-radius: 0 !important;
         padding: 12px;
         margin-bottom: 8px;
         cursor: pointer;
@@ -470,7 +469,7 @@
       .scoring-item {
         margin-bottom: 12px;
         padding-left: 10px;
-        border-left: 3px solid #0d6efd;
+        border-left: 3px solid #111111;
       }
 
       .scoring-item-title {
@@ -508,18 +507,18 @@
       .progress-bar-container {
         flex: 1;
         height: 6px;
-        background-color: rgba(13, 110, 253, 0.1);
-        border-radius: 3px;
+        background-color: rgba(17, 17, 17, 0.1);
+        border-radius: 0 !important;
         overflow: hidden;
       }
 
       .progress-bar-fill {
         height: 100%;
-        background: linear-gradient(90deg, #0d6efd, #0d6efd);
+        background: linear-gradient(90deg, #111111, #111111);
         width: 0%;
         transition: width 0.3s ease;
-        border-radius: 3px;
-        box-shadow: 0 0 10px rgba(13, 110, 253, 0.5);
+        border-radius: 0 !important;
+        box-shadow: none !important;
       }
 
       .progress-bar-fill.complete {
@@ -555,7 +554,7 @@
         font-weight: 500;
         min-height: 20px;
         white-space: nowrap;
-        border-right: 2px solid #0d6efd;
+        border-right: 2px solid #111111;
         animation: blink 0.7s infinite;
         letter-spacing: 0.05em;
       }
@@ -589,8 +588,8 @@
       }
 
       .login-logo-section img {
-        width: 80px;
-        height: 80px;
+        width: 120px;
+        /* height: 80px; */
         margin-bottom: 2rem;
         display: inline-block;
       }
@@ -612,9 +611,9 @@
       .login-form-card {
         background-color: #f1f3f5;
         border: 1px solid #dee2e6;
-        border-radius: 12px;
+        border-radius: 0 !important;
         padding: 2.5rem;
-        box-shadow: 0 8px 32px rgba(255, 255, 255, 0.5);
+        box-shadow: none !important;
       }
 
       .login-form-card h2 {
@@ -646,7 +645,7 @@
         background-color: #ffffff;
         color: #0d6efd;
         border: 1px solid #ced4da;
-        border-radius: 6px;
+        border-radius: 0 !important;
         font-family: "Montserrat", sans-serif;
         transition: border-color 0.3s ease;
       }
@@ -654,11 +653,11 @@
       .login-form-group input[type="email"]:focus {
         outline: none;
         border-color: #0d6efd;
-        box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.1);
+        box-shadow: none !important;
       }
 
       .login-form-group input[type="email"]::placeholder {
-        color: #666;
+        color: #9ca3af;
       }
 
       .login-email-status {
@@ -678,7 +677,7 @@
         display: inline-block;
         width: 16px;
         height: 16px;
-        border-radius: 50%;
+        border-radius: 0 !important;
         margin-right: 0.5rem;
       }
 
@@ -700,7 +699,7 @@
         background-color: rgba(231, 76, 60, 0.1);
         border: 1px solid rgba(231, 76, 60, 0.3);
         padding: 0.75rem 1rem;
-        border-radius: 6px;
+        border-radius: 0 !important;
         margin-bottom: 1.5rem;
         font-size: 0.9rem;
         text-align: center;
@@ -714,7 +713,7 @@
         background-color: #0d6efd;
         color: #ffffff;
         border: none;
-        border-radius: 6px;
+        border-radius: 0 !important;
         cursor: pointer;
         transition: all 0.3s ease;
         text-transform: uppercase;
@@ -723,11 +722,11 @@
 
       .login-btn:hover:not(:disabled) {
         background-color: #0d6efd;
-        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+        box-shadow: none !important;
       }
 
       .login-btn:disabled {
-        background-color: #666;
+        background-color: #9ca3af;
         cursor: not-allowed;
         opacity: 0.6;
       }
@@ -775,7 +774,7 @@ font-size: 20px !important;
 .main_tl_st button{
     gap: 4px !important;
     padding: 10px 10px !important;
-    border-radius: 4px !important;
+    border-radius: 0 !important;
     font-weight: 600 !important;
     font-size: 12px !important;
 }
@@ -788,16 +787,16 @@ font-size: 20px !important;
 
       #templates-popover::-webkit-scrollbar-track {
         background: rgba(255, 255, 255, 0.4);
-        border-radius: 10px;
+        border-radius: 0 !important;
       }
 
       #templates-popover::-webkit-scrollbar-thumb {
-        background: #0d6efd;
-        border-radius: 10px;
+        background: #111111;
+        border-radius: 0 !important;
       }
 
       #templates-popover::-webkit-scrollbar-thumb:hover {
-        background: #0d6efd;
+        background: #111111;
       }
 
       /* Scrollbar styling for active users popover */
@@ -807,16 +806,16 @@ font-size: 20px !important;
 
       #active-users-popover::-webkit-scrollbar-track {
         background: rgba(255, 255, 255, 0.4);
-        border-radius: 10px;
+        border-radius: 0 !important;
       }
 
       #active-users-popover::-webkit-scrollbar-thumb {
-        background: #0d6efd;
-        border-radius: 10px;
+        background: #111111;
+        border-radius: 0 !important;
       }
 
       #active-users-popover::-webkit-scrollbar-thumb:hover {
-        background: #0d6efd;
+        background: #111111;
       }
         textarea{
         overflow: auto !important;
@@ -868,134 +867,134 @@ div#active-users-popover {
 }
 
 
-/* Global Font & Color Overrides */
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap");
-
-body, html, p, span, div, li, td, th {
+/* ====================================================
+   GLOBAL NORMALIZATION - Consistent UI across panels
+   ==================================================== */
+body, html {
     font-family: "Montserrat", sans-serif !important;
-    color: #111111;
-}
-
-input, textarea, select, .form-control, input[type="text"], input[type="email"], input[type="file"] {
-    background-color: #ffffff !important;
+    font-size: 14px !important;
     color: #111111 !important;
-    border: 1px solid #dee2e6 !important;
-    font-family: "Montserrat", sans-serif !important;
+    background-color: #f8f9fa !important;
+}
+h1 { font-family: "Cormorant Garamond", serif !important; font-size: 2rem !important; font-weight: 700 !important; color: #0d6efd; text-shadow: none !important; }
+h2 { font-family: "Cormorant Garamond", serif !important; font-size: 1.5rem !important; font-weight: 700 !important; color: #0d6efd; text-shadow: none !important; }
+h3 { font-family: "Cormorant Garamond", serif !important; font-size: 1.2rem !important; font-weight: 600 !important; color: #0d6efd; text-shadow: none !important; }
+h4, h5, h6 { font-family: "Cormorant Garamond", serif !important; font-size: 1rem !important; font-weight: 600 !important; color: #0d6efd; text-shadow: none !important; }
+label, .form-label, .billing-label { font-family: "Montserrat", sans-serif !important; font-size: 13px !important; font-weight: 600 !important; color: #111111 !important; display: block !important; margin-bottom: 8px !important; }
+p, li, td, th, span, div { font-family: "Montserrat", sans-serif !important; font-size: 14px !important; color: #111111; }
+.logo, img.logo, .header-logo, .topbar-logo img, .app-header img, header img {
+    filter: none !important; max-height: 48px !important; width: auto !important; object-fit: contain !important;
 }
 
-input::placeholder, textarea::placeholder {
-    color: #6c757d !important;
-}
 
-label, .billing-label {
-    font-family: "Montserrat", sans-serif !important;
-    color: #111111 !important;
-    font-weight: 600;
-}
-
-h1, h2, h3, h4, h5, h6, .card-title, .header-title h1, .topbar-logo span {
-    font-family: "Cormorant Garamond", serif !important;
-    color: #0d6efd !important;
-}
-
-button, .btn, .btn-primary, .dark-theme-btn-primary, .login-btn, .send-btn {
-    font-family: "Montserrat", sans-serif !important;
-    background: linear-gradient(135deg, #0d6efd, #0b5ed7) !important;
-    color: #ffffff !important;
-    border: 2px solid rgba(13, 110, 253, 0.6) !important;
-    border-radius: 6px !important;
-    font-weight: bold !important;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    box-shadow: 0 0 18px rgba(13, 110, 253, 0.6) !important;
-    transition: 0.25s ease-in-out !important;
-}
-
-button:hover:not(:disabled), .btn:hover:not(:disabled), .btn-primary:hover:not(:disabled), .dark-theme-btn-primary:hover:not(:disabled), .login-btn:hover:not(:disabled), .send-btn:hover:not(:disabled) {
-    background: linear-gradient(135deg, #0b5ed7, #0a58ca) !important;
-    box-shadow: 0 0 28px rgba(13, 110, 253, 0.9) !important;
-    transform: translateY(-2px) !important;
-}
-
-button:disabled, .btn:disabled, .btn-primary:disabled {
-    background: #cccccc !important;
-    color: #666666 !important;
-    border-color: #bbbbbb !important;
+/* Icon Buttons Reset - Ensuring visibility */
+#upload-btn, 
+#templates-btn, 
+#templates-btn-initial,
+.upload-icon-btn,
+.menu-icon-btn {
+    background: transparent !important;
+    border: none !important;
     box-shadow: none !important;
-    cursor: not-allowed !important;
+    padding: 8px !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #111111 !important;
     transform: none !important;
 }
 
-a {
-    color: #0d6efd !important;
-    font-family: "Montserrat", sans-serif;
-    text-decoration: none;
+#upload-btn:hover, #templates-btn:hover, #templates-btn-initial:hover {
+    background: rgba(17, 17, 17, 0.1) !important;
 }
-
-a:hover {
-    color: #0b5ed7 !important;
+/* 
+button:hover:not(:disabled), .btn:hover:not(:disabled), .login-btn:hover:not(:disabled), #process-btn:hover {
+    background: linear-gradient(135deg, #000000, #0a58ca) !important;
+    box-shadow: none !important;
+    transform: translateY(-2px) !important;
+} */
+button:disabled, .btn:disabled { background: #e0e0e0 !important; color: #6c757d !important; box-shadow: none !important; cursor: not-allowed !important; transform: none !important; }
+input[type="text"], input[type="email"], input[type="password"], input[type="file"], textarea, select, .form-control {
+    font-family: "Montserrat", sans-serif !important; font-size: 14px !important;
+    color: #111111 !important; background-color: #ffffff !important;
+    border: 1.5px solid #dee2e6 !important; border-radius: 0 !important; padding: 10px 14px !important;
 }
-
-.card, .glass-panel, .dark-theme-card, .login-form-card, .item-card {
-    background: #ffffff !important;
-    border: 1px solid #dee2e6 !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05) !important;
+input::placeholder, textarea::placeholder { color: #9ca3af !important; font-size: 13px !important; }
+input:focus, textarea:focus, select:focus, .form-control:focus {
+    border-color: #111111 !important; box-shadow: none !important; outline: none !important;
+}
+.card, .glass-panel, .dark-theme-card, .login-form-card, .item-card, .selected-files-card, .glass-card {
+    background: #ffffff !important; border: 1.5px solid #dee2e6 !important;
+    border-radius: 0 !important; 
+    box-shadow: none !important;
     color: #111111 !important;
 }
-
-
-/* Card Design Overrides - Flat, clean border */
-.card,
-.dark-theme-card,
-.glass-panel,
-.login-form-card,
-.item-card,
-.selected-files-card,
-[class*="card"] {
-    border-radius: 3px !important;
-    border: 1px solid #dee2e6 !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
-    background: #ffffff !important;
+.card-number, .card-icon, .card-title, .card-desc, .card-arrow, .grid > a.card > * {
+    border: none !important; box-shadow: none !important; background: transparent !important;
 }
+.login-page-content { max-width: 480px !important; width: 100% !important; margin: 0 auto !important; padding: 2rem !important; }
+.login-form-card { padding: 2rem !important; max-width: 480px !important; width: 100% !important; }
+.login-form-card h2 { font-size: 1.6rem !important; }
+.header-bar, .app-header { padding: 14px 24px !important; border-bottom: 1.5px solid #dee2e6 !important; background: #ffffff !important; box-shadow: none !important; }
+.card-header { font-size: 14px !important; font-weight: 600 !important; padding: 12px 16px !important; border-bottom: 1px solid #dee2e6 !important; background: #f8f9fa !important; color: #111111 !important; border-radius: 0 !important; }
+* { text-shadow: none !important; box-shadow: none !important; }
 
-.card-header,
-.dark-theme-card .card-header,
-.chat-window-header {
-    border-radius: 3px 3px 0 0 !important;
-    border-bottom: 1px solid #dee2e6 !important;
-    background: #f8f9fa !important;
-}
-
-.menu-popover,
-.active_user_popover_style,
-.active_user {
-    border-radius: 3px !important;
-    border: 1px solid #dee2e6 !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
-    background: #ffffff !important;
-}
-
-/* Inputs: clean borders, readable text */
-input[type="text"],
-input[type="email"],
-input[type="file"],
-input[type="password"],
-textarea,
-select,
-.form-control {
-    border-radius: 3px !important;
-    border: 1px solid #dee2e6 !important;
-    background: #ffffff !important;
-    color: #111111 !important;
+button, .btn, .btn-primary, .login-btn, .send-btn, #process-btn, #upload-new-files-btn, .start-btn, .new-chat-btn {
+    background-color: #0d6efd !important;
+    background: #0d6efd !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
     font-family: "Montserrat", sans-serif !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    cursor: pointer !important;
+}
+button:hover, .btn:hover {
+    background-color: #0b5ed7 !important;
+    background: #0b5ed7 !important;
+    box-shadow: none !important;
+    transform: none !important;
 }
 
-input[type="text"]:focus,
-input[type="email"]:focus,
-textarea:focus,
-select:focus,
-.form-control:focus {
-    border-color: #0d6efd !important;
-    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15) !important;
-    outline: none !important;
+
+/* FINAL THEME ENFORCEMENT */
+button, .btn, .btn-primary, .login-btn, .send-btn, #process-btn, #upload-new-files-btn, .start-btn, .new-chat-btn { background-color: #0d6efd !important; background: #0d6efd !important; color: #ffffff !important; border: none !important; border-radius: 0 !important; box-shadow: none !important; text-shadow: none !important; font-family: "Montserrat", sans-serif !important; font-weight: 600 !important; text-transform: uppercase !important; cursor: pointer !important; padding: 10px 24px !important; transition: background-color 0.2s !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important; }
+button:hover, .btn:hover { background-color: #0b5ed7 !important; background: #0b5ed7 !important; transform: none !important; box-shadow: none !important; }
+button:disabled, .btn:disabled { background: #e0e0e0 !important; color: #6c757d !important; cursor: not-allowed !important; }
+
+
+/* ULTIMATE THEME ENFORCEMENT */
+button, .btn, .btn-primary, .login-btn, .send-btn, #process-btn, #upload-new-files-btn, .start-btn, .new-chat-btn, .dark-theme-btn-primary { background-color: #0d6efd !important; background: #0d6efd !important; color: #ffffff !important; border: none !important; border-radius: 0 !important; box-shadow: none !important; text-shadow: none !important; font-family: "Montserrat", sans-serif !important; font-weight: 600 !important; text-transform: uppercase !important; cursor: pointer !important; padding: 10px 24px !important; transition: none !important; }
+button:hover, .btn:hover, .btn-primary:hover, .login-btn:hover, .send-btn:hover, #process-btn:hover, #upload-new-files-btn:hover, .start-btn:hover, .new-chat-btn:hover, .dark-theme-btn-primary:hover { background-color: #0b5ed7 !important; background: #0b5ed7 !important; box-shadow: none !important; transform: none !important; border: none !important; }
+button:disabled, .btn:disabled, .btn-primary:disabled, .login-btn:disabled, .send-btn:disabled, #process-btn:disabled, #upload-new-files-btn:disabled, .start-btn:disabled, .new-chat-btn:disabled, .dark-theme-btn-primary:disabled { background: #e0e0e0 !important; color: #6c757d !important; cursor: not-allowed !important; opacity: 1 !important; }
+
+
+/* ULTIMATE THEME ENFORCEMENT */
+button, .btn, .btn-primary, .login-btn, .send-btn, #process-btn, #upload-new-files-btn, .start-btn, .new-chat-btn, .dark-theme-btn-primary { background-color: #0d6efd !important; background: #0d6efd !important; color: #ffffff !important; border: none !important; border-radius: 0 !important; box-shadow: none !important; text-shadow: none !important; font-family: "Montserrat", sans-serif !important; font-weight: 600 !important; text-transform: uppercase !important; cursor: pointer !important; padding: 10px 24px !important; transition: none !important; }
+button:hover, .btn:hover, .btn-primary:hover, .login-btn:hover, .send-btn:hover, #process-btn:hover, #upload-new-files-btn:hover, .start-btn:hover, .new-chat-btn:hover, .dark-theme-btn-primary:hover { background-color: #0b5ed7 !important; background: #0b5ed7 !important; box-shadow: none !important; transform: none !important; border: none !important; }
+button:disabled, .btn:disabled, .btn-primary:disabled, .login-btn:disabled, .send-btn:disabled, #process-btn:disabled, #upload-new-files-btn:disabled, .start-btn:disabled, .new-chat-btn:disabled, .dark-theme-btn-primary:disabled { background: #e0e0e0 !important; color: #6c757d !important; cursor: not-allowed !important; opacity: 1 !important; }
+
+/* KILL ALL GRADIENTS ON HOVER */
+button:hover, 
+.btn:hover, 
+.btn-primary:hover, 
+.login-btn:hover, 
+.send-btn:hover, 
+#process-btn:hover, 
+#upload-new-files-btn:hover, 
+.start-btn:hover, 
+.new-chat-btn:hover, 
+.dark-theme-btn-primary:hover {
+    background-color: #0b5ed7 !important;
+    background: #0b5ed7 !important;
+    background-image: none !important;
+    filter: none !important;
+    box-shadow: none !important;
+    transform: none !important;
 }

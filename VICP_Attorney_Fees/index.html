@@ -1,0 +1,2914 @@
+<!DOCTYPE html>
+<html lang="en" class="hub-panel-cursor">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VICP Attorney Fees</title>
+  <link rel="icon" type="image/webp"
+    href="/Designer.png" />
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="/static/css/common-theme.css" />
+
+ <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+  
+  
+
+  <!-- Login Page -->
+  <div id="login-page-wrapper" class="login-page-wrapper" x-data="loginApp()">
+    <div class="login-page-content">
+      <div class="login-logo-section">
+        <h1>VICP Attorney Tab</h1>
+        <p>Professional Legal Case Analysis Platform</p>
+      </div>
+      <div class="login-form-card">
+        <h2>LOGIN</h2>
+        <div x-show="error" class="login-error-message" x-text="error"></div>
+        <form @submit.prevent="login()">
+          <div class="login-form-group">
+            <label for="login-email">Email Address</label>
+            <input type="email" id="login-email" x-model="email" @input.debounce.500="verifyEmail()"
+              @keydown.enter="emailValid && login()" placeholder="Enter your email" required />
+            <div class="login-email-status" :class="{ visible: emailChecking || emailValid !== null }">
+              <span class="status-icon" :class="emailChecking ? 'checking' : (emailValid ? 'valid' : 'invalid')"></span>
+              <span x-text="emailChecking ? 'Checking...' : (emailValid ? 'Email verified' : 'Email not found')"></span>
+            </div>
+          </div>
+          <button type="submit" class="login-btn" :disabled="emailValid !== true || loggingIn">
+            <span x-show="!loggingIn">LOGIN</span>
+            <span x-show="loggingIn" class="login-btn-spinner">
+              <span class="spinner"></span>
+              Logging in...
+            </span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App Container -->
+  <div id="main-app-wrapper" class="app-container" x-data="vicpApp()" style="display: none">
+    <!-- Save Template Modal -->
+    <div id="save-template-modal" style="
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: #ffffff;
+          display: none;
+          align-items: center;
+          justify-content: center;
+          z-index: 2000;
+        " onclick="event.target.id === 'save-template-modal' && closeSaveTemplateModal()">
+      <div style="
+          background: #ffffff;
+          border: 1px solid rgba(var(--lx-sky-rgb), 0.4);
+          border-radius: 0;
+          padding: 32px;
+          max-width: 500px;
+          width: 90%;
+          box-shadow: none;
+        ">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <h2 style="color: #0d6efd; font-size: 20px; font-weight: 700; margin: 0;">Save as Template</h2>
+          <button onclick="closeSaveTemplateModal()" style="
+                background: none;
+                border: none;
+                color: #6c757d;
+                font-size: 24px;
+                cursor: pointer;
+                padding: 0;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              ">×</button>
+        </div>
+        <p style="color: var(--lx-text-muted); margin: 0 0 20px 0; font-size: 14px;">Save this message as a template for future use</p>
+        <form onsubmit="saveMsgAsTemplate(event)" style="display: flex; flex-direction: column; gap: 16px;">
+          <div>
+            <label
+              style="display: block; color: #0d6efd; font-size: 13px; font-weight: 600; margin-bottom: 8px;">Template
+              Name *</label>
+            <input id="template-name-input" type="text" placeholder="e.g., Demand Letter v1" required style="
+                  width: 100%;
+                  padding: 10px 12px;
+                  background: #ffffff;
+                  border: 1px solid #dee2e6;
+                  border-radius: 0;
+                  color: #0d6efd;
+                  font-family: var(--lx-font-body), sans-serif;
+                  font-size: 14px;
+                  transition: all 0.3s;
+                " onfocus="this.style.borderColor='rgba(13, 110, 253, 0.6)'"
+              onblur="this.style.borderColor='rgba(13, 110, 253, 0.3)'" />
+          </div>
+          <div>
+            <label
+              style="display: block; color: #0d6efd; font-size: 13px; font-weight: 600; margin-bottom: 8px;">Description
+              *</label>
+            <textarea id="template-description-input" placeholder="Brief description of this template" required style="
+                  width: 100%;
+                  padding: 10px 12px;
+                  background: #ffffff;
+                  border: 1px solid #dee2e6;
+                  border-radius: 0;
+                  color: #0d6efd;
+                  font-family: var(--lx-font-body), sans-serif;
+                  font-size: 14px;
+                  resize: vertical;
+                  min-height: 80px;
+                  transition: all 0.3s;
+                " onfocus="this.style.borderColor='rgba(13, 110, 253, 0.6)'"
+              onblur="this.style.borderColor='rgba(13, 110, 253, 0.3)'"></textarea>
+          </div>
+          <div id="template-modal-message" style="font-size: 14px; text-align: center; display: none;"></div>
+          <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px;">
+            <button type="button" onclick="closeSaveTemplateModal()" style="
+                  background: rgba(var(--lx-sky-rgb), 0.1);
+                  color: #0d6efd;
+                  border: 1px solid #dee2e6;
+                  padding: 10px 20px;
+                  border-radius: 0;
+                  font-weight: 600;
+                  cursor: pointer;
+                  transition: all 0.3s;
+                  font-size: 14px;
+                ">Cancel</button>
+            <button id="save-template-btn" type="submit" style="
+                  background: #0d6efd;
+                  color: #0d6efd;
+                  border: none;
+                  padding: 10px 20px;
+                  border-radius: 0;
+                  font-weight: 700;
+                  cursor: pointer;
+                  transition: all 0.3s;
+                  font-size: 14px;
+                ">Save Template</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Delete Template Confirmation Modal -->
+    <div id="delete-template-modal" style="
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: #ffffff;
+          display: none;
+          align-items: center;
+          justify-content: center;
+          z-index: 2000;
+        " onclick="event.target.id === 'delete-template-modal' && closeDeleteTemplateModal()">
+      <div style="
+          background: #ffffff;
+          border: 1px solid rgba(var(--lx-sky-rgb), 0.4);
+          border-radius: 0;
+          padding: 32px;
+          max-width: 400px;
+          width: 90%;
+          box-shadow: none;
+        ">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <h2 style="color: #0d6efd; font-size: 20px; font-weight: 700; margin: 0;">Delete Template</h2>
+          <button onclick="closeDeleteTemplateModal()" style="
+                background: none;
+                border: none;
+                color: #6c757d;
+                font-size: 24px;
+                cursor: pointer;
+                padding: 0;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              ">×</button>
+        </div>
+        <p style="color: #6c757d; margin: 0 0 24px 0; font-size: 14px;">Are you sure you want to delete this template? This
+          action cannot be undone.</p>
+        <div id="delete-template-message"
+          style="font-size: 14px; text-align: center; margin-bottom: 20px; display: none;"></div>
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+          <button type="button" onclick="closeDeleteTemplateModal()" style="
+                background: rgba(var(--lx-sky-rgb), 0.1);
+                color: #0d6efd;
+                border: 1px solid #dee2e6;
+                padding: 10px 20px;
+                border-radius: 0;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s;
+                font-size: 14px;
+              ">Cancel</button>
+          <button id="confirm-delete-btn" type="button" onclick="confirmDeleteTemplate()" style="
+                background: #e74c3c;
+                color: #0d6efd;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 0;
+                font-weight: 700;
+                cursor: pointer;
+                transition: all 0.3s;
+                font-size: 14px;
+              ">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-header">
+      <div class="header-left">
+        <img   src="/Designer.png"
+            alt="logo-img" class="logo" />
+        <div class="header-title">
+          <h1>VICP ATTORNEY FEES</h1>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <p>AI-Powered Case Analysis</p>
+            <!-- Active Users Count -->
+            <button id="active-users-btn" style="
+                  display: flex;
+                  align-items: center;
+                  gap: 6px;
+                  background: none;
+                  border: none;
+                  cursor: pointer;
+                  padding: 4px 10px;
+                  border-radius: 0;
+                  transition: all 0.3s;
+                  color: #0d6efd;
+                  font-size: 12px;
+                  font-weight: 600;
+                " onclick="toggleActiveUsersPopover()" title="Active users on this tool">
+              <span style="
+                  display: inline-block;
+                  width: 8px;
+                  height: 8px;
+                  background: #2ecc71;
+                  border-radius: 0;
+                  box-shadow: none;
+                "></span>
+              <span id="active-count">0</span>
+              <span style="margin-left: 4px;">Users</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="header-right" style="display: flex; align-items: center; gap: 16px;">
+        <button class="new-chat-btn" @click="currentView = currentView === 'chat' ? 'ledger' : 'chat'"
+          style="display: flex; align-items: center; gap: 8px; background-color: #0d6efd; color: #0d6efd; border: none; padding: 10px 16px; border-radius: 0; font-weight: 600; cursor: pointer; font-size: 14px;">
+          <span x-text="currentView === 'chat' ? 'View Ledger' : 'Back to Chat'"></span>
+        </button>
+
+        <button class="new-chat-btn" @click="currentView = 'upload_ledger'" x-show="currentView === 'chat'"
+          style="display: flex; align-items: center; gap: 8px; background-color: #0d6efd; color: #0d6efd; border: none; padding: 10px 16px; border-radius: 0; font-weight: 600; cursor: pointer; font-size: 14px;">
+          <span>View Summary ledger</span>
+        </button>
+
+        <!-- NEW CHAT BUTTON -->
+        <!-- NEW CHAT BUTTON -->
+        <button class="new-chat-btn" onclick="startNewChat()"
+          :style="currentView === 'chat' ? 'display:flex; flex-direction:row; align-items:center; gap:8px;' : 'display:none;'"
+          style="background-color: #0d6efd; color: #0d6efd; border: 1px solid var(--lx-sky); padding: 10px 16px; border-radius: 0; font-weight: 600; cursor: pointer; font-size: 14px; white-space: nowrap; flex-shrink: 0;"
+          title="Start a new conversation">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round"
+            style="display:inline-block; vertical-align:middle; flex-shrink:0;">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span style="display:inline-block; vertical-align:middle; line-height:1;">NEW CHAT</span>
+        </button>
+
+        <!-- MENU ICON -->
+        <button style="background: none; border: none; cursor: pointer; padding: 8px; position: relative;"
+          onclick="toggleUserMenu()" title="User menu" x-show="currentView === 'chat'">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--lx-sky)" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="6" x2="20" y2="6"></line>
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="4" y1="18" x2="20" y2="18"></line>
+          </svg>
+        </button>
+
+        <!-- USER MENU POPOVER -->
+        <div id="user-menu-popover" style="
+              position: absolute;
+              top: 70px;
+              right: 20px;
+              background-color: #0d6efd;
+              border: 1px solid #dee2e6;
+              border-radius: 0;
+              padding: 12px;
+              min-width: 200px;
+              display: none;
+              z-index: 1000;
+              box-shadow: none;
+            ">
+          <div
+            style="padding: 8px 12px; border-bottom: 1px solid #444; margin-bottom: 8px; color: #6c757d; font-size: 13px;">
+            <span x-text="userEmail"></span>
+          </div>
+          <button onclick="logout()" style="
+                width: 100%;
+                padding: 10px 12px;
+                background-color: #0d6efd;
+                color: #0d6efd;
+                border: none;
+                border-radius: 0;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 14px;
+              ">
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-container view-container" :class="{ 'active': currentView === 'chat' }">
+      <div class="chat-messages" id="chat-messages">
+        <div class="empty-state">
+          <div class="empty-state-icon">⚖️</div>
+          <h2>Welcome to VICP Case Analysis</h2>
+          <p>Start by describing your injury case details</p>
+          <div class="hint">
+            Include: Year of injury • Injury Type • Paralegal hours
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEW UPLOAD LEDGER VIEW -->
+    <div class="view-container" :class="{ 'active': currentView === 'upload_ledger' }"
+      style="padding: 24px; gap: 24px; overflow-y: auto;">
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+
+        <!-- Ledger File History -->
+        <div class="glass-panel" style="display: flex; flex-direction: column; overflow: hidden; margin-bottom: 24px;">
+          <div class="filter-bar"
+            style="background: rgba(var(--lx-sky-rgb), 0.05); border-bottom: 1px solid rgba(var(--lx-sky-rgb), 0.1);">
+            <h3
+              style="color: #0d6efd; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">
+              Ledger File History</h3>
+            <button @click="showUploadFileModal = true"
+              style="margin-left: auto; background: rgba(241,196,15,0.15); color: #0d6efd; border: 1px solid rgba(241,196,15,0.4); padding: 7px 16px; border-radius: 0; font-size: 12px; font-weight: 600; cursor: pointer; letter-spacing: 0.5px;">
+              Upload file</button>
+          </div>
+          <div class="ledger-table-container" style="margin: 0; max-height: 240px; overflow-y: auto; overflow-x: auto;">
+            <div x-show="loadingUploadRuns" style="padding: 40px; text-align: center;">
+              <span class="spinner" style="width: 24px; height: 24px; border-width: 3px;"></span>
+              <p style="margin-top: 12px; color: #0d6efd; font-size: 12px;">Fetching file history...</p>
+            </div>
+
+            <div x-show="!loadingUploadRuns && uploadLedgerRuns.length === 0"
+              style="padding: 40px; text-align: center; color: #9ca3af;">
+              <p style="font-size: 13px;">No previous files found.</p>
+            </div>
+
+            <table class="ledger-table" x-show="!loadingUploadRuns && uploadLedgerRuns.length > 0"
+              style="table-layout: auto; min-width: 1400px; display: block; overflow-x: auto;">
+              <thead style="position: sticky; top: 0; background: #ffffff; z-index: 10;">
+                <tr>
+                  <th style="width: 40px; min-width: 40px;">#</th>
+                  <th style="width: 140px; min-width: 140px;">User Name</th>
+                  <th style="width: 200px; min-width: 200px;">Petition Filename</th>
+                  <th style="width: 200px; min-width: 200px;">Exhibits Filename</th>
+                  <th style="width: 120px; min-width: 120px;">Req. Paralegal Entries</th>
+                  <th style="width: 120px; min-width: 120px;">Gen. Attorney Entries</th>
+                  <th style="width: 120px; min-width: 120px;">Req. Paralegal Hrs</th>
+                  <th style="width: 200px; min-width: 200px;">Summary</th>
+                  <th style="width: 80px; min-width: 80px;">Status</th>
+                  <th style="width: 140px; min-width: 140px;">Created At</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="(run, index) in uploadLedgerRuns" :key="run.run_id">
+                  <tr class="ledger-row" @click="selectUploadRun(run.run_id)"
+                    :style="currentUploadLedgerId === run.run_id ? 'background: rgba(241,196,15,0.12); border-left: 4px solid var(--lx-sky);' : 'cursor: pointer;'">
+                    <td style="font-weight: 600; font-size: 13px; color: #0d6efd; text-align: center;"
+                      x-text="index + 1"></td>
+                    <td style="font-size: 12px; color: #6c757d;" x-text="run.user_email"></td>
+                    <td style="font-size: 12px; color: #0d6efd; font-weight: 500;">
+                      <div style="display: flex; align-items: center; gap: 8px;">
+                        <span x-show="currentUploadLedgerId === run.run_id"
+                          style="color: #0d6efd; font-size: 10px;">▶</span>
+                        <span x-text="run.petition_filename"></span>
+                      </div>
+                    </td>
+                    <td style="font-size: 12px; color: #6c757d;" x-text="run.exhibits_filename"></td>
+                    <td style="font-size: 12px; color: #6c757d; text-align: center;"
+                      x-text="run.paralegal_entries_requested"></td>
+                    <td style="font-size: 12px; color: #6c757d; text-align: center;"
+                      x-text="run.attorney_entries_generated"></td>
+                    <td style="font-size: 12px; color: #6c757d; text-align: center;"
+                      x-text="run.total_paralegal_hours_requested"></td>
+                    <td style="font-size: 12px; color: #6c757d; max-width: 200px;"
+                      :title="run.summary ? JSON.stringify(run.summary) : ''"
+                      x-html="run.summary ? Object.entries(run.summary).map(x => x[0] + ': ' + x[1]).join('<br/>') : ''">
+                    </td>
+                    <td style="font-size: 12px; text-transform: capitalize; font-weight: 600;"
+                      :style="run.status === 'success' ? 'color: #2ecc71;' : 'color: #e74c3c;'" x-text="run.status">
+                    </td>
+                    <td style="font-size: 12px; color: #6c757d;"
+                      x-text="run.created_at ? new Date(run.created_at).toLocaleString() : ''"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+          <!-- Section 2: Upload Ledger Table -->
+          <div class="glass-panel" style="display: flex; flex-direction: column; overflow: hidden;">
+            <div
+              style="padding: 12px 16px; border-bottom: 1px solid rgba(var(--lx-sky-rgb), 0.1); background: rgba(var(--lx-sky-rgb), 0.05);">
+              <h3
+                style="color: #0d6efd; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">
+                Generated file entries</h3>
+            </div>
+            <!-- Filter Bar for Uploads (Only role filter as requested) -->
+            <div class="filter-bar" style="flex-wrap: nowrap; align-items: center; gap: 8px;">
+              <select x-model="uploadFilters.assigned_role" class="filter-select"
+                style="background:#1a1a1a; border:1px solid rgba(241,196,15,0.4); color:var(--lx-sky); padding:6px 8px; border-radius: 0; font-size:12px; font-weight:600; outline:none; cursor:pointer;">
+                <option value="">ALL</option>
+                <option value="paralegal">Paralegal</option>
+                <option value="lead_attorney">Lead Attorney</option>
+              </select>
+            </div>
+
+            <div class="ledger-table-container" style="margin: 0; max-height: 520px; overflow-x: auto;">
+              <div x-show="loadingUploadLedger" style="padding: 80px; text-align: center;">
+                <span class="spinner" style="width: 40px; height: 40px; border-width: 4px;"></span>
+                <p style="margin-top: 16px; color: #0d6efd; font-size: 14px;">Loading Entries...</p>
+              </div>
+
+              <table class="ledger-table" x-show="!loadingUploadLedger" style="table-layout: auto; min-width: 1000px;">
+                <thead>
+                  <tr>
+                    <th style="width: 60px;">#</th>
+                    <th style="width: 120px;">Assigned Role</th>
+                    <th style="width: 320px;">Task</th>
+                    <th style="width: 80px;">Hours</th>
+                    <th style="width: 220px;">Category</th>
+                    <th style="width: 180px;">Created At</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-for="(entry, index) in filteredUploadEntries" :key="entry.id">
+                    <tr class="ledger-row" style="background: transparent;">
+                      <td style="font-weight: 600; font-size: 13px; color: #0d6efd;" x-text="index + 1"></td>
+                      <td style="font-weight: 500; font-size: 12px; color: #6c757d;" x-text="entry.assigned_role"></td>
+                      <td style="color: #0d6efd; font-size: 13px;">
+                        <div x-html="entry.task ? entry.task.replace(/\\n/g, '<br/>') : ''"></div>
+                      </td>
+                      <td style="color: #0d6efd; font-weight: 600; font-size: 13px;" x-text="entry.hours"></td>
+                      <td style="color: #6c757d; font-size: 12px;" x-text="entry.category"></td>
+                      <td style="font-size: 12px; color: #6c757d;"
+                        x-text="entry.created_at ? new Date(entry.created_at).toLocaleString() : ''"></td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- NEW LEDGER VIEW -->
+    <div class="view-container" :class="{ 'active': currentView === 'ledger' }"
+      style="padding: 24px; gap: 24px; overflow-y: auto;">
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+
+
+        <!-- Ledger Runs History -->
+        <div class="glass-panel" style="display: flex; flex-direction: column; overflow: hidden; margin-bottom: 24px;">
+          <div class="filter-bar"
+            style="background: rgba(var(--lx-sky-rgb), 0.05); border-bottom: 1px solid rgba(var(--lx-sky-rgb), 0.1);">
+            <h3
+              style="color: #0d6efd; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">
+              Ledger Run History</h3>
+            <button @click="openUploadModal()"
+              style="margin-left: auto; background: rgba(241,196,15,0.15); color: #0d6efd; border: 1px solid rgba(241,196,15,0.4); padding: 7px 16px; border-radius: 0; font-size: 12px; font-weight: 600; cursor: pointer; letter-spacing: 0.5px;">
+              UPLOAD LEDGER</button>
+          </div>
+          <div class="ledger-table-container" style="margin: 0; max-height: 240px; overflow-y: auto; overflow-x: auto;">
+            <div x-show="loadingRuns" style="padding: 40px; text-align: center;">
+              <span class="spinner" style="width: 24px; height: 24px; border-width: 3px;"></span>
+              <p style="margin-top: 12px; color: #0d6efd; font-size: 12px;">Fetching run history...</p>
+            </div>
+
+            <div x-show="!loadingRuns && ledgerRuns.length === 0"
+              style="padding: 40px; text-align: center; color: #9ca3af;">
+              <p style="font-size: 13px;">No previous runs found.</p>
+            </div>
+
+            <table class="ledger-table" x-show="!loadingRuns && ledgerRuns.length > 0"
+              style="table-layout: auto; min-width: 700px;">
+              <thead style="position: sticky; top: 0; background: #ffffff; z-index: 10;">
+                <tr>
+                  <th style="width: 260px;">User Name</th>
+                  <th style="width: 360px;">Source Filename</th>
+                  <th style="width: 180px;">Created At</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="run in ledgerRuns" :key="run.run_id">
+                  <tr class="ledger-row" @click="selectRun(run.run_id)"
+                    :style="currentLedgerId === run.run_id ? 'background: rgba(241,196,15,0.12); border-left: 4px solid var(--lx-sky);' : 'cursor: pointer;'">
+                    <td style="font-size: 12px; color: #6c757d; padding-left: 20px;" x-text="run.user_email"></td>
+                    <td style="font-size: 12px; color: #0d6efd; font-weight: 500;">
+                      <div style="display: flex; align-items: center; gap: 8px;">
+                        <span x-show="currentLedgerId === run.run_id" style="color: #0d6efd; font-size: 10px;">▶</span>
+                        <span x-text="run.source_filename"></span>
+                      </div>
+                    </td>
+                    <td style="font-size: 12px; color: #6c757d;" x-text="new Date(run.created_at).toLocaleString()"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+          <!-- Main Content Area -->
+          <div class="glass-panel" style="display: flex; flex-direction: column; overflow: hidden;">
+            <!-- Filter Bar -->
+            <div class="filter-bar"
+              style="flex-wrap: nowrap; align-items: center; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--lx-sky)73 #2c2c2c; gap: 8px;">
+              <select class="filter-select" x-model="filters.status" style="flex-shrink:0; cursor: pointer;">
+                <option value="">All Statuses</option>
+                <option value="pending">Pending Review</option>
+                <option value="approved">Approved</option>
+                <option value="edited">Edited</option>
+                <!-- <option value="deleted">Deleted</option> -->
+              </select>
+
+              <button @click="resetFilters()" class="filter-select text-xs"
+                style="flex-shrink:0; cursor: pointer; font-weight: 600; letter-spacing: 0.5px;">
+                Reset
+              </button>
+
+              <!-- Date Sort Selector -->
+              <select class="filter-select" x-model="dateSort" style="flex-shrink:0; cursor: pointer;">
+                <option value="date">Date</option>
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+              </select>
+
+              <!-- this all roles shold show in default workflow also -->
+              <select class="filter-select" x-model="filters.assigned_role" style="flex-shrink:0; cursor: pointer;">
+                <option value="">All Roles</option>
+                <template x-for="val in uniqueAssignedRoles" :key="val">
+                  <option :value="val" x-text="val"></option>
+                </template>
+              </select>
+
+              <!-- Workflow Type Selector -->
+              <select class="filter-select" x-model="workflowType" style="flex-shrink:0; cursor: pointer;"
+                :disabled="!currentLedgerId || loadingWorkflow">
+                <option value="default">Default Workflow</option>
+                <option value="specialized">Specialized Workflow</option>
+              </select>
+
+              <!-- Loading indicator for workflow fetch -->
+              <span x-show="loadingWorkflow"
+                style="flex-shrink:0; display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--lx-sky);">
+                <span class="spinner" style="width:14px; height:14px; border-width:2px;"></span>
+                Loading...
+              </span>
+
+              <!-- Specialized Workflow Filters (dynamic dropdowns) -->
+              <template x-if="workflowType === 'specialized'">
+                <div style="display:flex; gap:8px; align-items:center; flex-shrink:0;">
+                  <select class="filter-select" x-model="filters.sheet_name" style="flex-shrink:0; cursor: pointer;">
+                    <option value="">All Sheets</option>
+                    <template x-for="val in uniqueSheetNames" :key="val">
+                      <option :value="val" x-text="val"></option>
+                    </template>
+                  </select>
+                </div>
+              </template>
+
+              <!-- Right-side actions: always on same row -->
+              <div style="margin-left: auto; display: flex; gap: 8px; flex-shrink:0;">
+                <button x-show="selectedEntries.length > 1" @click="showBulkModal = true"
+                  style="background: rgba(241,196,15,0.15); color: #0d6efd; border: 1px solid rgba(241,196,15,0.4); padding: 7px 16px; border-radius: 0; font-size: 11px; font-weight: 700; cursor: pointer; letter-spacing: 0.5px; transition: all 0.2s; white-space:nowrap;"
+                  @mouseover="$el.style.background='rgba(241,196,15,0.22)'"
+                  @mouseout="$el.style.background='rgba(241,196,15,0.15)'">
+                  BULK APPROVE
+                </button>
+                <button @click="exportLedger()"
+                  style="background: rgba(46,204,113,0.15); color: #2ecc71; border: 1px solid rgba(46,204,113,0.4); padding: 7px 16px; border-radius: 0; font-size: 11px; font-weight: 700; cursor: pointer; letter-spacing: 0.5px; transition: all 0.2s; white-space:nowrap;"
+                  :disabled="!currentLedgerId" @mouseover="$el.style.background='rgba(46,204,113,0.22)'"
+                  @mouseout="$el.style.background='rgba(46,204,113,0.15)'">
+                  EXPORT EXCEL
+                </button>
+              </div>
+            </div>
+
+            <!-- Ledger Table -->
+            <div class="ledger-table-container" style="margin: 0; max-height: 520px; overflow-x: auto;">
+              <div x-show="loadingLedger" style="padding: 80px; text-align: center;">
+                <span class="spinner" style="width: 40px; height: 40px; border-width: 4px;"></span>
+                <p style="margin-top: 16px; color: #0d6efd; font-size: 14px;">Loading Ledger Entries...</p>
+              </div>
+
+              <table class="ledger-table" x-show="!loadingLedger" style="table-layout: auto; min-width: 2500px;">
+                <thead>
+                  <tr>
+                    <th style="width: 40px; text-align: center;">#</th>
+                    <th style="width: 40px;"><input type="checkbox" @change="toggleAllSelection($event)"
+                        style="cursor:pointer;"></th>
+                    <th style="width: 105px;">Date</th>
+                    <th x-show="workflowType === 'default'" style="width: 120px;">Assigned Role</th>
+                    <th style="width: 220px;">Generated Ledger Entry</th>
+                    <th x-show="workflowType === 'specialized'" style="width:120px;">Assigned Staff Code</th>
+                    <th x-show="workflowType === 'specialized'" style="width:120px;">Assigned Role</th>
+                    <th x-show="workflowType === 'specialized'" style="width:120px;">Sheet Name</th>
+                    <th x-show="workflowType === 'specialized'" style="width:120px;">Entry Type</th>
+                    <th x-show="workflowType === 'specialized'" style="width: 220px;">Original Memo</th>
+                    <th style="width: 70px; text-align: center;">Hours</th>
+                    <th style="width: 140px;">Category</th>
+                    <th style="width: 80px; text-align: center;">Source</th>
+                    <th style="width: 120px; text-align: center;">Status</th>
+                    <th style="width: 260px; text-align: center;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Empty state: no ledger loaded at all -->
+                  <template x-if="ledgerEntries.length === 0">
+                    <tr>
+                      <td colspan="10" style="padding: 64px 24px; text-align: center; border: none;">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 14px;">
+                          <div style="font-size: 44px; opacity: 0.35;">📋</div>
+                          <p style="font-size: 15px; font-weight: 600; color: #6c757d; margin: 0;">No Ledger Entries Found
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                  </template>
+
+                  <!-- Empty state: entries exist but active Status filter returns nothing -->
+                  <template x-if="ledgerEntries.length > 0 && filteredEntries.length === 0 && filters.status !== ''">
+                    <tr>
+                      <td colspan="10" style="padding: 64px 24px; text-align: center; border: none;">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 14px;">
+                          <p style="font-size: 15px; font-weight: 600; color: #6c757d; margin: 0;">No Entries Match the
+                            Selected Status</p>
+                          <p style="font-size: 13px; color: #9ca3af; margin: 0;">There are no entries with status <span
+                              style="color:var(--lx-sky); font-weight:700;"
+                              x-text="'&quot;' + filters.status.charAt(0).toUpperCase() + filters.status.slice(1) + '&quot;'"></span>.
+                            Try selecting a different status or reset the filters.</p>
+                        </div>
+                      </td>
+                    </tr>
+                  </template>
+
+                  <!-- Actual data rows -->
+                  <template x-for="(entry, idx) in filteredEntries" :key="entry.id">
+                    <template x-if="true">
+                      <tr class="ledger-row" :class="{ 
+                            'expanded': expandedRows.includes(entry.id),
+                            'row-approved': entry.status === 'approved',
+                            'row-deleted': entry.status === 'deleted'
+                          }" :style="entry.status === 'deleted' ? 'opacity:0.45;' : ''">
+                        <td style="text-align: center; color: #9ca3af; font-size: 12px;" x-text="idx + 1"></td>
+                        <td><input type="checkbox" :value="entry.id" x-model="selectedEntries" style="cursor:pointer;">
+                        </td>
+                        <td style="font-size: 13px; color: #6c757d; white-space: nowrap;" x-text="entry.date"></td>
+                        <td x-show="workflowType === 'default'" style="font-size: 13px; color: #0d6efd;"
+                          x-text="entry.assigned_role"></td>
+                        <td style="font-size: 13px; color: #0d6efd; vertical-align: middle;">
+                          <div
+                            style="display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; white-space: normal; overflow: hidden; text-overflow: ellipsis; line-height: 1.4;"
+                            :title="entry.description" x-text="entry.description"></div>
+                        </td>
+                        </td>
+                        <td x-show="workflowType === 'specialized'"
+                          style="font-size: 13px; color: #f8f8f8; font-weight:600;"
+                          x-text="entry.assigned_staff_code || '—'">
+                        </td>
+                        <td x-show="workflowType === 'specialized'"
+                          style="font-size: 13px; color: #f8f8f8; font-weight:600;" x-text="entry.assigned_role || '—'">
+                        </td>
+                        <td x-show="workflowType === 'specialized'" style="font-size: 13px; color: #f8f8f8; font-weight:600;" x-text="entry.sheet_name || '—'">
+                        </td>
+                        <td x-show="workflowType === 'specialized'" style="font-size: 13px; color: #f8f8f8; font-weight:600;" x-text="entry.entry_type|| '—'">
+                        </td>
+                        <td x-show="workflowType === 'specialized'"
+                          style="font-size: 13px; color: #0d6efd; vertical-align: middle;">
+                          <div
+                            style="display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; white-space: normal; overflow: hidden; text-overflow: ellipsis; line-height: 1.4;"
+                            :title="entry.original_text" x-text="entry.original_text || '—'"></div>
+                        </td>
+                        <td style="text-align: center; font-weight: 700; font-size: 14px; color: #0d6efd;"
+                          x-text="parseFloat(entry.hours).toFixed(1)"></td>
+                        <td>
+                          <span class="cat-pill" :class="'cat-' + entry.category"
+                            x-text="entry.category.replace(/_/g,' ')"></span>
+                        </td>
+                        <td style="text-align: center;">
+                          <span
+                            style="font-size: 10px; padding: 2px 8px; border-radius: 0; background: rgba(255,255,255,0.06); color: #6c757d; text-transform: capitalize;"
+                            x-text="entry.source"></span>
+                        </td>
+                        <td style="text-align: center;">
+                          <span class="status-badge" :class="{
+                              'status-pending': entry.status === 'pending',
+                              'status-approved': entry.status === 'approved',
+                              'status-edited': entry.status === 'edited',
+                              'status-deleted': entry.status === 'deleted'
+                            }"
+                            x-text="entry.status === 'pending' ? 'Pending' : entry.status.charAt(0).toUpperCase() + entry.status.slice(1)"></span>
+                        </td>
+                        <td style="text-align: center;">
+                          <div
+                            style="display: flex; gap: 6px; justify-content: center; align-items: center; flex-wrap: nowrap;">
+                            <button @click="approveEntry(entry.id)"
+                              style="padding: 4px 10px; border-radius: 0; border: 1px solid rgba(46,204,113,0.45); background: rgba(46,204,113,0.1); color: #2ecc71; cursor: pointer; font-size: 11px; font-weight: 600; font-family: inherit; letter-spacing: 0.3px; white-space: nowrap; transition: all 0.2s;"
+                              @mouseover="$el.style.background='rgba(46,204,113,0.22)'"
+                              @mouseout="$el.style.background='rgba(46,204,113,0.1)'">Approve</button>
+                            <button @click="openEditModal(entry)"
+                              style="padding: 4px 10px; border-radius: 0; border: 1px solid rgba(var(--lx-sky-rgb), 0.45); background: rgba(var(--lx-sky-rgb), 0.1); color: #0d6efd; cursor: pointer; font-size: 11px; font-weight: 600; font-family: inherit; letter-spacing: 0.3px; white-space: nowrap; transition: all 0.2s;"
+                              @mouseover="$el.style.background='rgba(13, 110, 253, 0.22)'"
+                              @mouseout="$el.style.background='rgba(13, 110, 253, 0.1)'">Edit</button>
+                            <button @click="openDeleteModal(entry.id)"
+                              style="padding: 4px 10px; border-radius: 0; border: 1px solid rgba(231,76,60,0.45); background: rgba(231,76,60,0.1); color: #e74c3c; cursor: pointer; font-size: 11px; font-weight: 600; font-family: inherit; letter-spacing: 0.3px; white-space: nowrap; transition: all 0.2s;"
+                              @mouseover="$el.style.background='rgba(231,76,60,0.22)'"
+                              @mouseout="$el.style.background='rgba(231,76,60,0.1)'">Delete</button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr x-show="expandedRows.includes(entry.id)" style="background: rgba(0,0,0,0.3);">
+                        <td colspan="10" style="padding: 0; border-bottom: 2px solid rgba(241,196,15,0.15);">
+                          <div class="audit-details" style="border-left: 3px solid var(--lx-sky); margin: 0;">
+                            <div class="audit-section">
+                              <h4>Entry Details</h4>
+                              <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <div style="font-size: 12px;"><span style="color:#666;">Run ID:</span> <span
+                                    class="audit-text" x-text="entry.run_id"></span></div>
+                                <div style="font-size: 12px;"><span style="color:#666;">Created At:</span> <span
+                                    class="audit-text" x-text="entry.created_at"></span></div>
+                                <div style="font-size: 12px;"><span style="color:#666;">Last Updated:</span> <span
+                                    class="audit-text" x-text="entry.updated_at || 'Not yet updated'"></span></div>
+                              </div>
+                              <h4 style="margin-top: 12px;">Manual Change History</h4>
+                              <div class="audit-text">
+                                <template x-if="entry.change_history && entry.change_history.length > 0">
+                                  <div style="display: flex; flex-direction: column; gap: 8px;">
+                                    <template x-for="change in entry.change_history">
+                                      <div
+                                        style="font-size: 11px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px;">
+                                        <span style="color:var(--lx-sky);" x-text="change.timestamp"></span> —
+                                        <span style="color:#fff;" x-text="change.user"></span>:
+                                        <span style="color:#aaa;"
+                                          x-text="change.field + ' → ' + change.new_value"></span>
+                                      </div>
+                                    </template>
+                                  </div>
+                                </template>
+                                <template x-if="!entry.change_history || entry.change_history.length === 0">
+                                  <p style="color:#444; font-style:italic; font-size:12px;">No manual changes recorded.
+                                  </p>
+                                </template>
+                              </div>
+                            </div>
+                            <div class="audit-section">
+                              <h4>Full Description</h4>
+                              <div class="audit-text" x-text="entry.description"></div>
+                              <h4 style="margin-top: 12px;">Classification</h4>
+                              <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <div style="font-size: 12px;"><span style="color:#666;">Category:</span> <span
+                                    style="color:var(--lx-sky); font-weight:600;"
+                                    x-text="entry.category.replace(/_/g,' ')"></span></div>
+                                <div style="font-size: 12px;"><span style="color:#666;">Source:</span> <span
+                                    style="color:#aaa; text-transform:capitalize;" x-text="entry.source"></span></div>
+                                <div style="font-size: 12px;"><span style="color:#666;">Timekeeper:</span> <span
+                                    style="color:#aaa;" x-text="entry.timekeeper"></span></div>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </template>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+            <!-- Small Bulk Selection Modal -->
+            <div class="modal-backdrop" :style="showBulkModal ? 'display: flex;' : 'display: none;'"
+              style="background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); z-index: 4000; align-items: center; justify-content: center;"
+              @click.self="showBulkModal = false">
+
+              <div class="glass-panel relative" style="width: 380px; max-width: 92%; padding: 24px 28px; border-radius: 0; 
+              text-align: center; border: 1px solid var(--lx-sky)73;
+              box-shadow: none;">
+
+                <!-- Cross icon (top right) -->
+                <button @click="showBulkModal = false"
+                  class="absolute top-3 right-4 text-gray-400 hover:text-white text-2xl leading-none focus:outline-none"
+                  style="font-weight: 300;">
+                  ×
+                </button>
+
+                <h3 style="color: #0d6efd; font-size: 19px; font-weight: 700; margin: 0 0 18px;">
+                  Bulk Actions
+                </h3>
+
+                <div style="margin-bottom: 22px;">
+                  <span style="background: rgba(241,196,15,0.18); color: #0d6efd; 
+                   padding: 6px 18px; border-radius: 0; font-weight: 600; font-size: 14px;">
+                    <span x-text="selectedEntries.length"></span> entries selected
+                  </span>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                  <button @click="bulkApprove()" :disabled="isBulkProcessing"
+                    class="login-btn !bg-emerald-700 hover:!bg-emerald-600 !py-3.5 !text-[15px] !font-bold text-white flex items-center justify-center gap-2"
+                    style="border-radius: 0; box-shadow: none;">
+                    <span x-show="isBulkProcessing" class="spinner"
+                      style="width: 14px; height: 14px; border-width: 2px; border-top-color: #0d6efd;"></span>
+                    <span x-text="isBulkProcessing ? 'Approving...' : 'Bulk Approve'"></span>
+                  </button>
+
+                  <!-- Merge Selected button removed -->
+                </div>
+
+                <div style="margin-top: 20px;">
+                  <button @click="selectedEntries = []"
+                    class="text-sm text-gray-400 hover:text-gray-200 transition-colors underline"
+                    style="background: none; border: none; cursor: pointer;">
+                    Clear selection
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Ledger Audit Results Table -->
+          <!-- <div class="glass-panel" style="display: flex; flex-direction: column; overflow: hidden; margin-top: 24px;"
+            x-show="currentLedgerId">
+            <div class="filter-bar"
+              style="background: rgba(var(--lx-sky-rgb), 0.05); border-bottom: 1px solid rgba(var(--lx-sky-rgb), 0.1);">
+              <h3
+                style="color: #0d6efd; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">
+                Ledger Audit Results
+              </h3>
+            </div>
+            <div class="ledger-table-container" style="margin: 0; max-height: 520px; overflow-x: auto;">
+              <div x-show="loadingAudits" style="padding: 80px; text-align: center;">
+                <span class="spinner" style="width: 40px; height: 40px; border-width: 4px;"></span>
+                <p style="margin-top: 16px; color: #0d6efd; font-size: 14px;">Loading Audit Data...</p>
+              </div>
+
+              <table class="ledger-table" x-show="!loadingAudits" style="table-layout: auto; min-width: 2500px;">
+                <thead>
+                  <tr>
+                    <th style="width: 80px;">Entry ID</th>
+                    <th style="width: 400px;">Original Memo</th>
+                    <th style="width: 400px;">Normalized Text</th>
+                    <th style="width: 150px;">Primary Category</th>
+                    <th style="width: 150px;">Secondary Category</th>
+                    <th style="width: 100px; text-align: center;">Confidence</th>
+                    <th style="width: 100px; text-align: center;">Cluster Size</th>
+                    <th style="width: 120px; text-align: center;">Cluster Date</th>
+                    <th style="width: 80px; text-align: center;">Mixed</th>
+                    <th style="width: 400px;">Generated Description</th>
+                    <th style="width: 100px; text-align: center;">Gen Hours</th>
+                    <th style="width: 150px;">Gen Category</th>
+                    <th style="width: 300px;">Flag Reason</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-if="auditEntries.length === 0 && !loadingAudits">
+                    <tr>
+                      <td colspan="13" style="padding: 64px 24px; text-align: center; border: none;">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 14px;">
+                          <p style="font-size: 15px; font-weight: 600; color: #6c757d; margin: 0;">No Audit Data Found</p>
+                        </div>
+                      </td>
+                    </tr>
+                  </template>
+
+                  <template x-for="audit in auditEntries" :key="audit.entry_id">
+                    <tr class="ledger-row">
+                      <td style="text-align: center; font-weight: 700; color: #0d6efd;" x-text="audit.entry_id"></td>
+                      <td style="font-size: 11px; color: #6c757d; white-space: normal; line-height: 1.4;"
+                        x-text="audit.original_memo"></td>
+                      <td style="font-size: 11px; color: #6c757d; white-space: normal; line-height: 1.4;"
+                        x-text="audit.normalized_text"></td>
+                      <td>
+                        <span class="cat-pill" :class="'cat-' + audit.primary_category"
+                          x-text="audit.primary_category ? audit.primary_category.replace(/_/g,' ') : 'N/A'"></span>
+                      </td>
+                      <td>
+                        <span class="cat-pill" :class="'cat-' + audit.secondary_category"
+                          x-text="audit.secondary_category ? audit.secondary_category.replace(/_/g,' ') : 'N/A'"></span>
+                      </td>
+                      <td style="text-align: center; font-weight: 600;"
+                        :style="audit.confidence < 0.5 ? 'color: #e74c3c' : 'color: #2ecc71'"
+                        x-text="parseFloat(audit.confidence || 0).toFixed(2)"></td>
+                      <td style="text-align: center;" x-text="audit.cluster_size"></td>
+                      <td style="text-align: center;" x-text="audit.cluster_date"></td>
+                      <td style="text-align: center;" x-text="audit.mixed ? 'Yes' : 'No'"></td>
+                      <td style="font-size: 12px; color: #0d6efd;" x-text="audit.generated_description"></td>
+                      <td style="text-align: center; font-weight: 700; color: #0d6efd;" x-text="audit.generated_hours">
+                      </td>
+                      <td>
+                        <span class="cat-pill" :class="'cat-' + audit.generated_category"
+                          x-text="audit.generated_category ? audit.generated_category.replace(/_/g,' ') : 'N/A'"></span>
+                      </td>
+                      <td style="font-size: 11px; color: #e67e22;" x-text="audit.flag_reason"></td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </div> -->
+
+          <!-- Edit History Section (Modern Activity Log) -->
+          <div class="glass-panel" style="display: flex; flex-direction: column; overflow: visible; margin-top: 24px;"
+            x-show="currentLedgerId">
+            <div class="filter-bar"
+              style="background: rgba(var(--lx-sky-rgb), 0.05); border-bottom: 1px solid rgba(var(--lx-sky-rgb), 0.1);">
+              <h3
+                style="color: #0d6efd; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin: 0; display: flex; align-items: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                Edit History Log
+              </h3>
+              <span
+                style="margin-left: auto; font-size: 11px; background: rgba(var(--lx-sky-rgb), 0.1); color: #0d6efd; padding: 4px 10px; border-radius: 0; border: 1px solid #dee2e6; font-weight: 600;">
+                <span x-text="editHistory.total_entries_edited || 0"></span> Entities Modified
+              </span>
+            </div>
+
+            <div class="history-log-container"
+              style="padding: 24px; display: flex; flex-direction: column; gap: 24px; min-height: 0;">
+              <div x-show="loadingHistory" style="padding: 40px; text-align: center;">
+                <span class="spinner"
+                  style="width: 32px; height: 32px; border-width: 3px; border-top-color: #0d6efd;"></span>
+                <p style="margin-top: 12px; color: #0d6efd; font-size: 13px;">Retrieving mutation logs...</p>
+              </div>
+
+              <!-- Empty State -->
+              <div x-show="!loadingHistory && (!editHistory.entries || editHistory.entries.length === 0)"
+                style="padding: 48px; text-align: center; color: #9ca3af;">
+                <div style="font-size: 40px; margin-bottom: 16px; opacity: 0.3;">📜</div>
+                <p style="font-size: 14px; font-weight: 600;">No History Logs Found</p>
+                <p style="font-size: 12px; margin-top: 4px;">No modifications have been recorded for this ledger run
+                  yet.</p>
+              </div>
+
+              <template x-for="entry in editHistory.entries" :key="entry.entry_id">
+                <div
+                  style="background: #f8f9fa; border-radius: 0; border: 1px solid rgba(255, 255, 255, 0.06); overflow: hidden; box-shadow: none;">
+                  <!-- Entry Header -->
+                  <div
+                    style="background: rgba(255, 255, 255, 0.03); padding: 12px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                      <div
+                        style="width: 28px; height: 28px; background: #0d6efd; color: #ffffff; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800;">
+                        #</div>
+                      <span style="color: #0d6efd; font-weight: 700; font-size: 14px;">Entry ID: <span
+                          x-text="entry.entry_id" style="color: #0d6efd;"></span></span>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                      <span
+                        style="font-size: 10px; color: #9ca3af; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Sequence
+                        Log</span>
+                    </div>
+                  </div>
+
+                  <!-- Change List -->
+                  <div class="change-list-container"
+                    style="padding: 8px 0; overflow-y: scroll !important; height: 400px !important; max-height: 600px;">
+                    <template x-for="(change, idx) in entry.changes" :key="idx">
+                      <div
+                        style="padding: 16px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.03); display: flex; align-items: flex-start; gap: 16px; transition: all 0.2s;"
+                        onmouseover="this.style.background='rgba(var(--lx-sky-rgb), 0.03)'"
+                        onmouseout="this.style.background='transparent'">
+
+                        <!-- Timeline Node -->
+                        <div
+                          style="flex-shrink: 0; position: relative; height: 100%; display: flex; flex-direction: column; align-items: center;">
+                          <div
+                            style="width: 36px; height: 36px; background: rgba(var(--lx-sky-rgb), 0.1); border: 1px solid #dee2e6; border-radius: 0; display: flex; align-items: center; justify-content: center; color: #0d6efd; font-weight: 800; font-size: 13px; z-index: 2;">
+                            <span x-text="change.edited_by.charAt(0).toUpperCase()"></span>
+                          </div>
+                          <div x-show="idx < entry.changes.length - 1"
+                            style="position: absolute; top: 36px; bottom: -24px; width: 1px; background: rgba(var(--lx-sky-rgb), 0.1); z-index: 1;">
+                          </div>
+                        </div>
+
+                        <!-- Content -->
+                        <div style="flex: 1;">
+                          <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div style="display: flex; flex-direction: column;">
+                              <span
+                                style="color: #0d6efd; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                                <span x-text="change.edited_by"></span>
+                                <span
+                                  style="background: rgba(255,255,255,0.05); color: #6c757d; padding: 2px 6px; border-radius: 0; font-size: 10px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.5px;">Author</span>
+                              </span>
+                              <span style="color: #9ca3af; font-size: 11px; margin-top: 2px;"
+                                x-text="new Date(change.edited_at).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })"></span>
+                            </div>
+                            <div
+                              style="background: rgba(var(--lx-sky-rgb), 0.15); color: #0d6efd; padding: 3px 10px; border-radius: 0; font-size: 11px; font-weight: 700; text-transform: uppercase;">
+                              <span x-text="change.field"></span>
+                            </div>
+                          </div>
+
+                          <!-- Value Diff -->
+                          <div
+                            style="display: flex; align-items: stretch; gap: 12px; background: rgba(0,0,0,0.3); border-radius: 0; border: 1px solid rgba(255,255,255,0.03); overflow: hidden;">
+                            <div style="flex: 1; padding: 10px 14px; border-right: 1px solid rgba(255,255,255,0.03);">
+                              <div
+                                style="font-size: 9px; color: #9ca3af; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; margin-bottom: 4px;">
+                                Original</div>
+                              <div
+                                style="color: #e74c3c; font-size: 12px; font-family: 'Montserrat', sans-serif; line-height: 1.4; word-break: break-all;"
+                                x-text="change.old_value || 'None'"></div>
+                            </div>
+                            <div
+                              style="display: flex; align-items: center; justify-content: center; padding: 0 4px; color: #0d6efd; opacity: 0.5;">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                              </svg>
+                            </div>
+                            <div style="flex: 1; padding: 10px 14px; background: rgba(var(--lx-sky-rgb), 0.02);">
+                              <div
+                                style="font-size: 9px; color: #9ca3af; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; margin-bottom: 4px;">
+                                Modified</div>
+                              <div
+                                style="color: #2ecc71; font-size: 12px; font-family: 'Montserrat', sans-serif; font-weight: 600; line-height: 1.4; word-break: break-all;"
+                                x-text="change.new_value || 'None'"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+
+    <div class="input-container" x-show="currentView === 'chat'">
+      <div class="input-wrapper">
+        <textarea id="message-input"
+          placeholder="Describe the injury case. Include: Year of injury • Injury Type • Paralegal hours (Press Enter to send, Shift+Enter for new line)"
+          onkeydown="handleKeyPress(event)"></textarea>
+        <!-- Templates Button -->
+        <button id="templates-btn" style="
+              background: none;
+              border: none;
+              cursor: pointer;
+              padding: 8px;
+              color: #0d6efd;
+              transition: all 0.3s;
+              position: relative;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 44px;
+              height: 44px;
+              border-radius: 0;
+            " onmouseover="this.style.background='rgba(var(--lx-sky-rgb), 0.1)'" onmouseout="this.style.background='none'"
+          onclick="toggleTemplatesPopover(event)" title="Load template message">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+            <polyline points="7 3 7 8 15 8"></polyline>
+          </svg>
+        </button>
+        <button class="send-btn" onclick="sendMessage()" id="send-btn">
+          Send
+        </button>
+      </div>
+    </div>
+
+    <!-- Templates Popover (Outside input-container) -->
+    <div id="templates-popover" style="
+          position: fixed;
+          bottom: 90px;
+          right: 32px;
+          background-color: #0d6efd;
+          border: 1px solid rgba(var(--lx-sky-rgb), 0.4);
+          border-radius: 0;
+          padding: 12px;
+          min-width: auto;
+          max-height: auto;
+          display: none;
+          z-index: 2000;
+          box-shadow: none;
+          overflow-y: auto;
+        ">
+      <div style="
+          padding: 8px 0;
+          margin-bottom: 8px;
+          border-bottom: 1px solid #dee2e6;
+          color: #0d6efd;
+          font-size: 12px;
+          font-weight: 600;
+        ">Templates</div>
+      <div id="templates-list" style="color: #6c757d; font-size: 13px;">
+        <div style="padding: 8px 0; color: #9ca3af;">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Active Users Popover (Outside header) -->
+    <div id="active-users-popover" class="active_user">
+      <div style="
+          padding: 8px 0;
+          margin-bottom: 8px;
+          border-bottom: 1px solid #dee2e6;
+          color: #0d6efd;
+          font-size: 12px;
+          font-weight: 600;
+        ">Active Users</div>
+      <div id="active-users-list" style="color: #6c757d; font-size: 13px;">
+        <div style="padding: 8px 0; color: #9ca3af;">Loading...</div>
+      </div>
+    </div>
+    <!-- MODALS SECTION (At root for perfect centering) -->
+    <!-- EDIT ENTRY MODAL -->
+    <div class="modal-backdrop" :style="showEditModal ? 'display: flex;' : 'display: none;'">
+      <div class="glass-panel modal-content" style="padding: 32px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <h2 style="color: #0d6efd; font-size: 20px; font-weight: 700;">Edit Ledger Entry</h2>
+          <button @click="showEditModal = false" class="text-gray-500 text-2xl">×</button>
+        </div>
+
+        <form @submit.prevent="updateEntry()" class="grid grid-cols-2 gap-6">
+          <div class="col-span-1">
+            <label class="block text-xs font-bold text-[var(--lx-sky)] mb-2 uppercase">Date</label>
+            <input type="date" x-model="editingEntry.date" onclick="this.showPicker()"
+              class="login-form-group !mb-0 w-full bg-white border border-[#444] rounded p-2 text-white"
+              style="color-scheme: dark; cursor: pointer;">
+          </div>
+
+          <div class="col-span-1">
+            <label class="block text-xs font-bold text-[var(--lx-sky)] mb-2 uppercase">Assigned Role</label>
+            <select x-model="editingEntry.assigned_role"
+              class="login-form-group !mb-0 w-full bg-white border border-[#444] rounded p-2 text-white">
+              <option value="lead_attorney">Lead Attorney</option>
+              <option value="paralegal">Paralegal</option>
+            </select>
+          </div>
+
+          <div class="col-span-2">
+            <label class="block text-xs font-bold text-[var(--lx-sky)] mb-2 uppercase">Description</label>
+            <textarea x-model="editingEntry.description" rows="3"
+              class="login-form-group !mb-0 w-full bg-white border border-[#444] rounded p-2 text-white resize-none"></textarea>
+          </div>
+          <div class="col-span-1">
+            <label class="block text-xs font-bold text-[var(--lx-sky)] mb-2 uppercase">Hours</label>
+            <input type="number" step="0.1" x-model="editingEntry.hours"
+              class="login-form-group !mb-0 w-full bg-white border border-[#444] rounded p-2 text-white">
+          </div>
+          <div class="col-span-1">
+            <label class="block text-xs font-bold text-[var(--lx-sky)] mb-2 uppercase">Category</label>
+            <select x-model="editingEntry.category"
+              class="login-form-group !mb-0 w-full bg-white border border-[#444] rounded p-2 text-white">
+              <option value="medical_records">Medical Records</option>
+              <option value="drafting">Drafting</option>
+              <option value="court_filing">Court Filing</option>
+              <option value="exhibits">Exhibits</option>
+              <option value="case_management">Case Management</option>
+              <option value="case_strategy">Case Strategy</option>
+              <option value="intake_review">Intake Review</option>
+              <option value="client_communication">Client Communication</option>
+              <option value="respondent_report">Respondent Report</option>
+              <option value="medical_records_review">Medical Records Review</option>
+            </select>
+          </div>
+
+          <div class="col-span-2 flex gap-4 mt-4">
+            <button type="submit" class="login-btn flex-1 !bg-[var(--lx-sky)] flex items-center justify-center gap-2">
+              <span x-show="isSaving" class="spinner" style="width: 14px; height: 14px; border-width: 2px;"></span>
+              <span x-text="isSaving ? 'Saving...' : 'Save Changes'"></span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- UPLOAD LEDGER MODAL -->
+    <div class="modal-backdrop" :style="showUploadModal ? 'display: flex;' : 'display: none;'">
+      <div class="glass-panel modal-content" style="padding: 32px; max-width: 500px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <h2 style="color: #0d6efd; font-size: 20px; font-weight: 700;">Upload Legal Ledger</h2>
+          <button @click="showUploadModal = false" class="text-gray-500 text-2xl">×</button>
+        </div>
+
+        <form @submit.prevent="runGeneration()" class="flex flex-col gap-6">
+          <div>
+            <label class="block text-xs font-bold text-[var(--lx-sky)] mb-2 uppercase">File</label>
+            <input type="file" @change="uploadFile = $event.target.files[0]" required accept=".xlsx,.xls"
+              class="w-full bg-white border border-[#444] rounded p-2 text-white">
+          </div>
+          <div x-show="isGenerating" class="text-center p-4">
+            <span class="spinner"></span>
+            <p class="mt-2 text-[var(--lx-sky)]">AI is processing the ledger...</p>
+          </div>
+
+          <button x-show="!isGenerating" type="submit"
+            class="login-btn w-full !bg-[var(--lx-sky)] !text-white !font-bold">UPLOAD</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div class="modal-backdrop" :style="showDeleteModal ? 'display: flex;' : 'display: none;'">
+      <div class="glass-panel modal-content" style="padding: 32px; max-width: 450px; text-align: center;">
+        <div style="font-size: 54px; margin-bottom: 16px; color: #e74c3c; opacity: 0.8;">⚠️</div>
+        <h2 style="color: #0d6efd; font-size: 20px; font-weight: 700; margin-bottom: 12px;">Confirm Deletion</h2>
+        <p style="color: #6c757d; font-size: 14px; margin-bottom: 28px; line-height: 1.5;">Are you sure you want to delete
+          this entry? This action will mark the entry as deleted in the system.</p>
+
+        <div style="display: flex; gap: 12px; justify-content: center;">
+          <button @click="showDeleteModal = false"
+            style="flex: 1; padding: 12px; border-radius: 0; border: 1px solid #dee2e6; background: transparent; color: #0d6efd; cursor: pointer; font-weight: 600; transition: all 0.2s;"
+            @mouseover="$el.style.background='rgba(255,255,255,0.05)'"
+            @mouseout="$el.style.background='transparent'">Cancel</button>
+          <button @click="deleteEntry()"
+            style="flex: 1; padding: 12px; border-radius: 0; border: none; background: #e74c3c; color: #0d6efd; cursor: pointer; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;"
+            @mouseover="$el.style.opacity='0.9'" @mouseout="$el.style.opacity='1'">
+            <span x-show="isDeleting" class="spinner"
+              style="width: 14px; height: 14px; border-width: 2px; border-top-color: #0d6efd;"></span>
+            <span x-text="isDeleting ? 'Deleting...' : 'Yes, Delete'"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- UPLOAD FILE MODAL -->
+    <div class="modal-backdrop" :style="showUploadFileModal ? 'display: flex;' : 'display: none;'">
+      <div class="glass-panel modal-content" style="padding: 32px; max-width: 500px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <h2 style="color: #0d6efd; font-size: 20px; font-weight: 700;">Upload File</h2>
+          <button @click="showUploadFileModal = false" class="text-gray-500 text-2xl" type="button">×</button>
+        </div>
+
+        <form @submit.prevent="runUploadGeneration()" class="flex flex-col gap-6">
+          <div>
+            <label class="block text-xs font-bold text-[var(--lx-sky)] mb-2 uppercase">Petition File (<span
+                style="color:#fff;text-transform:none">PDF</span>)</label>
+            <input type="file" @change="uploadPetitionFile = $event.target.files[0]" required accept=".pdf,.doc,.docx"
+              class="w-full bg-white border border-[#444] rounded p-2 text-white">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-[var(--lx-sky)] mb-2 uppercase">Exhibits File (<span
+                style="color:#fff;text-transform:none">PDF</span>)</label>
+            <input type="file" @change="uploadExhibitsFile = $event.target.files[0]" required accept=".pdf,.doc,.docx"
+              class="w-full bg-white border border-[#444] rounded p-2 text-white">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-[var(--lx-sky)] mb-2 uppercase">Paralegal Entries</label>
+            <input type="number" x-model="uploadParalegalEntries" required
+              class="w-full bg-white border border-[#444] rounded p-2 text-white">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-[var(--lx-sky)] mb-2 uppercase">Total Paralegal Hours</label>
+            <input type="number" x-model="uploadTotalParalegalHours" required step="0.1"
+              class="w-full bg-white border border-[#444] rounded p-2 text-white">
+          </div>
+          <div x-show="isUploadGenerating" class="text-center p-4">
+            <span class="spinner"></span>
+            <p class="mt-2 text-[var(--lx-sky)]">Uploading and regenerating...</p>
+          </div>
+
+          <button x-show="!isUploadGenerating" type="submit"
+            class="login-btn w-full !bg-[var(--lx-sky)] !text-white !font-bold">UPLOAD</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+  </div>
+
+  <script>
+    const API_BASE_URL = ' https://unpossessable-marylee-unsnobbish.ngrok-free.dev';
+    let threadId = null;
+    let isProcessing = false;
+    let currentMessageToSave = ""; // Store message for saving as template
+
+    marked.setOptions({
+      gfm: true,
+      breaks: true,
+      tables: true,
+    });
+
+    // Load saved thread ID from localStorage on page load
+    // (function loadSavedThread() {
+    // const savedThreadId = localStorage.getItem('vicp_thread_id');
+    // if (savedThreadId) {
+    //   threadId = savedThreadId;
+    //   console.log('Loaded thread:', threadId);
+    // }
+    // })();
+
+    function handleKeyPress(event) {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+      }
+    }
+
+    function logout() {
+      const vicpApp = window.vicpAppInstance;
+      if (vicpApp) {
+        vicpApp.logout();
+      }
+    }
+
+    function toggleUserMenu() {
+      const popover = document.getElementById("user-menu-popover");
+      if (popover.style.display === "none") {
+        popover.style.display = "block";
+      } else {
+        popover.style.display = "none";
+      }
+    }
+    // Close menu when clicking outside
+    document.addEventListener("click", function (event) {
+      const popover = document.getElementById("user-menu-popover");
+      const menuBtn = event.target.closest("button[onclick='toggleUserMenu()']");
+      if (!menuBtn && !popover.contains(event.target)) {
+        popover.style.display = "none";
+      }
+    });
+
+    function toggleUserMenu() {
+      const popover = document.getElementById("user-menu-popover");
+      if (popover.style.display === "none" || popover.style.display === "") {
+        popover.style.display = "block";
+      } else {
+        popover.style.display = "none";
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("jwtvicp");
+      localStorage.removeItem("vicpEmail");
+      window.dispatchEvent(new Event("logout-success"));
+    }
+
+    function startNewChat() {
+      if (
+        confirm("Start a new conversation? This will clear the current chat.")
+      ) {
+        threadId = null;
+        // localStorage.removeItem('vicp_thread_id');
+        document.getElementById("chat-messages").innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">⚖️</div>
+            <h2>Welcome to VICP Case Analysis</h2>
+            <p>Start by describing your injury case details</p>
+            <div class="hint">
+              💡 Include: Year of injury • Injury Type • Paralegal hours
+            </div>
+          </div>
+        `;
+        // document.getElementById('thread-status').textContent = 'Ready';
+        document.getElementById("message-input").value = "";
+      }
+    }
+
+    async function sendMessage() {
+      if (isProcessing) return;
+
+      const input = document.getElementById("message-input");
+      const message = input.value.trim();
+
+      if (!message) return;
+
+      // Guard: ensure token exists before hitting the API
+      const _chatToken = requireToken();
+      if (!_chatToken) return;
+
+      isProcessing = true;
+      const sendBtn = document.getElementById("send-btn");
+      sendBtn.disabled = true;
+      sendBtn.innerHTML = '<span class="spinner"></span>';
+
+      addMessage("user", message);
+      input.value = "";
+      showTypingIndicator();
+
+      try {
+        const response = await fetch(API_BASE_URL + "/VICP_Attorney_Fees/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("jwtvicp")}`,
+            "ngrok-skip-browser-warning": "true"
+          },
+          body: JSON.stringify({ message, thread_id: threadId }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          threadId = data.thread_id;
+          // localStorage.setItem('vicp_thread_id', threadId);
+          // document.getElementById('thread-status').textContent = threadId.substring(0, 16) + '...';
+
+          const assistantMessages = data.chat_history.filter(
+            (m) => m.role === "assistant"
+          );
+          if (assistantMessages.length > 0) {
+            const lastMessage =
+              assistantMessages[assistantMessages.length - 1];
+            addMessage("assistant", lastMessage.content);
+          }
+        } else {
+          addMessage("assistant", `⚠️ Error: ${data.error}`);
+        }
+      } catch (error) {
+        addMessage("assistant", `⚠️ Connection Error: ${error.message}`);
+      } finally {
+        hideTypingIndicator();
+        isProcessing = false;
+        sendBtn.disabled = false;
+        sendBtn.textContent = "Send";
+        scrollToBottom();
+      }
+    }
+
+    function addMessage(role, content) {
+      const messagesDiv = document.getElementById("chat-messages");
+
+      const emptyState = messagesDiv.querySelector(".empty-state");
+      if (emptyState) emptyState.remove();
+
+      const wrapper = document.createElement("div");
+      wrapper.className = `message-wrapper ${role}`;
+
+      // const avatar = document.createElement('div');
+      // avatar.className = `avatar ${role}`;
+      // avatar.textContent = role === 'user' ? 'U' : 'AI';
+
+      const messageDiv = document.createElement("div");
+      messageDiv.className = `message ${role}`;
+
+      if (role === "assistant") {
+        let processedContent = processTableContent(content);
+        messageDiv.innerHTML = marked.parse(processedContent);
+      } else {
+        messageDiv.textContent = content;
+
+        // Add save button for user messages
+        const messageContainer = document.createElement("div");
+        messageContainer.style.display = "flex";
+        messageContainer.style.gap = "12px";
+        messageContainer.style.alignItems = "flex-start";
+
+        const saveBtn = document.createElement("button");
+        saveBtn.style.cssText = `
+            background: none;
+            border: none;
+            color: #0d6efd;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.3s;
+            font-size: 16px;
+            flex-shrink: 0;
+            margin-top: 2px;
+          `;
+        saveBtn.title = "Save this message as template";
+        saveBtn.innerHTML = "💾";
+        saveBtn.onmouseover = function () { this.style.background = "#dee2e6"; };
+        saveBtn.onmouseout = function () { this.style.background = "none"; };
+        saveBtn.onclick = function (e) {
+          e.stopPropagation();
+          currentMessageToSave = content;
+          openSaveTemplateModal();
+        };
+
+        wrapper.appendChild(saveBtn);
+        wrapper.appendChild(messageDiv);
+        messagesDiv.appendChild(wrapper);
+        scrollToBottom();
+        return;
+      }
+
+      // wrapper.appendChild(avatar);
+      wrapper.appendChild(messageDiv);
+      messagesDiv.appendChild(wrapper);
+
+      scrollToBottom();
+    }
+
+    function showTypingIndicator() {
+      const messagesDiv = document.getElementById("chat-messages");
+      const wrapper = document.createElement("div");
+      wrapper.className = "typing-wrapper";
+      wrapper.id = "typing-wrapper";
+
+      // const avatar = document.createElement('div');
+      // avatar.className = 'avatar assistant';
+      // avatar.textContent = 'AI';
+
+      const indicator = document.createElement("div");
+      indicator.className = "typing-indicator active";
+      indicator.innerHTML =
+        '<div class="typing-dots"><span></span><span></span><span></span></div>';
+
+      // wrapper.appendChild(avatar);
+      wrapper.appendChild(indicator);
+      messagesDiv.appendChild(wrapper);
+      scrollToBottom();
+    }
+
+    function hideTypingIndicator() {
+      const wrapper = document.getElementById("typing-wrapper");
+      if (wrapper) wrapper.remove();
+    }
+
+    function processTableContent(content) {
+      const lines = content.split("\n");
+      let processedContent = [];
+      let i = 0;
+
+      while (i < lines.length) {
+        let line = lines[i].trim();
+
+        if (line.startsWith("|") && line.endsWith("|")) {
+          const tableLines = [];
+          while (i < lines.length && lines[i].trim().startsWith("|")) {
+            const tableLine = lines[i].trim();
+            if (tableLine.length > 0) {
+              tableLines.push(tableLine);
+            }
+            i++;
+          }
+
+          if (tableLines.length > 0) {
+            const markdownTable = convertToMarkdownTable(tableLines);
+            processedContent.push(markdownTable);
+          }
+          continue;
+        }
+
+        processedContent.push(line);
+        i++;
+      }
+
+      return processedContent.join("\n");
+    }
+
+    function convertToMarkdownTable(tableLines) {
+      const rows = tableLines.map((line) => {
+        const cells = line
+          .slice(1, -1)
+          .split("|")
+          .map((cell) => cell.trim());
+        return cells;
+      });
+
+      if (rows.length === 0) return "";
+
+      let separatorIndex = rows.findIndex((row) =>
+        row.every((cell) => /^[\s\-]+$/.test(cell) || cell === "")
+      );
+
+      let headerRow, dataRows;
+
+      if (separatorIndex !== -1) {
+        headerRow = rows[0];
+        dataRows = rows
+          .slice(1)
+          .filter((_, idx) => idx !== separatorIndex - 1);
+      } else {
+        headerRow = rows[0];
+        dataRows = rows.slice(1);
+      }
+
+      const numCols = Math.max(
+        headerRow.length,
+        ...dataRows.map((row) => row.length)
+      );
+
+      while (headerRow.length < numCols) {
+        headerRow.push("");
+      }
+
+      dataRows = dataRows.map((row) => {
+        const newRow = [...row];
+        while (newRow.length < numCols) newRow.push("");
+        return newRow;
+      });
+
+      let markdown = "\n\n";
+      markdown += "| " + headerRow.join(" | ") + " |\n";
+      markdown += "| " + headerRow.map(() => "---").join(" | ") + " |\n";
+      dataRows.forEach((row) => {
+        markdown += "| " + row.join(" | ") + " |\n";
+      });
+      markdown += "\n";
+
+      return markdown;
+    }
+
+    function scrollToBottom() {
+      const messagesDiv = document.getElementById("chat-messages");
+      setTimeout(() => {
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      }, 100);
+    }
+
+    // Alpine.js Components
+    function loginApp() {
+      return {
+        email: "",
+        emailValid: null,
+        emailChecking: false,
+        error: "",
+        loggedIn: localStorage.getItem("jwtvicp") ? true : false,
+        loggingIn: false,
+
+        verifyEmail() {
+          if (!this.email) {
+            this.emailValid = null;
+            this.emailChecking = false;
+            return;
+          }
+
+          this.emailChecking = true;
+          this.error = "";
+          fetch(
+            `${API_BASE_URL}/VICP_Attorney_Fees/verify-email?email=${encodeURIComponent(this.email)}`,
+            {
+              method: "GET",
+              headers: {
+                "ngrok-skip-browser-warning": "true",
+              },
+            }
+          )
+            .then((res) => res.json())
+            .then((json) => {
+              this.emailValid = json.valid;
+              this.emailChecking = false;
+              if (!json.valid) {
+                this.error =
+                  "Access denied: Your email is not on the authorized list.";
+              }
+            })
+            .catch(() => {
+              this.emailValid = false;
+              this.emailChecking = false;
+              this.error =
+                "Access denied: Your email is not on the authorized list.";
+            });
+        },
+
+        login() {
+          if (!this.emailValid) {
+            this.error = "Email not authorized";
+            return;
+          }
+
+          if (!this.email || !this.email.includes("@")) {
+            this.error = "Please enter a valid email";
+            return;
+          }
+
+          this.loggingIn = true;
+
+          const data = new URLSearchParams();
+          data.append("username", this.email);
+          data.append("password", "not-used-but-required");
+
+          fetch(`${API_BASE_URL}/VICP_Attorney_Fees/login`, {
+            method: "POST",
+            headers: {
+              "ngrok-skip-browser-warning": "true",
+            },
+            body: data,
+          })
+            .then((res) => {
+              if (!res.ok) throw new Error("Unauthorized email");
+              return res.json();
+            })
+            .then((json) => {
+              localStorage.setItem("jwtvicp", json.access_token);
+              localStorage.setItem("vicpEmail", this.email);
+              this.loggedIn = true;
+              this.error = "";
+              this.loggingIn = false;
+              window.dispatchEvent(
+                new CustomEvent("login-success", {
+                  detail: { email: this.email },
+                })
+              );
+            })
+            .catch((err) => {
+              this.error = "Invalid credentials";
+              this.loggingIn = false;
+            });
+        },
+      };
+    }
+
+    function vicpApp() {
+      return {
+        isLoggedIn: false,
+        userEmail: "",
+        currentView: "chat", // 'chat' or 'ledger'
+        ledgerEntries: [],
+        auditEntries: [],
+        editHistory: { entries: [] },
+        ledgerRuns: [],
+        loadingLedger: false,
+        loadingAudits: false,
+        loadingHistory: false,
+        loadingRuns: false,
+        loadingWorkflow: false,
+        isGenerating: false,
+        showEditModal: false,
+        showUploadModal: false,
+        showDeleteModal: false,
+        isSaving: false,
+        isDeleting: false,
+        isBulkProcessing: false,
+        showBulkModal: false,
+        deletingId: null,
+        expandedRows: [],
+        selectedEntries: [],
+        currentLedgerId: null,
+        workflowType: "default",
+        _defaultLedgerEntries: [],
+        dateSort: "date",
+
+        editingEntry: {
+          id: null,
+          date: "",
+          assigned_role: "",
+          assigned_staff_code: "",
+          description: "",
+          hours: 0,
+          category: ""
+        },
+
+        uploadLedgerRuns: [],
+        uploadLedgerEntries: [],
+        loadingUploadRuns: false,
+        loadingUploadLedger: false,
+        currentUploadLedgerId: null,
+        showUploadFileModal: false,
+        uploadPetitionFile: null,
+        uploadExhibitsFile: null,
+        uploadParalegalEntries: 50,
+        uploadTotalParalegalHours: 180,
+        isUploadGenerating: false,
+        uploadFilters: {
+          assigned_role: ""
+        },
+
+        uploadParams: {
+          staff_code: "",
+          sheet_name: ""
+        },
+        uploadFile: null,
+
+        // Summary Stats
+        stats: {
+          totalAttorneyHours: 0,
+          totalFees: 0,
+          pendingCount: 0,
+          categoryBreakdown: {}
+        },
+
+        // Filters
+        filters: {
+          status: "",
+          confidence: "",
+          search: "",
+          assigned_role: "",
+          sheet_name: ""
+        },
+
+        get uniqueStaffCodes() {
+          const vals = this.ledgerEntries.map(e => e.assigned_staff_code).filter(v => v && v !== '—');
+          return [...new Set(vals)].sort();
+        },
+
+        get uniqueAssignedRoles() {
+          const vals = this.ledgerEntries.map(e => e.assigned_role).filter(v => v && v !== '—');
+          return [...new Set(vals)].sort();
+        },
+
+        get uniqueSheetNames() {
+          const vals = this.ledgerEntries.map(e => e.sheet_name).filter(v => v && v !== '—');
+          return [...new Set(vals)].sort();
+        },
+
+        get uniqueEntryTypes() {
+          const vals = this.ledgerEntries.map(e => e.entry_type).filter(v => v && v !== '—');
+          return [...new Set(vals)].sort();
+        },
+
+        get filteredEntries() {
+          const filtered = this.ledgerEntries.filter(e => {
+
+            if (this.filters.status && e.status !== this.filters.status)
+              return false;
+
+            if (this.filters.assigned_role && e.assigned_role !== this.filters.assigned_role)
+              return false;
+
+            if (this.workflowType === 'specialized') {
+              if (this.filters.sheet_name && e.sheet_name !== this.filters.sheet_name)
+                return false;
+            }
+
+            return true;
+          });
+
+          if (this.dateSort === 'date') {
+            return filtered;
+          }
+          return filtered.slice().sort((a, b) => {
+            const da = new Date(a.date || 0);
+            const db = new Date(b.date || 0);
+            return this.dateSort === 'asc' ? da - db : db - da;
+          });
+        },
+
+        get filteredUploadEntries() {
+          if (!this.uploadFilters.assigned_role) {
+            return this.uploadLedgerEntries;
+          }
+          return this.uploadLedgerEntries.filter(e => e.assigned_role === this.uploadFilters.assigned_role);
+        },
+
+        async fetchUploadRuns() {
+          const token = requireToken();
+          if (!token) return;
+          this.loadingUploadRuns = true;
+          try {
+            const response = await fetch(`${API_BASE_URL}/VICP_Attorney_Fees/ledger-summary-runs`, {
+              headers: {
+                "Authorization": `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true"
+              }
+            });
+            if (response.status === 401) { handle401(); return; }
+            if (response.ok) {
+              this.uploadLedgerRuns = await response.json();
+              if (this.uploadLedgerRuns.length > 0 && !this.currentUploadLedgerId) {
+                this.selectUploadRun(this.uploadLedgerRuns[0].run_id);
+              }
+            }
+          } catch (error) {
+            console.error("Failed to fetch upload runs:", error);
+          } finally {
+            this.loadingUploadRuns = false;
+          }
+        },
+
+        selectUploadRun(runId) {
+          if (this.currentUploadLedgerId === runId) return;
+          this.currentUploadLedgerId = runId;
+          this.fetchUploadEntries();
+        },
+
+        async fetchUploadEntries() {
+          if (!this.currentUploadLedgerId) {
+            this.uploadLedgerEntries = [];
+            return;
+          }
+          const token = requireToken();
+          if (!token) return;
+          this.loadingUploadLedger = true;
+          try {
+            const response = await fetch(`${API_BASE_URL}/VICP_Attorney_Fees/ledger-summary-entries/${this.currentUploadLedgerId}`, {
+              headers: {
+                "Authorization": `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true"
+              }
+            });
+            if (response.status === 401) { handle401(); return; }
+            if (response.ok) {
+              this.uploadLedgerEntries = await response.json();
+            } else {
+              this.uploadLedgerEntries = [];
+            }
+          } catch (error) {
+            console.error("Failed to fetch upload entries:", error);
+            this.uploadLedgerEntries = [];
+          } finally {
+            this.loadingUploadLedger = false;
+          }
+        },
+
+        async runUploadGeneration() {
+          if (!this.uploadPetitionFile || !this.uploadExhibitsFile) {
+            alert("Please select both files.");
+            return;
+          }
+          const token = requireToken();
+          if (!token) return;
+          this.isUploadGenerating = true;
+          const formData = new FormData();
+          formData.append('petition_file', this.uploadPetitionFile);
+          formData.append('exhibits_file', this.uploadExhibitsFile);
+          formData.append('paralegal_entries', this.uploadParalegalEntries);
+          formData.append('total_paralegal_hours', this.uploadTotalParalegalHours);
+
+          try {
+            const response = await fetch(`${API_BASE_URL}/VICP_Attorney_Fees/generate-summary-lead-paralegal`, {
+              method: 'POST',
+              headers: {
+                "Authorization": `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true"
+              },
+              body: formData
+            });
+            if (response.status === 401) { handle401(); return; }
+            if (response.ok) {
+              // successful
+              this.showUploadFileModal = false;
+              this.currentUploadLedgerId = null; // reset to fetch newest auto
+              await this.fetchUploadRuns();
+            } else {
+              alert("Upload failed.");
+            }
+          } catch (error) {
+            console.error("Upload Generation Error:", error);
+            alert("Error connecting to server.");
+          } finally {
+            this.isUploadGenerating = false;
+          }
+        },
+
+        resetFilters() {
+          this.filters = { status: "", confidence: "", search: "", assigned_role: "", sheet_name: "" };
+          this.workflowType = "default";
+        },
+
+        init() {
+          this.checkAuth();
+          window.addEventListener("login-success", (e) => {
+            this.userEmail = e.detail.email;
+            this.isLoggedIn = true;
+          });
+
+          this.$watch('currentView', value => {
+            if (value === 'ledger') {
+              this.fetchLedgerRuns();
+              if (this.currentLedgerId) {
+                this.fetchLedger();
+                this.fetchEditHistory();
+              }
+            } else if (value === 'upload_ledger') {
+              this.fetchUploadRuns();
+            }
+          });
+
+          // Watch workflowType changes to switch between default and specialized data
+          this.$watch('workflowType', value => {
+            if (value === 'specialized') {
+              if (this.currentLedgerId) {
+                this.fetchLedger();
+              }
+            } else {
+              // Clear specialized filters when leaving specialized mode
+              this.filters.assigned_role = "";
+              this.filters.sheet_name = "";
+              // Restore default ledger entries from cache (or refetch if cache empty)
+              if (this._defaultLedgerEntries.length > 0) {
+                this.ledgerEntries = [...this._defaultLedgerEntries];
+                this._defaultLedgerEntries = [];
+                this.calculateStats();
+              } else if (this.currentLedgerId) {
+                this.fetchLedger();
+              }
+            }
+          });
+        },
+        async fetchEditHistory() {
+          if (!this.currentLedgerId) {
+            this.editHistory = { entries: [] };
+            return;
+          }
+          const token = requireToken();
+          if (!token) return;
+          this.loadingHistory = true;
+          try {
+            const response = await fetch(`${API_BASE_URL}/VICP_Attorney_Fees/ledger/${this.currentLedgerId}/edit-history`, {
+              headers: {
+                "Authorization": `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true"
+              }
+            });
+            if (response.status === 401) { handle401(); return; }
+            if (response.ok) {
+              this.editHistory = await response.json();
+            } else {
+              this.editHistory = { entries: [] };
+            }
+          } catch (error) {
+            console.error("Failed to fetch edit history:", error);
+            this.editHistory = { entries: [] };
+          } finally {
+            this.loadingHistory = false;
+          }
+        },
+
+        async fetchLedgerRuns() {
+          const token = requireToken();
+          if (!token) return;
+          this.loadingRuns = true;
+          try {
+            const response = await fetch(`${API_BASE_URL}/VICP_Attorney_Fees/ledger/runs`, {
+              headers: {
+                "Authorization": `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true"
+              }
+            });
+            if (response.status === 401) { handle401(); return; }
+            if (response.ok) {
+              this.ledgerRuns = await response.json();
+              // Auto-select latest run if none is active
+              if (this.ledgerRuns.length > 0 && !this.currentLedgerId) {
+                this.selectRun(this.ledgerRuns[0].run_id);
+              }
+            }
+          } catch (error) {
+            console.error("Failed to fetch runs:", error);
+          } finally {
+            this.loadingRuns = false;
+          }
+        },
+
+        selectRun(runId) {
+          if (this.currentLedgerId === runId) return;
+          this.currentLedgerId = runId;
+          this.fetchLedger();
+          this.fetchEditHistory();
+        },
+
+        checkAuth() {
+          const token = localStorage.getItem("jwtvicp");
+          const userEmail = localStorage.getItem("vicpEmail");
+          if (token && userEmail) {
+            this.isLoggedIn = true;
+            this.userEmail = userEmail;
+          }
+        },
+
+        async fetchLedger() {
+          const token = requireToken();
+          if (!token) return;
+          this.loadingLedger = true;
+          try {
+            if (!this.currentLedgerId) {
+              this.ledgerEntries = [];
+              return;
+            }
+
+            const url = `${API_BASE_URL}/VICP_Attorney_Fees/ledger/${this.currentLedgerId}`;
+
+            const response = await fetch(url, {
+              headers: {
+                "Authorization": `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true"
+              }
+            });
+
+            if (response.status === 401) { handle401(); return; }
+            const data = await response.json();
+            if (response.ok) {
+              // API returns a flat array directly
+              this.ledgerEntries = Array.isArray(data) ? data : (data.entries || []);
+              this.calculateStats();
+            } else {
+              this.ledgerEntries = [];
+            }
+          } catch (error) {
+            console.error("Failed to fetch ledger:", error);
+            this.ledgerEntries = [];
+          } finally {
+            this.loadingLedger = false;
+          }
+        },
+
+        calculateStats() {
+          const activeEntries = this.ledgerEntries.filter(e => e.status !== 'deleted');
+
+          this.stats.totalAttorneyHours = activeEntries
+            .filter(e => (e.timekeeper || '').toLowerCase().includes('attorney'))
+            .reduce((sum, e) => sum + parseFloat(e.hours || 0), 0);
+
+          this.stats.totalParalegalHours = activeEntries
+            .filter(e => (e.timekeeper || '').toLowerCase().includes('paralegal'))
+            .reduce((sum, e) => sum + parseFloat(e.hours || 0), 0);
+
+          this.stats.totalFees = (this.stats.totalAttorneyHours * 350) + (this.stats.totalParalegalHours * 150);
+          this.stats.pendingCount = this.ledgerEntries.filter(e => e.status === 'pending').length;
+
+          const breakdown = {};
+          activeEntries.forEach(e => {
+            breakdown[e.category] = (breakdown[e.category] || 0) + parseFloat(e.hours);
+          });
+          this.stats.categoryBreakdown = breakdown;
+        },
+
+        toggleAllSelection(event) {
+          if (event.target.checked) {
+            this.selectedEntries = this.ledgerEntries.map(e => e.id);
+          } else {
+            this.selectedEntries = [];
+          }
+        },
+
+        async approveEntry(id) {
+          const token = requireToken();
+          if (!token) return;
+          try {
+            const res = await fetch(`${API_BASE_URL}/VICP_Attorney_Fees/ledger/entry/${id}/approve`, {
+              method: 'PATCH',
+              headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (res.status === 401) { handle401(); return; }
+            const entry = this.ledgerEntries.find(e => e.id === id);
+            if (entry) entry.status = 'approved';
+            this.calculateStats();
+            await this.fetchLedger();
+          } catch (e) { console.error(e); }
+        },
+
+        async bulkApprove() {
+          if (this.selectedEntries.length === 0) return;
+          const token = requireToken();
+          if (!token) return;
+          this.isBulkProcessing = true;
+          try {
+            const bulkRes = await fetch(`${API_BASE_URL}/VICP_Attorney_Fees/ledger/bulk-approve`, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true"
+              },
+              body: JSON.stringify({ entry_ids: this.selectedEntries })
+            });
+            if (bulkRes.status === 401) { handle401(); return; }
+            this.selectedEntries = [];
+            this.calculateStats();
+            this.showBulkModal = false;
+            await this.fetchLedger();
+          } catch (e) {
+            console.error(e);
+          } finally {
+            this.isBulkProcessing = false;
+          }
+        },
+
+        async mergeSelected() {
+          if (this.selectedEntries.length < 2) {
+            alert("Select at least two entries to merge.");
+            return;
+          }
+          if (!confirm("Merge selected entries into one? Original entries will be soft-deleted.")) return;
+
+          this.isBulkProcessing = true;
+          try {
+            const selectedOnes = this.ledgerEntries.filter(e => this.selectedEntries.includes(e.id));
+            const mergedEntry = {
+              id: Date.now(),
+              date: selectedOnes[0].date,
+              timekeeper: selectedOnes[0].timekeeper,
+              description: "MERGED: " + selectedOnes.map(e => e.description.substring(0, 50)).join("... | "),
+              hours: selectedOnes.reduce((sum, e) => sum + e.hours, 0),
+              category: selectedOnes[0].category,
+              status: 'Edited',
+              source: 'Manual',
+              confidence: 1.0,
+              audit_details: {
+                reason: "Manual merge of entries: " + this.selectedEntries.join(", ")
+              },
+              change_history: [{
+                timestamp: new Date().toLocaleString(),
+                user: this.userEmail || 'User',
+                field: 'Merge',
+                old_value: 'N/A',
+                new_value: 'Combined ' + selectedOnes.length + ' entries'
+              }]
+            };
+
+            // Also fix status filter for deleted category totals panel
+            const categoryItems = this.ledgerEntries.filter(e => this.selectedEntries.includes(e.id));
+            categoryItems.forEach(e => e.status = 'deleted');
+
+            this.ledgerEntries.push(mergedEntry);
+            this.selectedEntries = [];
+            this.calculateStats();
+            this.showBulkModal = false;
+          } catch (e) {
+            console.error(e);
+          } finally {
+            this.isBulkProcessing = false;
+          }
+        },
+
+        openDeleteModal(id) {
+          this.deletingId = id;
+          this.showDeleteModal = true;
+        },
+
+        async deleteEntry() {
+          const id = this.deletingId;
+          if (!id) return;
+
+          const token = requireToken();
+          if (!token) return;
+          this.isDeleting = true;
+          try {
+            const delRes = await fetch(`${API_BASE_URL}/VICP_Attorney_Fees/ledger/entry/${id}`, {
+              method: 'DELETE',
+              headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (delRes.status === 401) { handle401(); return; }
+            const entry = this.ledgerEntries.find(e => e.id === id);
+            if (entry) entry.status = 'deleted';
+            this.calculateStats();
+            this.showDeleteModal = false;
+            this.deletingId = null;
+            await this.fetchLedger();
+          } catch (e) {
+            console.error(e);
+          } finally {
+            this.isDeleting = false;
+            this.showDeleteModal = false;
+          }
+        },
+
+        openEditModal(entry) {
+          this.editingEntry = JSON.parse(JSON.stringify(entry)); // Deep clone
+          this.showEditModal = true;
+        },
+
+        async updateEntry() {
+          const token = requireToken();
+          if (!token) return;
+          this.isSaving = true;
+          try {
+            const response = await fetch(`${API_BASE_URL}/VICP_Attorney_Fees/ledger/entry/${this.editingEntry.id}`, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                date: this.editingEntry.date,
+                assigned_role: this.editingEntry.assigned_role,
+                description: this.editingEntry.description,
+                hours: parseFloat(this.editingEntry.hours),
+                category: this.editingEntry.category
+              })
+            });
+
+            console.log("Sending:", this.editingEntry.assigned_role);
+
+            if (response.status === 401) { handle401(); return; }
+            if (response.ok) {
+              const index = this.ledgerEntries.findIndex(e => e.id === this.editingEntry.id);
+              if (index !== -1) {
+                const oldEntry = this.ledgerEntries[index];
+                const fields = ['date', 'description', 'hours', 'category'];
+                const history = oldEntry.change_history || [];
+
+                fields.forEach(f => {
+                  if (oldEntry[f] != this.editingEntry[f]) {
+                    history.push({
+                      timestamp: new Date().toLocaleString(),
+                      user: this.userEmail || 'User',
+                      field: f,
+                      old_value: oldEntry[f],
+                      new_value: this.editingEntry[f]
+                    });
+                  }
+                });
+
+                this.ledgerEntries[index] = {
+                  ...oldEntry,
+                  ...this.editingEntry,
+                  status: 'edited',
+                  change_history: history
+                };
+              }
+              this.showEditModal = false;
+              this.calculateStats();
+              await this.fetchLedger();
+            }
+          } catch (e) {
+            console.error(e);
+          } finally {
+            this.isSaving = false;
+          }
+        },
+
+        openUploadModal() {
+          this.showUploadModal = true;
+        },
+
+        async runGeneration() {
+          if (!this.uploadFile) { alert("Please select an Excel file."); return; }
+          const token = requireToken();
+          if (!token) return;
+
+          this.isGenerating = true;
+          const formData = new FormData();
+          formData.append('file', this.uploadFile);
+          formData.append('staff_code', this.uploadParams.staff_code);
+          if (this.uploadParams.sheet_name && this.uploadParams.sheet_name.trim() !== '') {
+            formData.append('sheet_name', this.uploadParams.sheet_name);
+          }
+
+          try {
+            const response = await fetch(`${API_BASE_URL}/VICP_Attorney_Fees/generate/ledger`, {
+              method: 'POST',
+              headers: {
+                "accept": "application/json",
+                "Authorization": `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true"
+              },
+              body: formData
+            });
+            if (response.status === 401) { handle401(); return; }
+
+            const data = await response.json();
+            if (response.ok) {
+              this.currentLedgerId = data.run_id || data.ledger_id || null;
+              this.showUploadModal = false;
+              if (this.currentLedgerId) {
+                this.currentView = 'ledger';
+                await this.fetchLedgerRuns(); // Refresh local runs history
+                this.fetchLedger();
+                this.fetchEditHistory();
+              } else {
+                alert(data.message || "Generation complete but no run ID returned.");
+              }
+            } else {
+              const errorMessage = data.detail || data.message || JSON.stringify(data);
+              alert("Generation failed: " + errorMessage);
+            }
+          } catch (e) {
+            console.error(e);
+            alert("Error connecting to generator: " + e.message);
+          } finally {
+            this.isGenerating = false;
+          }
+        },
+
+        logout() {
+          localStorage.removeItem("jwtvicp");
+          localStorage.removeItem("vicpEmail");
+          window.dispatchEvent(new Event("logout-success"));
+        },
+
+        async exportLedger() {
+          if (!this.currentLedgerId) {
+            alert("No ledger active to export. Please select or generate a ledger first.");
+            return;
+          }
+          const token = requireToken();
+          if (!token) return;
+          const exportUrl = `${API_BASE_URL}/VICP_Attorney_Fees/ledger/${this.currentLedgerId}/export`;
+
+          try {
+            const response = await fetch(exportUrl, {
+              headers: {
+                "Authorization": `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true"
+              }
+            });
+            if (response.status === 401) { handle401(); return; }
+
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+              const data = await response.json();
+              if (data.error) {
+                alert("Please approve the entries before exporting.");
+                return;
+              }
+            }
+            if (!response.ok) throw new Error("Failed to export ledger");
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+
+            // Generate a better filename based on the selected run
+            const currentRun = this.ledgerRuns.find(r => r.run_id === this.currentLedgerId);
+            const baseFilename = currentRun ? currentRun.source_filename.split('.')[0] : `ledger_${this.currentLedgerId}`;
+            const finalFilename = `${baseFilename}_export.xlsx`;
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', finalFilename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+          } catch (error) {
+            console.error("Export failed:", error);
+            alert("Export failed: Please ensure you are logged in.");
+          }
+        }
+      };
+    }
+  </script>
+
+  <script>
+    // Check token on page load and toggle UIs accordingly
+    function checkAuthToken() {
+      const token = localStorage.getItem("jwtvicp");
+      const loginPageWrapper = document.getElementById("login-page-wrapper");
+      const mainAppWrapper = document.getElementById("main-app-wrapper");
+
+      if (token) {
+        // User is logged in
+        loginPageWrapper.style.display = "none";
+        mainAppWrapper.style.display = "flex";
+        // Load active users when logged in
+        loadActiveUsers();
+      } else {
+        // User is not logged in
+        loginPageWrapper.style.display = "flex";
+        mainAppWrapper.style.display = "none";
+      }
+    }
+
+    // Check on page load
+    document.addEventListener("DOMContentLoaded", checkAuthToken);
+
+    // Re-check when logout-success event fires
+    window.addEventListener("logout-success", () => {
+      setTimeout(checkAuthToken, 100);
+    });
+
+    // Also check after login
+    window.addEventListener("login-success", () => {
+      setTimeout(checkAuthToken, 100);
+    });
+
+    // ============ AUTH GUARD HELPERS ============
+
+    function requireToken() {
+      const token = localStorage.getItem("jwtvicp");
+      if (!token) {
+        alert("Your session has expired or you are not logged in. Please log in again.");
+        localStorage.removeItem("jwtvicp");
+        localStorage.removeItem("vicpEmail");
+        // Trigger UI redirect back to login
+        window.dispatchEvent(new CustomEvent("logout-success"));
+        return null;
+      }
+      return token;
+    }
+
+    function handle401() {
+      alert("Your session has expired. Please log in again.");
+      localStorage.removeItem("jwtvicp");
+      localStorage.removeItem("vicpEmail");
+      window.dispatchEvent(new CustomEvent("logout-success"));
+    }
+
+    // ============ FEATURE 1: ACTIVE USERS COUNT ============
+    async function loadActiveUsers() {
+      // Guard: use central token checker (alerts + redirects if missing)
+      const token = requireToken();
+      if (!token) return;
+
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/VICP_Attorney_Fees/active-today`,
+          {
+            method: "GET",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "ngrok-skip-browser-warning": "true"
+            }
+          }
+        );
+
+        const data = await response.json();
+
+        if (Array.isArray(data)) {
+          // Update active users count
+          const count = data.length;
+          const countElement = document.getElementById("active-count");
+          if (countElement) {
+            countElement.textContent = count;
+          }
+
+          // Populate active users list
+          const usersList = document.getElementById("active-users-list");
+          if (usersList) {
+            if (count === 0) {
+              usersList.innerHTML = '<div style="padding: 8px 0; color: #9ca3af;">No active users</div>';
+            } else {
+              usersList.innerHTML = data.map(user => `
+                  <div style="
+                    padding: 10px 8px;
+                    border-bottom: 1px solid #dee2e6;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 16px;
+                  ">
+                    <span style="color: #0d6efd; font-weight: 500; flex: 1;">${user.email}</span>
+                    <span style="color: #6c757d; font-size: 12px; white-space: nowrap; flex-shrink: 0;">${formatLastActive(user.last_active)}</span>
+                  </div>
+                `).join("");
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load active users:", error);
+      }
+    }
+
+    function formatLastActive(dateStr) {
+      try {
+        const date = new Date(dateStr);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 1) return "just now";
+        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffHours < 24) return `${diffHours}h ago`;
+        if (diffDays < 7) return `${diffDays}d ago`;
+
+        return date.toLocaleDateString();
+      } catch (e) {
+        return dateStr;
+      }
+    }
+
+    function toggleActiveUsersPopover() {
+      const popover = document.getElementById("active-users-popover");
+      if (popover.style.display === "none" || popover.style.display === "") {
+        popover.style.display = "block";
+        // Reload active users when popover is opened
+        loadActiveUsers();
+      } else {
+        popover.style.display = "none";
+      }
+    }
+
+    // Close active users popover when clicking outside
+    document.addEventListener("click", function (event) {
+      const popover = document.getElementById("active-users-popover");
+      const btn = document.getElementById("active-users-btn");
+      if (!btn.contains(event.target) && !popover.contains(event.target)) {
+        popover.style.display = "none";
+      }
+    });
+
+    // ============ FEATURE 2: SAVE MESSAGE AS TEMPLATE ============
+    function openSaveTemplateModal() {
+      const modal = document.getElementById("save-template-modal");
+      const nameInput = document.getElementById("template-name-input");
+      const descInput = document.getElementById("template-description-input");
+      const messageDiv = document.getElementById("template-modal-message");
+      const saveBtn = document.getElementById("save-template-btn");
+
+      modal.style.display = "flex";
+      nameInput.value = "";
+      descInput.value = "";
+      messageDiv.style.display = "none";
+      messageDiv.textContent = "";
+
+      // Reset button state
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Save Template";
+
+      nameInput.focus();
+    }
+
+    function closeSaveTemplateModal() {
+      const modal = document.getElementById("save-template-modal");
+      modal.style.display = "none";
+      currentMessageToSave = "";
+    }
+
+    async function saveMsgAsTemplate(event) {
+      event.preventDefault();
+
+      const nameInput = document.getElementById("template-name-input");
+      const descInput = document.getElementById("template-description-input");
+      const saveBtn = document.getElementById("save-template-btn");
+      const messageDiv = document.getElementById("template-modal-message");
+
+      const templateName = nameInput.value.trim();
+      const templateDesc = descInput.value.trim();
+      const templateText = currentMessageToSave;
+
+      if (!templateName || !templateDesc) {
+        messageDiv.style.display = "block";
+        messageDiv.style.color = "#e74c3c";
+        messageDiv.textContent = "Please fill in all fields";
+        return;
+      }
+
+      try {
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Saving...";
+        messageDiv.style.display = "block";
+        messageDiv.style.color = "var(--lx-sky)";
+        messageDiv.textContent = "Saving...";
+
+        const token = localStorage.getItem("jwtvicp");
+        const formData = new URLSearchParams();
+        formData.append("template_name", templateName);
+        formData.append("description", templateDesc);
+        formData.append("tags", "vicp");
+        formData.append("template_text", templateText);
+
+        const response = await fetch(
+          `${API_BASE_URL}/VICP_Attorney_Fees/templates`,
+          {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "ngrok-skip-browser-warning": "true",
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: formData
+          }
+        );
+
+        if (response.ok) {
+          messageDiv.style.color = "#2ecc71";
+          messageDiv.textContent = "✓ Template saved successfully";
+          setTimeout(() => {
+            closeSaveTemplateModal();
+          }, 1500);
+        } else {
+          const errorData = await response.json();
+          messageDiv.style.color = "#e74c3c";
+          messageDiv.textContent = `Error: ${errorData.detail || "Failed to save template"}`;
+          saveBtn.disabled = false;
+          saveBtn.textContent = "Save Template";
+        }
+      } catch (error) {
+        messageDiv.style.color = "#e74c3c";
+        messageDiv.textContent = `Error: ${error.message}`;
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save Template";
+      }
+    }
+
+    // ============ FEATURE 3: LOAD TEMPLATES ============
+    async function loadTemplates() {
+      try {
+        const token = localStorage.getItem("jwtvicp");
+        if (!token) return;
+
+        const response = await fetch(
+          `${API_BASE_URL}/VICP_Attorney_Fees/templates`,
+          {
+            method: "GET",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "ngrok-skip-browser-warning": "true"
+            }
+          }
+        );
+
+        const templates = await response.json();
+
+        const templatesList = document.getElementById("templates-list");
+        if (!Array.isArray(templates) || templates.length === 0) {
+          templatesList.innerHTML = '<div style="padding: 8px 0; color: #9ca3af;">No templates yet</div>';
+          return;
+        }
+
+        templatesList.innerHTML = templates.map(template => `
+            <div
+              style="
+                padding: 12px 8px;
+                border-bottom: 1px solid #dee2e6;
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 12px;
+                transition: all 0.2s;
+                border-radius: 0;
+              "
+              onmouseover="this.style.background='rgba(var(--lx-sky-rgb), 0.1)'"
+              onmouseout="this.style.background='transparent'"
+            >
+              <div
+                onclick="selectTemplate('${escapeHtml(template['Full Text'] || template.template_text || '')}')"
+                style="
+                  flex: 1;
+                  cursor: pointer;
+                "
+              >
+                <div style="color: #0d6efd; font-weight: 600; font-size: 13px;">${escapeHtml(template.name)}</div>
+                <div style="color: #6c757d; font-size: 12px; margin-top: 4px;">${escapeHtml(template.description)}</div>
+              </div>
+              <button
+                onclick="deleteTemplate(${template.id}, event)"
+                style="
+                  background: none;
+                  border: none;
+                  color: #e74c3c;
+                  cursor: pointer;
+                  padding: 4px 8px;
+                  border-radius: 0;
+                  transition: all 0.2s;
+                  font-size: 18px;
+                  flex-shrink: 0;
+                "
+                title="Delete template"
+                onmouseover="this.style.background='rgba(231, 76, 60, 0.2)'"
+                onmouseout="this.style.background='none'"
+              >🗑️</button>
+            </div>
+          `).join("");
+      } catch (error) {
+        console.error("Failed to load templates:", error);
+        const templatesList = document.getElementById("templates-list");
+        templatesList.innerHTML = '<div style="padding: 8px 0; color: #e74c3c;">Failed to load templates</div>';
+      }
+    }
+
+    function toggleTemplatesPopover(event) {
+      event.stopPropagation();
+      const popover = document.getElementById("templates-popover");
+      const btn = document.getElementById("templates-btn");
+
+      if (popover.style.display === "none" || popover.style.display === "") {
+        popover.style.display = "block";
+        // Show loading and fetch templates
+        const templatesList = document.getElementById("templates-list");
+        templatesList.innerHTML = '<div style="padding: 8px 0; color: #9ca3af;">Loading...</div>';
+        loadTemplates();
+
+        // Change button to show loader
+        btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 0.8s linear infinite;"><circle cx="12" cy="12" r="10"></circle></svg>';
+      } else {
+        popover.style.display = "none";
+        btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>';
+      }
+    }
+
+    function selectTemplate(templateText) {
+      const input = document.getElementById("message-input");
+      input.value = templateText;
+
+      // Close popover
+      const popover = document.getElementById("templates-popover");
+      const btn = document.getElementById("templates-btn");
+      popover.style.display = "none";
+      btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>';
+
+      // Focus on input
+      input.focus();
+    }
+
+    async function deleteTemplate(templateId, event) {
+      event.stopPropagation();
+
+      // Store template ID in global variable for confirmation
+      window.templateToDelete = templateId;
+      openDeleteTemplateModal();
+    }
+
+    function openDeleteTemplateModal() {
+      const modal = document.getElementById("delete-template-modal");
+      const messageDiv = document.getElementById("delete-template-message");
+      const deleteBtn = document.getElementById("confirm-delete-btn");
+
+      modal.style.display = "flex";
+      messageDiv.style.display = "none";
+      messageDiv.textContent = "";
+      deleteBtn.disabled = false;
+      deleteBtn.textContent = "Delete";
+    }
+
+    function closeDeleteTemplateModal() {
+      const modal = document.getElementById("delete-template-modal");
+      modal.style.display = "none";
+      window.templateToDelete = null;
+    }
+
+    async function confirmDeleteTemplate() {
+      const templateId = window.templateToDelete;
+      if (!templateId) return;
+
+      const deleteBtn = document.getElementById("confirm-delete-btn");
+      const messageDiv = document.getElementById("delete-template-message");
+
+      try {
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = "Deleting...";
+        messageDiv.style.display = "block";
+        messageDiv.style.color = "var(--lx-sky)";
+        messageDiv.textContent = "Deleting...";
+
+        const token = localStorage.getItem("jwtvicp");
+        if (!token) return;
+
+        const response = await fetch(
+          `${API_BASE_URL}/VICP_Attorney_Fees/templates/${templateId}`,
+          {
+            method: "DELETE",
+            headers: {
+              "Authorization": `Bearer ${token}`,
+              "ngrok-skip-browser-warning": "true"
+            }
+          }
+        );
+
+        if (response.ok) {
+          messageDiv.style.color = "#2ecc71";
+          messageDiv.textContent = "✓ Template deleted successfully";
+          setTimeout(() => {
+            closeDeleteTemplateModal();
+            loadTemplates();
+          }, 1500);
+        } else {
+          messageDiv.style.color = "#e74c3c";
+          messageDiv.textContent = "Failed to delete template";
+          deleteBtn.disabled = false;
+          deleteBtn.textContent = "Delete";
+        }
+      } catch (error) {
+        console.error("Failed to delete template:", error);
+        messageDiv.style.color = "#e74c3c";
+        messageDiv.textContent = "Error: " + error.message;
+        deleteBtn.disabled = false;
+        deleteBtn.textContent = "Delete";
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Close templates popover when clicking outside
+    document.addEventListener("click", function (event) {
+      const popover = document.getElementById("templates-popover");
+      const btn = document.getElementById("templates-btn");
+
+      // Don't close if clicking on the button or popover itself
+      if (btn && btn.contains(event.target)) return;
+      if (popover && popover.contains(event.target)) return;
+
+      if (popover && popover.style.display === "block") {
+        popover.style.display = "none";
+        if (btn) {
+          btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>';
+        }
+      }
+    });
+  </script>
+
+  <script defer src="/static/js/common-cursor.js"></script>
+
+</body>
+
+</html>

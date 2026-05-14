@@ -17,13 +17,14 @@
 </head>
 
 <body>
-    <div class="video-background"></div>
-    <div class="overlay"></div>
+    
+    
 
     <!-- Login Page -->
     <div id="login-page-wrapper" class="login-page-wrapper" x-data="loginApp()" x-init="init()">
         <div class="login-page-content">
             <div class="login-logo-section">
+                   <img src="/Designer.png" alt="" />
                 <h1>FAA MedCert Case Builder</h1>
                 <p>Secure Access for Authorized Users</p>
             </div>
@@ -74,9 +75,9 @@
                   border: none;
                   cursor: pointer;
                   padding: 4px 10px;
-                  border-radius: 6px;
+                  border-radius: 0;
                   transition: all 0.3s;
-                  color: #4dd2ff;
+                  color: #0d6efd;
                   font-size: 12px;
                   font-weight: 600;
                 " onclick="toggleActiveUsersPopover()" title="Active users on this tool">
@@ -85,8 +86,8 @@
                   width: 8px;
                   height: 8px;
                   background: #2ecc71;
-                  border-radius: 50%;
-                  box-shadow: 0 0 8px #2ecc71;
+                  border-radius: 0;
+                  box-shadow: none;
                 "></span>
                             <span id="active-count">0</span>
                             <span style="margin-left: 4px;">Users</span>
@@ -98,7 +99,7 @@
                 <!-- MENU ICON -->
                 <button style="background: none; border: none; cursor: pointer; padding: 8px; position: relative;"
                     onclick="toggleUserMenu()" title="User menu">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4dd2ff" stroke-width="2"
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
                         <line x1="4" y1="6" x2="20" y2="6"></line>
                         <line x1="4" y1="12" x2="20" y2="12"></line>
@@ -111,26 +112,26 @@
               position: absolute;
               top: 70px;
               right: 20px;
-              background-color: #222;
-              border: 1px solid #444;
-              border-radius: 8px;
+              background-color: white;
+              border: 1px solid #dee2e6;
+              border-radius: 0;
               padding: 12px;
               min-width: 200px;
               display: none;
               z-index: 1000;
-              box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+              box-shadow: none;
             ">
                     <div
-                        style="padding: 8px 12px; border-bottom: 1px solid #444; margin-bottom: 8px; color: #bbb; font-size: 13px;">
+                        style="padding: 8px 12px; border-bottom: 1px solid #dee2e6; margin-bottom: 8px; color: #6c757d; font-size: 13px;">
                         <span x-text="userEmail"></span>
                     </div>
                     <button onclick="logoutApp()" style="
                 width: 100%;
                 padding: 10px 12px;
-                background-color: #e74c3c;
-                color: white;
+                background-color: #0d6efd;
+                color: #111;
                 border: none;
-                border-radius: 4px;
+                border-radius: 0;
                 cursor: pointer;
                 font-weight: 600;
                 font-size: 14px;
@@ -146,13 +147,13 @@
             <div style="
           padding: 8px 0;
           margin-bottom: 8px;
-          border-bottom: 1px solid rgba(77, 210, 255, 0.3);
-          color: #4dd2ff;
+          border-bottom: 1px solid rgba(17, 17, 17, 0.3);
+          color: #0d6efd;
           font-size: 12px;
           font-weight: 600;
         ">Active Users</div>
-            <div id="active-users-list" style="color: #aaa; font-size: 13px;">
-                <div style="padding: 8px 0; color: #666;">Loading...</div>
+            <div id="active-users-list" style="color: #6c757d; font-size: 13px;">
+                <div style="padding: 8px 0; color: #9ca3af;">Loading...</div>
             </div>
         </div>
 
@@ -163,13 +164,13 @@
                 <div class="glass-panel"
                     style="display: flex; flex-direction: column; overflow: hidden; margin-bottom: 24px;">
                     <div class="filter-bar"
-                        style="background: rgba(77, 210, 255, 0.05); border-bottom: 1px solid rgba(77, 210, 255, 0.1);">
+                        style="background: rgba(17, 17, 17, 0.05); border-bottom: 1px solid #dee2e6;">
                         <h3
-                            style="color: #4dd2ff; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">
+                            style="color: #0d6efd; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">
                             MedCert History
                         </h3>
                         <button @click="openUploadModal()"
-                            style="margin-left: auto; background: rgba(77,210,255,0.15); color: #4dd2ff; border: 1px solid rgba(77, 210, 255, 0.4); padding: 7px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; letter-spacing: 0.5px;">
+                            style="margin-left: auto; background:#0d6efd; color: white; border: 1px solid rgba(17, 17, 17, 0.4); padding: 7px 16px; border-radius: 0; font-size: 12px; font-weight: 600; cursor: pointer; letter-spacing: 0.5px;">
                             UPLOAD ZIP
                         </button>
                     </div>
@@ -177,17 +178,17 @@
                         style="margin: 0; max-height: 300px; overflow-y: auto; overflow-x: auto;">
                         <div x-show="loadingRuns" style="padding: 40px; text-align: center;">
                             <span class="spinner" style="width: 24px; height: 24px; border-width: 3px;"></span>
-                            <p style="margin-top: 12px; color: #4dd2ff; font-size: 12px;">Fetching run history...</p>
+                            <p style="margin-top: 12px; color: #0d6efd; font-size: 12px;">Fetching run history...</p>
                         </div>
 
                         <div x-show="!loadingRuns && runs.length === 0"
-                            style="padding: 40px; text-align: center; color: #555;">
+                            style="padding: 40px; text-align: center; color: #6c757d;">
                             <p style="font-size: 13px;">No previous runs found.</p>
                         </div>
 
                         <table class="ledger-table" x-show="!loadingRuns && runs.length > 0"
                             style="table-layout: auto; min-width: 600px;">
-                            <thead style="position: sticky; top: 0; background: rgba(10, 10, 10, 0.98); z-index: 10;">
+                            <thead style="position: sticky; top: 0; background: rgba(248, 249, 250, 0.98); z-index: 10;">
                                 <tr>
                                     <th style="width: 60px;">#</th>
                                     <th style="width: 200px;">User Email</th>
@@ -198,18 +199,18 @@
                             <tbody>
                                 <template x-for="(run, index) in runs" :key="run.id">
                                     <tr class="ledger-row" @click="selectRun(run.id)"
-                                        :style="currentRunId === run.id ? 'background: rgba(77, 210, 255, 0.12); border-left: 4px solid #4dd2ff;' : 'cursor: pointer;'">
-                                        <td style="font-size: 12px; color: #ccc; padding-left: 14px; font-weight: bold;"
+                                        :style="currentRunId === run.id ? 'background: rgba(17, 17, 17, 0.12); border-left: 4px solid #111111;' : 'cursor: pointer;'">
+                                        <td style="font-size: 12px; color: #6c757d; padding-left: 14px; font-weight: bold;"
                                             x-text="index + 1"></td>
-                                        <td style="font-size: 12px; color: #ccc;" x-text="run.user_email"></td>
-                                        <td style="font-size: 12px; color: #eee; font-weight: 500;">
+                                        <td style="font-size: 12px; color: #6c757d;" x-text="run.user_email"></td>
+                                        <td style="font-size: 12px; color: #111; font-weight: 500;">
                                             <div style="display: flex; align-items: center; gap: 8px;">
                                                 <span x-show="currentRunId === run.id"
-                                                    style="color: #4dd2ff; font-size: 10px;">â–¶</span>
+                                                    style="color: #0d6efd; font-size: 10px;">â–¶</span>
                                                 <span x-text="run.zip_filename"></span>
                                             </div>
                                         </td>
-                                        <td style="font-size: 12px; color: #888;"
+                                        <td style="font-size: 12px; color: #6c757d;"
                                             x-text="new Date(run.created_at).toLocaleString()"></td>
                                     </tr>
                                 </template>
@@ -221,103 +222,103 @@
                 <!-- Section 2: Run Details Area -->
                 <div class="glass-panel" style="display: flex; flex-direction: column; overflow: hidden;">
                     <div
-                        style="padding: 12px 16px; border-bottom: 1px solid rgba(77, 210, 255, 0.1); background: rgba(77, 210, 255, 0.05);">
+                        style="padding: 12px 16px; border-bottom: 1px solid #dee2e6; background: rgba(17, 17, 17, 0.05);">
                         <h3
-                            style="color: #4dd2ff; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">
+                            style="color: #0d6efd; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">
                             Case Details
                         </h3>
                     </div>
                     <!-- Details Container without filters or select options -->
                     <div class="ledger-table-container" style="margin: 0; min-height: 200px; padding: 0;">
-                        <div x-show="!currentRunId" style="text-align: center; color: #555; padding: 60px 0;">
+                        <div x-show="!currentRunId" style="text-align: center; color: #6c757d; padding: 60px 0;">
                             <p style="font-size: 14px; font-weight: 600;">Select a run to view details.</p>
                         </div>
 
                         <div x-show="currentRunId && loadingCaseDetails" style="text-align: center; padding: 60px 0;">
                             <span class="spinner" style="width: 32px; height: 32px;"></span>
-                            <p style="margin-top: 16px; color: #4dd2ff; font-size: 13px;">Analyzing Case Data...</p>
+                            <p style="margin-top: 16px; color: #0d6efd; font-size: 13px;">Analyzing Case Data...</p>
                         </div> <!-- CASE CONTENT VIEW -->
                         <div x-show="currentRunId && !loadingCaseDetails && caseDetails" style="padding: 24px;"
                             class="case-details-inner">
 
                             <!-- 1. Case Header & Airman Info -->
                             <div class="glass-panel"
-                                style="padding: 24px; margin-bottom: 24px; background: rgba(77, 210, 255, 0.05);">
+                                style="padding: 24px; margin-bottom: 24px; background: rgba(17, 17, 17, 0.05);">
                                 <div class="responsive-header" style="margin-bottom: 20px;">
                                     <div>
-                                        <h2 style="color: #4dd2ff; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;"
+                                        <h2 style="color: #0d6efd; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;"
                                             class="case-header-name" x-text="caseDetails.case_header.case_name"></h2>
                                         <div style="display: flex; gap: 12px; margin-top: 4px;"
                                             class="session-email-row">
-                                            <p style="color: #888; font-size: 11px; font-weight: 600; text-transform: uppercase;"
+                                            <p style="color: #6c757d; font-size: 11px; font-weight: 600; text-transform: uppercase;"
                                                 x-text="'Session: ' + (caseDetails.session_id || 'N/A')"></p>
-                                            <p style="color: #666; font-size: 11px; font-weight: 600; text-transform: uppercase;"
+                                            <p style="color: #9ca3af; font-size: 11px; font-weight: 600; text-transform: uppercase;"
                                                 x-text="'Email: ' + (caseDetails.user_email || 'N/A')"></p>
                                         </div>
                                     </div>
                                     <div style="text-align: right;" class="case-header-badge-col">
                                         <div class="badge badge-status" style="font-size: 11px; padding: 4px 12px;"
                                             x-text="caseDetails.procedural_stage.current_procedural_stage"></div>
-                                        <p style="color: #666; font-size: 10px; margin-top: 6px;"
+                                        <p style="color: #9ca3af; font-size: 10px; margin-top: 6px;"
                                             x-text="'Analyzed: ' + (caseDetails.created_at ? new Date(caseDetails.created_at).toLocaleString() : 'N/A')">
                                         </p>
                                     </div>
                                 </div>
 
                                 <div class="responsive-grid-auto"
-                                    style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); border-top: 1px solid rgba(77,210,255,0.1); padding-top: 20px; gap: 32px;">
+                                    style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); border-top: 1px solid #dee2e6; padding-top: 20px; gap: 32px;">
                                     <div>
                                         <h5
-                                            style="color: #888; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-bottom: 12px;">
+                                            style="color: #6c757d; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-bottom: 12px;">
                                             Airman Information</h5>
                                         <div style="display: flex; flex-direction: column; gap: 6px;">
-                                            <p style="color: #eee; font-size: 13px;"><span
-                                                    style="color: #4dd2ff; font-weight: 600;">Case ID:</span> <span
+                                            <p style="color: #111; font-size: 13px;"><span
+                                                    style="color: #0d6efd; font-weight: 600;">Case ID:</span> <span
                                                     x-text="caseDetails.case_header.case_id || 'UNKNOWN'"></span></p>
-                                            <p style="color: #eee; font-size: 13px;"><span
-                                                    style="color: #4dd2ff; font-weight: 600;">Case No:</span> <span
+                                            <p style="color: #111; font-size: 13px;"><span
+                                                    style="color: #0d6efd; font-weight: 600;">Case No:</span> <span
                                                     x-text="caseDetails.case_header.case_number || 'UNKNOWN'"></span>
                                             </p>
-                                            <p style="color: #eee; font-size: 13px;"><span
-                                                    style="color: #4dd2ff; font-weight: 600;">Full Name:</span> <span
+                                            <p style="color: #111; font-size: 13px;"><span
+                                                    style="color: #0d6efd; font-weight: 600;">Full Name:</span> <span
                                                     x-text="caseDetails.case_header.airman_information.full_name || 'N/A'"></span>
                                             </p>
-                                            <p style="color: #eee; font-size: 13px;"><span
-                                                    style="color: #4dd2ff; font-weight: 600;">PI:</span> <span
+                                            <p style="color: #111; font-size: 13px;"><span
+                                                    style="color: #0d6efd; font-weight: 600;">PI:</span> <span
                                                     x-text="caseDetails.case_header.airman_information.pi || 'N/A'"></span>
                                             </p>
-                                            <p style="color: #eee; font-size: 13px;"><span
-                                                    style="color: #4dd2ff; font-weight: 600;">DOB:</span> <span
+                                            <p style="color: #111; font-size: 13px;"><span
+                                                    style="color: #0d6efd; font-weight: 600;">DOB:</span> <span
                                                     x-text="caseDetails.case_header.airman_information.dob || 'N/A'"></span>
                                             </p>
-                                            <p style="color: #eee; font-size: 13px;"><span
-                                                    style="color: #4dd2ff; font-weight: 600;">App ID:</span> <span
+                                            <p style="color: #111; font-size: 13px;"><span
+                                                    style="color: #0d6efd; font-weight: 600;">App ID:</span> <span
                                                     x-text="caseDetails.case_header.airman_information.app_id || 'N/A'"></span>
                                             </p>
                                         </div>
                                     </div>
                                     <div>
                                         <h5
-                                            style="color: #888; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-bottom: 12px;">
+                                            style="color: #6c757d; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-bottom: 12px;">
                                             Document Set Summary</h5>
-                                        <p style="color: #ccc; font-size: 12px; font-style: italic; line-height: 1.4; margin-bottom: 12px;"
+                                        <p style="color: #6c757d; font-size: 12px; font-style: italic; line-height: 1.4; margin-bottom: 12px;"
                                             x-text="caseDetails.case_header.document_set_summary.notes"></p>
                                         <div
-                                            style="margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">
-                                            <p style="color: #4dd2ff; font-size: 10px; font-weight: 700; margin-bottom: 6px;"
+                                            style="margin-top: 12px; border-top: 1px solid #dee2e6; padding-top: 8px;">
+                                            <p style="color: #0d6efd; font-size: 10px; font-weight: 700; margin-bottom: 6px;"
                                                 x-text="'FILE NAMES (' + (caseDetails.case_header.document_set_summary.total_files || 0) + ' TOTAL)'">
                                             </p>
                                             <div
-                                                style="max-height: 120px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(77, 210, 255, 0.4) rgba(77, 210, 255, 0.1); padding-right: 8px;">
+                                                style="max-height: 120px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(17, 17, 17, 0.4) rgba(17, 17, 17, 0.1); padding-right: 8px;">
                                                 <template
                                                     x-for="fname in (caseDetails.case_header.document_set_summary.file_names || [])"
                                                     :key="fname">
-                                                    <div style="color: #aaa; font-size: 10px; margin-bottom: 4px; padding: 4px; background: rgba(0,0,0,0.2); border-radius: 4px;"
+                                                    <div style="color: #6c757d; font-size: 10px; margin-bottom: 4px; padding: 4px; background: #f8f9fa; border-radius: 0;"
                                                         x-text="fname"></div>
                                                 </template>
                                                 <template
                                                     x-if="!caseDetails.case_header.document_set_summary.file_names || caseDetails.case_header.document_set_summary.file_names.length === 0">
-                                                    <div style="color: #555; font-size: 10px; font-style: italic;">No
+                                                    <div style="color: #6c757d; font-size: 10px; font-style: italic;">No
                                                         file names provided.</div>
                                                 </template>
                                             </div>
@@ -325,14 +326,14 @@
                                     </div>
                                     <div>
                                         <h5
-                                            style="color: #888; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-bottom: 12px;">
+                                            style="color: #6c757d; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-bottom: 12px;">
                                             Recommended Addressee</h5>
-                                        <p style="color: #4dd2ff; font-size: 13px; font-weight: 700;"
+                                        <p style="color: #0d6efd; font-size: 13px; font-weight: 700;"
                                             x-text="caseDetails.addressee_logic.recommended_addressee"></p>
                                         <div x-show="caseDetails.addressee_logic.attorney_review_required"
                                             style="margin-top: 8px; color: #e74c3c; font-size: 10px; font-weight: 800; display: flex; align-items: center; gap: 4px;">
                                             <span
-                                                style="display:inline-block; width:6px; height:6px; background:#e74c3c; border-radius:50%;"></span>
+                                                style="display:inline-block; width:6px; height:6px; background:#e74c3c; border-radius: 0;"></span>
                                             ATTORNEY REVIEW REQUIRED
                                         </div>
                                     </div>
@@ -344,29 +345,29 @@
                                 <!-- Addressee Basis -->
                                 <div class="glass-panel" style="padding: 16px;">
                                     <h4
-                                        style="color: #4dd2ff; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">
+                                        style="color: #0d6efd; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">
                                         Addressee Decision Basis</h4>
                                     <template x-for="basis in (caseDetails.addressee_logic.basis || [])">
                                         <div>
-                                            <p style="color: #eee; font-size: 12px; line-height: 1.5; margin-bottom: 12px;"
+                                            <p style="color: #111; font-size: 12px; line-height: 1.5; margin-bottom: 12px;"
                                                 x-text="basis.description"></p>
                                             <template x-for="cite in (basis.source_citations || [])">
                                                 <div
-                                                    style="margin-bottom: 8px; font-size: 10px; padding: 8px; background: rgba(0,0,0,0.3); border-left: 2px solid #4dd2ff;">
-                                                    <p style="color: #ccc; font-style: italic; font-size: 10px; margin-bottom: 6px;"
+                                                    style="margin-bottom: 8px; font-size: 10px; padding: 8px; background: rgba(0,0,0,0.3); border-left: 2px solid #111111;">
+                                                    <p style="color: #6c757d; font-style: italic; font-size: 10px; margin-bottom: 6px;"
                                                         x-text="'\"' + (cite.excerpt || ' No excerpt available') + ' \"'"></p>
                                                     <div style=" display: flex; justify-content: space-between;
                                                         align-items: center;">
-                                                        <span style="color: #4dd2ff; font-weight: 700; font-size: 9px;"
+                                                        <span style="color: #0d6efd; font-weight: 700; font-size: 9px;"
                                                             x-text="cite.citation_label"></span>
-                                                        <span style="color: #888; font-size: 9px;"
+                                                        <span style="color: #6c757d; font-size: 9px;"
                                                             x-text="cite.source_document"></span>
                                                 </div>
                                         </div>
                                     </template>
                                     <template x-if="!basis.source_citations || basis.source_citations.length === 0">
                                         <div
-                                            style="color: #555; font-size: 10px; font-style: italic; margin-bottom: 12px; padding: 4px;">
+                                            style="color: #6c757d; font-size: 10px; font-style: italic; margin-bottom: 12px; padding: 4px;">
                                             No source citations for this basis.</div>
                                     </template>
                                 </div>
@@ -374,36 +375,36 @@
                                 <template
                                     x-if="!caseDetails.addressee_logic.basis || caseDetails.addressee_logic.basis.length === 0">
                                     <div
-                                        style="color: #555; font-size: 12px; font-style: italic; text-align: center; padding: 12px;">
+                                        style="color: #6c757d; font-size: 12px; font-style: italic; text-align: center; padding: 12px;">
                                         No addressee decision basis available.</div>
                                 </template>
                             </div>
                             <!-- Procedural Stage Basis -->
                             <div class="glass-panel" style="padding: 16px;">
                                 <h4
-                                    style="color: #4dd2ff; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">
+                                    style="color: #0d6efd; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">
                                     Procedural Stage Basis</h4>
                                 <template x-for="basis in (caseDetails.procedural_stage.stage_basis || [])">
                                     <div>
-                                        <p style="color: #eee; font-size: 12px; line-height: 1.5; margin-bottom: 12px;"
+                                        <p style="color: #111; font-size: 12px; line-height: 1.5; margin-bottom: 12px;"
                                             x-text="basis.description"></p>
                                         <template x-for="cite in (basis.source_citations || [])">
                                             <div
                                                 style="margin-bottom: 8px; font-size: 10px; padding: 8px; background: rgba(0,0,0,0.3); border-left: 2px solid #3498db;">
-                                                <p style="color: #ccc; font-style: italic; font-size: 10px; margin-bottom: 6px;"
+                                                <p style="color: #6c757d; font-style: italic; font-size: 10px; margin-bottom: 6px;"
                                                     x-text="'\"' + (cite.excerpt || ' No excerpt available') + ' \"'"></p>
                                                     <div style=" display: flex; justify-content: space-between;
                                                     align-items: center;">
                                                     <span style="color: #3498db; font-weight: 700; font-size: 9px;"
                                                         x-text="cite.citation_label"></span>
-                                                    <span style="color: #888; font-size: 9px;"
+                                                    <span style="color: #6c757d; font-size: 9px;"
                                                         x-text="cite.source_document"></span>
                                             </div>
                                     </div>
                                 </template>
                                 <template x-if="!basis.source_citations || basis.source_citations.length === 0">
                                     <div
-                                        style="color: #555; font-size: 10px; font-style: italic; margin-bottom: 12px; padding: 4px;">
+                                        style="color: #6c757d; font-size: 10px; font-style: italic; margin-bottom: 12px; padding: 4px;">
                                         No source citations for this stage basis.</div>
                                 </template>
                             </div>
@@ -411,26 +412,26 @@
                             <template
                                 x-if="!caseDetails.procedural_stage.stage_basis || caseDetails.procedural_stage.stage_basis.length === 0">
                                 <div
-                                    style="color: #555; font-size: 12px; font-style: italic; text-align: center; padding: 12px;">
+                                    style="color: #6c757d; font-size: 12px; font-style: italic; text-align: center; padding: 12px;">
                                     No procedural stage basis available.</div>
                             </template>
 
                             <!-- Prior Procedural Stages -->
                             <div
-                                style="margin-top: 16px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 12px;">
+                                style="margin-top: 16px; border-top: 1px solid #dee2e6; padding-top: 12px;">
                                 <h5
-                                    style="color: #888; font-size: 9px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px;">
+                                    style="color: #6c757d; font-size: 9px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px;">
                                     Prior Procedural Stages</h5>
                                 <div style="display: flex; flex-wrap: wrap; gap: 6px;">
                                     <template
                                         x-for="stage in (caseDetails.procedural_stage.prior_procedural_stages || [])">
                                         <span class="badge badge-status"
-                                            style="font-size: 9px; background: rgba(136,136,136,0.1); color: #888; border-color: rgba(136,136,136,0.2);"
+                                            style="font-size: 9px; background: rgba(136,136,136,0.1); color: #6c757d; border-color: rgba(136,136,136,0.2);"
                                             x-text="stage"></span>
                                     </template>
                                     <template
                                         x-if="!caseDetails.procedural_stage.prior_procedural_stages || caseDetails.procedural_stage.prior_procedural_stages.length === 0">
-                                        <p style="color: #555; font-size: 10px; font-style: italic;">No prior
+                                        <p style="color: #6c757d; font-size: 10px; font-style: italic;">No prior
                                             procedural stages recorded.</p>
                                     </template>
                                 </div>
@@ -441,31 +442,31 @@
                     <!-- 3. Document Inventory -->
                     <div style="margin-bottom: 32px;">
                         <h4
-                            style="color: #4dd2ff; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 16px; letter-spacing: 1px;">
+                            style="color: #0d6efd; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 16px; letter-spacing: 1px;">
                             Document Inventory</h4>
                         <div class="responsive-grid-auto">
                             <template x-for="doc in (caseDetails.documents || [])">
                                 <div class="item-card" style="display: flex; flex-direction: column; gap: 8px;">
                                     <div style="display: flex; justify-content: space-between; align-items: start;">
                                         <span
-                                            style="color: #4dd2ff; font-size: 10px; font-weight: 800; background: rgba(77,210,255,0.1); padding: 2px 6px; border-radius: 4px;"
+                                            style="color: #0d6efd; font-size: 10px; font-weight: 800; background: rgba(77,210,255,0.1); padding: 2px 6px; border-radius: 0;"
                                             x-text="doc.document_id"></span>
-                                        <span style="color: #aaa; font-size: 10px;" x-text="doc.document_type"></span>
+                                        <span style="color: #6c757d; font-size: 10px;" x-text="doc.document_type"></span>
                                     </div>
-                                    <p style="color: #eee; font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                                    <p style="color: #111; font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
                                         x-text="doc.file_name"></p>
-                                    <p style="color: #888; font-size: 11px; line-height: 1.4;"
+                                    <p style="color: #6c757d; font-size: 11px; line-height: 1.4;"
                                         x-text="doc.classification_basis"></p>
                                     <template x-for="cite in (doc.source_citations || [])">
                                         <div
-                                            style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.05);">
-                                            <p style="color: #ccc; font-style: italic; font-size: 9px; margin-bottom: 4px;"
+                                            style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #dee2e6;">
+                                            <p style="color: #6c757d; font-style: italic; font-size: 9px; margin-bottom: 4px;"
                                                 x-text="'\"' + (cite.excerpt || ' No excerpt available') + ' \"'"></p>
                                                     <div style=" display: flex; justify-content: space-between;
                                                 align-items: center;">
-                                                <span style="color: #4dd2ff; font-weight: 700; font-size: 8px;"
+                                                <span style="color: #0d6efd; font-weight: 700; font-size: 8px;"
                                                     x-text="cite.citation_label"></span>
-                                                <span style="color: #666; font-size: 8px;"
+                                                <span style="color: #9ca3af; font-size: 8px;"
                                                     x-text="cite.source_document"></span>
                                         </div>
                                 </div>
@@ -478,7 +479,7 @@
                         </template>
                         <template x-if="!caseDetails.documents || caseDetails.documents.length === 0">
                             <div
-                                style="color: #555; font-size: 12px; font-style: italic; grid-column: 1/-1; text-align: center; padding: 20px;">
+                                style="color: #6c757d; font-size: 12px; font-style: italic; grid-column: 1/-1; text-align: center; padding: 20px;">
                                 No documents in inventory.</div>
                         </template>
                     </div>
@@ -487,19 +488,19 @@
                 <!-- 4. Issue Matrix -->
                 <div style="margin-bottom: 32px;">
                     <h4
-                        style="color: #4dd2ff; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 16px; letter-spacing: 1px;">
+                        style="color: #0d6efd; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 16px; letter-spacing: 1px;">
                         Issue Matrix by Condition</h4>
                     <div class="responsive-grid-auto"
                         style="grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));">
                         <template x-for="issue in (caseDetails.issue_stack || [])">
-                            <div class="item-card" style="position: relative; border-left: 4px solid #4dd2ff;">
+                            <div class="item-card" style="position: relative; border-left: 4px solid #111111;">
                                 <div
                                     style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
                                     <div style="display: flex; align-items: center; gap: 8px;">
-                                        <span style="color: #4dd2ff; font-weight: 800; font-size: 12px;"
+                                        <span style="color: #0d6efd; font-weight: 800; font-size: 12px;"
                                             x-text="issue.issue_category"></span>
                                         <span style="color: #444;">|</span>
-                                        <span style="color: #888; font-size: 10px;" x-text="issue.issue_subtype"></span>
+                                        <span style="color: #6c757d; font-size: 10px;" x-text="issue.issue_subtype"></span>
                                     </div>
                                     <div
                                         style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
@@ -507,28 +508,28 @@
                                             :class="issue.record_status === 'KNOWN' ? 'badge-status' : 'badge-missing'"
                                             x-text="issue.record_status"></span>
                                         <span
-                                            style="font-size: 9px; color: #aaa; font-weight: 700; text-transform: uppercase;"
+                                            style="font-size: 9px; color: #6c757d; font-weight: 700; text-transform: uppercase;"
                                             x-text="issue.condition_status"></span>
                                     </div>
                                 </div>
-                                <h5 style="color: #eee; font-weight: 700; font-size: 15px; margin-bottom: 12px; line-height: 1.4;"
+                                <h5 style="color: #111; font-weight: 700; font-size: 15px; margin-bottom: 12px; line-height: 1.4;"
                                     x-text="issue.issue_label"></h5>
 
                                 <!-- Associated IDs -->
                                 <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px;">
                                     <template x-for="id in (issue.diagnosis_ids || [])">
                                         <span
-                                            style="font-size: 8px; color: #3498db; background: rgba(52,152,219,0.1); padding: 1px 4px; border: 1px solid rgba(52,152,219,0.2); border-radius: 3px;"
+                                            style="font-size: 8px; color: #3498db; background: rgba(52,152,219,0.1); padding: 1px 4px; border: 1px solid rgba(52,152,219,0.2); border-radius: 0;"
                                             x-text="'Diag: ' + id"></span>
                                     </template>
                                     <template x-for="id in (issue.medication_ids || [])">
                                         <span
-                                            style="font-size: 8px; color: #2ecc71; background: rgba(46,204,113,0.1); padding: 1px 4px; border: 1px solid rgba(46,204,113,0.2); border-radius: 3px;"
+                                            style="font-size: 8px; color: #2ecc71; background: rgba(46,204,113,0.1); padding: 1px 4px; border: 1px solid rgba(46,204,113,0.2); border-radius: 0;"
                                             x-text="'Med: ' + id"></span>
                                     </template>
                                     <template x-for="id in (issue.evaluation_ids || [])">
                                         <span
-                                            style="font-size: 8px; color: #4dd2ff; background: rgba(77,210,255,0.1); padding: 1px 4px; border: 1px solid rgba(77, 210, 255, 0.2); border-radius: 3px;"
+                                            style="font-size: 8px; color: #0d6efd; background: rgba(77,210,255,0.1); padding: 1px 4px; border: 1px solid #dee2e6; border-radius: 0;"
                                             x-text="'Eval: ' + id"></span>
                                     </template>
                                 </div>
@@ -536,18 +537,18 @@
                                 <!-- Supporting Evidence (New Nested Structure) -->
                                 <div style="margin-top: 16px;">
                                     <p
-                                        style="color: #4dd2ff; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px;">
+                                        style="color: #0d6efd; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px;">
                                         Supporting Evidence</p>
                                     <div style="display: flex; flex-direction: column; gap: 12px;">
                                         <template x-for="ev in (issue.supporting_evidence || [])">
                                             <div
-                                                style="padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid rgba(77, 210, 255, 0.05);">
-                                                <p style="color: #ccc; font-size: 11px; line-height: 1.5; margin-bottom: 8px;"
+                                                style="padding: 10px; background: #f8f9fa; border-radius: 0; border: 1px solid #dee2e6;">
+                                                <p style="color: #6c757d; font-size: 11px; line-height: 1.5; margin-bottom: 8px;"
                                                     x-text="ev.description"></p>
                                                 <template x-for="cite in (ev.source_citations || [])">
                                                     <div
-                                                        style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(77,210,255,0.1);">
-                                                        <p style="color: #aaa; font-style: italic; font-size: 10px; margin-bottom: 4px;"
+                                                        style="margin-top: 6px; padding-top: 6px; border-top: 1px solid #dee2e6;">
+                                                        <p style="color: #6c757d; font-style: italic; font-size: 10px; margin-bottom: 4px;"
                                                             x-text="'\"' + (cite.excerpt || ' No excerpt available')
                                                             + ' \"'"></p>
                                                                     <div
@@ -555,9 +556,9 @@
                                                             justify-content:space-between; align-items:center;
                                                             margin-top:4px;">
                                                             <span
-                                                                style="color: #4dd2ff; font-weight: 700; font-size: 9px;"
+                                                                style="color: #0d6efd; font-weight: 700; font-size: 9px;"
                                                                 x-text="cite.citation_label"></span>
-                                                            <span style="color: #666; font-size: 9px;"
+                                                            <span style="color: #9ca3af; font-size: 9px;"
                                                                 x-text="cite.source_document"></span>
                                                     </div>
                                             </div>
@@ -571,22 +572,22 @@
                 <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px;">
                     <template x-for="tag in (issue.attorney_review_flags || [])">
                         <span
-                            style="font-size: 9px; padding: 2px 6px; background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.2); border-radius: 4px;"
+                            style="font-size: 9px; padding: 2px 6px; background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.2); border-radius: 0;"
                             x-text="tag"></span>
                     </template>
                     <template x-for="tag in (issue.prior_faa_action_ids || [])">
                         <span
-                            style="font-size: 9px; padding: 2px 6px; background: rgba(52, 152, 219, 0.1); color: #3498db; border: 1px solid rgba(52, 152, 219, 0.2); border-radius: 4px;"
+                            style="font-size: 9px; padding: 2px 6px; background: rgba(52, 152, 219, 0.1); color: #3498db; border: 1px solid rgba(52, 152, 219, 0.2); border-radius: 0;"
                             x-text="'FAA Action: ' + tag"></span>
                     </template>
                     <template x-for="tag in (issue.requested_relief_ids || [])">
                         <span
-                            style="font-size: 9px; padding: 2px 6px; background: rgba(46, 204, 113, 0.1); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.2); border-radius: 4px;"
+                            style="font-size: 9px; padding: 2px 6px; background: rgba(46, 204, 113, 0.1); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.2); border-radius: 0;"
                             x-text="'Relief: ' + tag"></span>
                     </template>
                     <template x-for="tag in (issue.referenced_missing_item_ids || [])">
                         <span
-                            style="font-size: 9px; padding: 2px 6px; background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.2); border-radius: 4px;"
+                            style="font-size: 9px; padding: 2px 6px; background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.2); border-radius: 0;"
                             x-text="'Missing: ' + tag"></span>
                     </template>
                 </div>
@@ -594,7 +595,7 @@
             </template>
             <template x-if="!caseDetails.issue_stack || caseDetails.issue_stack.length === 0">
                 <div
-                    style="color: #555; font-size: 14px; font-style: italic; grid-column: 1/-1; text-align: center; padding: 20px;">
+                    style="color: #6c757d; font-size: 14px; font-style: italic; grid-column: 1/-1; text-align: center; padding: 20px;">
                     No issues identified in stack.</div>
             </template>
         </div>
@@ -603,41 +604,41 @@
     <!-- Taxonomy Section -->
     <div style="margin-bottom: 32px;" x-show="caseDetails.taxonomy">
         <h4
-            style="color: #4dd2ff; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 16px; letter-spacing: 1px;">
+            style="color: #0d6efd; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 16px; letter-spacing: 1px;">
             Case Taxonomy Metadata</h4>
         <div class="responsive-grid-auto">
             <div class="glass-panel" style="padding: 16px;">
                 <p
-                    style="color: #888; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; border-bottom: 1px solid rgba(77,210,255,0.1); padding-bottom: 4px;">
+                    style="color: #6c757d; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; border-bottom: 1px solid rgba(77,210,255,0.1); padding-bottom: 4px;">
                     Supported Issue Categories</p>
                 <div style="display: flex; flex-wrap: wrap; gap: 6px;">
                     <template x-for="cat in (caseDetails.taxonomy.issue_categories_supported || [])">
                         <span
-                            style="font-size: 9px; padding: 2px 6px; background: rgba(77, 210, 255, 0.05); color: #4dd2ff; border: 1px solid rgba(77, 210, 255, 0.2); border-radius: 4px;"
+                            style="font-size: 9px; padding: 2px 6px; background: rgba(17, 17, 17, 0.05); color: #0d6efd; border: 1px solid #dee2e6; border-radius: 0;"
                             x-text="cat"></span>
                     </template>
                 </div>
             </div>
             <div class="glass-panel" style="padding: 16px;">
                 <p
-                    style="color: #888; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px;">
+                    style="color: #6c757d; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px;">
                     Potential Addressees</p>
                 <div style="display: flex; flex-wrap: wrap; gap: 6px;">
                     <template x-for="val in (caseDetails.taxonomy.addressee_values || [])">
                         <span
-                            style="font-size: 9px; padding: 2px 6px; background: rgba(136,136,136,0.1); color: #ccc; border: 1px solid rgba(136,136,136,0.2); border-radius: 4px;"
+                            style="font-size: 9px; padding: 2px 6px; background: rgba(136,136,136,0.1); color: #6c757d; border: 1px solid rgba(136,136,136,0.2); border-radius: 0;"
                             x-text="val"></span>
                     </template>
                 </div>
             </div>
             <div class="glass-panel" style="padding: 16px;">
                 <p
-                    style="color: #888; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px;">
+                    style="color: #6c757d; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px;">
                     Procedural Stages</p>
                 <div style="display: flex; flex-wrap: wrap; gap: 6px;">
                     <template x-for="val in (caseDetails.taxonomy.procedural_stage_values || [])">
                         <span
-                            style="font-size: 9px; padding: 2px 6px; background: rgba(136,136,136,0.1); color: #ccc; border: 1px solid rgba(136,136,136,0.2); border-radius: 4px;"
+                            style="font-size: 9px; padding: 2px 6px; background: rgba(136,136,136,0.1); color: #6c757d; border: 1px solid rgba(136,136,136,0.2); border-radius: 0;"
                             x-text="val"></span>
                     </template>
                 </div>
@@ -654,32 +655,32 @@
                 <!-- Checklists -->
                 <div class="glass-panel" style="padding: 20px;">
                     <h4
-                        style="color: #4dd2ff; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 16px;">
+                        style="color: #0d6efd; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 16px;">
                         Guideline Checklists</h4>
                     <div style="display: flex; flex-direction: column; gap: 16px;">
                         <template x-for="list in (caseDetails.guideline_checklists || [])">
                             <div>
-                                <p style="color: #4dd2ff; font-size: 10px; font-weight: 700; margin-bottom: 8px; border-bottom: 1px solid rgba(77, 210, 255, 0.2) ; padding-bottom: 4px;"
+                                <p style="color: #0d6efd; font-size: 10px; font-weight: 700; margin-bottom: 8px; border-bottom: 1px solid rgba(17, 17, 17, 0.2) ; padding-bottom: 4px;"
                                     x-text="list.issue_subtype"></p>
                                 <template x-for="item in (list.items || [])">
                                     <div style="display: flex; gap: 10px; margin-bottom: 10px;">
                                         <div :style="item.status === 'checklist_present' ? 'color:#2ecc71;' : 'color:#e74c3c;'"
                                             style="font-size: 14px;">â—</div>
                                         <div>
-                                            <p style="color: #eee; font-size: 12px; font-weight: 600;"
+                                            <p style="color: #111; font-size: 12px; font-weight: 600;"
                                                 x-text="item.checklist_item"></p>
-                                            <p style="color: #999; font-size: 10px; margin-top: 2px;"
+                                            <p style="color: #6c757d; font-size: 10px; margin-top: 2px;"
                                                 x-text="item.notes"></p>
                                             <template x-for="cite in (item.source_citations || [])">
                                                 <div
-                                                    style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.05);">
-                                                    <p style="color: #ccc; font-style: italic; font-size: 9px; margin-bottom: 4px;"
+                                                    style="margin-top: 6px; padding-top: 6px; border-top: 1px solid #dee2e6;">
+                                                    <p style="color: #6c757d; font-style: italic; font-size: 9px; margin-bottom: 4px;"
                                                         x-text="'\"' + (cite.excerpt || ' No excerpt available') + ' \"'"></p>
                                                                                 <div style=" display: flex;
                                                         justify-content: space-between; align-items: center;">
-                                                        <span style="color: #4dd2ff; font-weight: 700; font-size: 8px;"
+                                                        <span style="color: #0d6efd; font-weight: 700; font-size: 8px;"
                                                             x-text="cite.citation_label"></span>
-                                                        <span style="color: #666; font-size: 8px;"
+                                                        <span style="color: #9ca3af; font-size: 8px;"
                                                             x-text="cite.source_document"></span>
                                                 </div>
                                         </div>
@@ -697,27 +698,27 @@
                 style="color: #e74c3c; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 16px;">
                 Missing Records Checklist</h4>
             <div x-show="!caseDetails.missing_items.referenced_missing_items || caseDetails.missing_items.referenced_missing_items.length === 0"
-                style="color: #555; font-size: 12px; text-align: center; padding: 20px;">
+                style="color: #6c757d; font-size: 12px; text-align: center; padding: 20px;">
                 No missing items identified.
             </div>
             <template x-for="item in (caseDetails.missing_items.referenced_missing_items || [])">
                 <div
-                    style="padding: 10px; background: rgba(231, 76, 60, 0.05); border-radius: 6px; margin-bottom: 8px;">
+                    style="padding: 10px; background: rgba(231, 76, 60, 0.05); border-radius: 0; margin-bottom: 8px;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                         <p style="color: #e74c3c; font-size: 12px; font-weight: 700;" x-text="item.item"></p>
                         <span class="badge badge-missing" style="font-size: 8px;" x-text="item.status"></span>
                     </div>
-                    <p style="color: #888; font-size: 11px; margin-bottom: 8px;" x-text="item.description"></p>
+                    <p style="color: #6c757d; font-size: 11px; margin-bottom: 8px;" x-text="item.description"></p>
                     <template x-for="cite in (item.triggering_source_citations || [])">
                         <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(231,76,60,0.1);">
-                            <p style="color: #ccc; font-style: italic; font-size: 9px; margin-bottom: 4px;"
+                            <p style="color: #6c757d; font-style: italic; font-size: 9px; margin-bottom: 4px;"
                                 x-text="'\"' + (cite.excerpt || ' No excerpt available') + ' \"'"></p>
                                                                 <div
                                                                     style=" display:flex;
                                 justify-content:space-between; align-items:center; margin-top:4px;">
                                 <span style="color: #e74c3c; font-weight: 700; font-size: 9px;"
                                     x-text="cite.citation_label"></span>
-                                <span style="color: #666; font-size: 9px;" x-text="cite.source_document"></span>
+                                <span style="color: #9ca3af; font-size: 9px;" x-text="cite.source_document"></span>
                         </div>
                 </div>
             </template>
@@ -729,71 +730,71 @@
     <!-- 6. Fact Model Grid -->
     <div class="glass-panel" style="padding: 20px;">
         <h4
-            style="color: #4dd2ff; font-size: 12px; font-weight: 800; text-transform: uppercase; margin-bottom: 20px; letter-spacing: 1px;">
+            style="color: #0d6efd; font-size: 12px; font-weight: 800; text-transform: uppercase; margin-bottom: 20px; letter-spacing: 1px;">
             Clinical Fact Model</h4>
 
         <!-- Diagnoses -->
         <div style="margin-bottom: 24px;">
-            <p style="color: #888; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">
+            <p style="color: #6c757d; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">
                 Diagnoses</p>
             <div class="responsive-grid-2" style="gap: 12px;">
                 <template x-for="diag in (caseDetails.fact_model.diagnoses || [])">
                     <div class="item-card" style="padding: 12px;">
-                        <p style="color: #4dd2ff; font-weight: 700; font-size: 13px; margin-bottom: 4px;"
+                        <p style="color: #0d6efd; font-weight: 700; font-size: 13px; margin-bottom: 4px;"
                             x-text="diag.diagnosis_name"></p>
-                        <p style="color: #ccc; font-size: 11px; margin-bottom: 10px;" x-text="diag.diagnosis_detail">
+                        <p style="color: #6c757d; font-size: 11px; margin-bottom: 10px;" x-text="diag.diagnosis_detail">
                         </p>
                         <template x-for="cite in (diag.source_citations || [])">
                             <div
-                                style="font-size: 9px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 8px;">
-                                <p style="color: #ccc; font-style: italic; margin-bottom: 4px;"
+                                style="font-size: 9px; padding-top: 8px; border-top: 1px solid #dee2e6; margin-top: 8px;">
+                                <p style="color: #6c757d; font-style: italic; margin-bottom: 4px;"
                                     x-text="'\"' + (cite.excerpt || ' No excerpt available') + ' \"'"></p>
                                                                 <div
                                                                     style=" display: flex; justify-content:
                                     space-between; align-items: center;">
-                                    <span style="color: #4dd2ff; font-weight: 800;" x-text="cite.citation_label"></span>
-                                    <span style="color: #888;" x-text="cite.source_document"></span>
+                                    <span style="color: #0d6efd; font-weight: 800;" x-text="cite.citation_label"></span>
+                                    <span style="color: #6c757d;" x-text="cite.source_document"></span>
                             </div>
                     </div>
                 </template>
             </div>
             </template>
             <div x-show="!caseDetails.fact_model.diagnoses || caseDetails.fact_model.diagnoses.length === 0"
-                style="color: #555; font-size: 11px; font-style: italic; padding: 12px;">
+                style="color: #6c757d; font-size: 11px; font-style: italic; padding: 12px;">
                 No diagnoses recorded.</div>
         </div>
     </div>
 
     <!-- Medications -->
     <div style="margin-bottom: 24px;">
-        <p style="color: #888; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">
+        <p style="color: #6c757d; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">
             Medications</p>
         <div class="responsive-grid-2" style="gap: 12px;">
             <template x-for="med in (caseDetails.fact_model.medications || [])">
                 <div class="item-card" style="padding: 12px;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                        <span style="color: #eee; font-weight: 700; font-size: 13px;"
+                        <span style="color: #111; font-weight: 700; font-size: 13px;"
                             x-text="med.medication_name"></span>
-                        <span style="color: #888; font-size: 11px;" x-text="med.medication_class"></span>
+                        <span style="color: #6c757d; font-size: 11px;" x-text="med.medication_class"></span>
                     </div>
-                    <p style="color: #ccc; font-size: 11px;" x-text="med.dose + ' â€¢ ' + med.instructions"></p>
+                    <p style="color: #6c757d; font-size: 11px;" x-text="med.dose + ' â€¢ ' + med.instructions"></p>
                     <template x-for="cite in (med.source_citations || [])">
                         <div
-                            style="font-size: 9px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 8px;">
-                            <p style="color: #ccc; font-style: italic; margin-bottom: 4px;"
+                            style="font-size: 9px; padding-top: 8px; border-top: 1px solid #dee2e6; margin-top: 8px;">
+                            <p style="color: #6c757d; font-style: italic; margin-bottom: 4px;"
                                 x-text="'\"' + (cite.excerpt || ' No excerpt available') + ' \"'"></p>
                                                                 <div
                                                                     style=" display: flex; justify-content:
                                 space-between; align-items: center;">
-                                <span style="color: #4dd2ff; font-weight: 800;" x-text="cite.citation_label"></span>
-                                <span style="color: #888;" x-text="cite.source_document"></span>
+                                <span style="color: #0d6efd; font-weight: 800;" x-text="cite.citation_label"></span>
+                                <span style="color: #6c757d;" x-text="cite.source_document"></span>
                         </div>
                 </div>
             </template>
         </div>
         </template>
         <div x-show="!caseDetails.fact_model.medications || caseDetails.fact_model.medications.length === 0"
-            style="color: #555; font-size: 11px; font-style: italic; padding: 12px;">
+            style="color: #6c757d; font-size: 11px; font-style: italic; padding: 12px;">
             No medications recorded.</div>
     </div>
     </div>
@@ -801,57 +802,57 @@
     <div class="responsive-grid-2">
         <!-- Prior FAA Actions -->
         <div style="margin-bottom: 24px;">
-            <p style="color: #888; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">
+            <p style="color: #6c757d; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">
                 Prior FAA Actions</p>
             <template x-for="action in (caseDetails.fact_model.prior_faa_actions || [])">
                 <div class="item-card" style="margin-bottom: 8px; padding: 10px;">
-                    <p style="color: #eee; font-weight: 700; font-size: 12px;" x-text="action.action_type"></p>
-                    <p style="color: #888; font-size: 11px; margin-top: 4px;" x-text="action.description"></p>
+                    <p style="color: #111; font-weight: 700; font-size: 12px;" x-text="action.action_type"></p>
+                    <p style="color: #6c757d; font-size: 11px; margin-top: 4px;" x-text="action.description"></p>
                     <template x-for="cite in (action.source_citations || [])">
                         <div
-                            style="font-size: 9px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 8px;">
-                            <p style="color: #ccc; font-style: italic; margin-bottom: 4px;"
+                            style="font-size: 9px; padding-top: 8px; border-top: 1px solid #dee2e6; margin-top: 8px;">
+                            <p style="color: #6c757d; font-style: italic; margin-bottom: 4px;"
                                 x-text="'\"' + (cite.excerpt || ' No excerpt available') + ' \"'"></p>
                                                                 <div
                                                                     style=" display: flex; justify-content:
                                 space-between; align-items: center;">
-                                <span style="color: #4dd2ff; font-weight: 800;" x-text="cite.citation_label"></span>
-                                <span style="color: #888;" x-text="cite.source_document"></span>
+                                <span style="color: #0d6efd; font-weight: 800;" x-text="cite.citation_label"></span>
+                                <span style="color: #6c757d;" x-text="cite.source_document"></span>
                         </div>
                 </div>
             </template>
         </div>
         </template>
         <div x-show="!caseDetails.fact_model.prior_faa_actions || caseDetails.fact_model.prior_faa_actions.length === 0"
-            style="color: #555; font-size: 11px; font-style: italic; padding: 12px;">
+            style="color: #6c757d; font-size: 11px; font-style: italic; padding: 12px;">
             No prior actions identified.</div>
     </div>
 
     <!-- Reporting Reconciliation -->
     <div style="margin-bottom: 24px;">
-        <p style="color: #888; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">
+        <p style="color: #6c757d; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">
             Reporting Reconciliation</p>
         <template x-for="item in (caseDetails.fact_model.reporting_reconciliation_status || [])">
             <div class="item-card" style="margin-bottom: 8px; padding: 10px;">
-                <p style="color: #eee; font-weight: 700; font-size: 12px;" x-text="item.label"></p>
-                <p style="color: #888; font-size: 11px; margin-top: 4px;" x-text="item.reconciliation_notes"></p>
+                <p style="color: #111; font-weight: 700; font-size: 12px;" x-text="item.label"></p>
+                <p style="color: #6c757d; font-size: 11px; margin-top: 4px;" x-text="item.reconciliation_notes"></p>
                 <template x-for="cite in (item.source_citations || [])">
                     <div
-                        style="font-size: 9px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 8px;">
-                        <p style="color: #ccc; font-style: italic; margin-bottom: 4px;"
+                        style="font-size: 9px; padding-top: 8px; border-top: 1px solid #dee2e6; margin-top: 8px;">
+                        <p style="color: #6c757d; font-style: italic; margin-bottom: 4px;"
                             x-text="'\"' + (cite.excerpt || ' No excerpt available') + ' \"'"></p>
                                                                 <div
                                                                     style=" display: flex; justify-content:
                             space-between; align-items: center;">
-                            <span style="color: #4dd2ff; font-weight: 800;" x-text="cite.citation_label"></span>
-                            <span style="color: #888;" x-text="cite.source_document"></span>
+                            <span style="color: #0d6efd; font-weight: 800;" x-text="cite.citation_label"></span>
+                            <span style="color: #6c757d;" x-text="cite.source_document"></span>
                     </div>
             </div>
         </template>
     </div>
     </template>
     <div x-show="!caseDetails.fact_model.reporting_reconciliation_status || caseDetails.fact_model.reporting_reconciliation_status.length === 0"
-        style="color: #555; font-size: 11px; font-style: italic; padding: 12px;">
+        style="color: #6c757d; font-size: 11px; font-style: italic; padding: 12px;">
         No reconciliation items identified.</div>
     </div>
     </div>
@@ -859,57 +860,57 @@
     <!-- Evaluations & Relief -->
     <div class="responsive-grid-2">
         <div>
-            <p style="color: #888; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">
+            <p style="color: #6c757d; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">
                 Evaluations & Tests</p>
             <template x-for="test in (caseDetails.fact_model.evaluations_tests || [])">
                 <div class="item-card" style="margin-bottom: 8px; padding: 10px;">
-                    <p style="color: #eee; font-weight: 700; font-size: 12px;" x-text="test.test_name"></p>
+                    <p style="color: #111; font-weight: 700; font-size: 12px;" x-text="test.test_name"></p>
                     <p style="color: #2ecc71; font-size: 11px; margin-top: 4px;" x-text="test.result"></p>
                     <template x-for="cite in (test.source_citations || [])">
                         <div
-                            style="font-size: 9px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 8px;">
-                            <p style="color: #ccc; font-style: italic; margin-bottom: 4px;"
+                            style="font-size: 9px; padding-top: 8px; border-top: 1px solid #dee2e6; margin-top: 8px;">
+                            <p style="color: #6c757d; font-style: italic; margin-bottom: 4px;"
                                 x-text="'\"' + (cite.excerpt || ' No excerpt available') + ' \"'"></p>
                                                                 <div
                                                                     style=" display: flex; justify-content:
                                 space-between; align-items: center;">
-                                <span style="color: #4dd2ff; font-weight: 800;" x-text="cite.citation_label"></span>
-                                <span style="color: #888;" x-text="cite.source_document"></span>
+                                <span style="color: #0d6efd; font-weight: 800;" x-text="cite.citation_label"></span>
+                                <span style="color: #6c757d;" x-text="cite.source_document"></span>
                         </div>
                 </div>
             </template>
         </div>
         </template>
         <div x-show="!caseDetails.fact_model.evaluations_tests || caseDetails.fact_model.evaluations_tests.length === 0"
-            style="color: #555; font-size: 11px; font-style: italic; padding: 12px;">
+            style="color: #6c757d; font-size: 11px; font-style: italic; padding: 12px;">
             No evaluations or tests recorded.</div>
     </div>
     <div>
-        <p style="color: #888; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">
+        <p style="color: #6c757d; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px;">
             Requested Relief</p>
         <template x-for="relief in (caseDetails.fact_model.requested_relief || [])">
             <div class="item-card"
                 style="border-color: rgba(46, 204, 113, 0.3) ; background: rgba(46, 204, 113, 0.05) ; padding: 10px;">
                 <p style="color: #2ecc71; font-weight: 800; font-size: 11px; text-transform: uppercase;"
                     x-text="relief.relief_type"></p>
-                <p style="color: #eee; font-size: 11px; margin-top: 4px;" x-text="relief.description"></p>
+                <p style="color: #111; font-size: 11px; margin-top: 4px;" x-text="relief.description"></p>
                 <template x-for="cite in (relief.source_citations || [])">
                     <div
-                        style="font-size: 9px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 8px;">
-                        <p style="color: #ccc; font-style: italic; margin-bottom: 4px;"
+                        style="font-size: 9px; padding-top: 8px; border-top: 1px solid #dee2e6; margin-top: 8px;">
+                        <p style="color: #6c757d; font-style: italic; margin-bottom: 4px;"
                             x-text="'\"' + (cite.excerpt || ' No excerpt available') + ' \"'"></p>
                                                                 <div
                                                                     style=" display: flex; justify-content:
                             space-between; align-items: center;">
-                            <span style="color: #4dd2ff; font-weight: 800;" x-text="cite.citation_label"></span>
-                            <span style="color: #888;" x-text="cite.source_document"></span>
+                            <span style="color: #0d6efd; font-weight: 800;" x-text="cite.citation_label"></span>
+                            <span style="color: #6c757d;" x-text="cite.source_document"></span>
                     </div>
             </div>
         </template>
     </div>
     </template>
     <div x-show="!caseDetails.fact_model.requested_relief || caseDetails.fact_model.requested_relief.length === 0"
-        style="color: #555; font-size: 11px; font-style: italic; padding: 12px;">
+        style="color: #6c757d; font-size: 11px; font-style: italic; padding: 12px;">
         No requested relief recorded.</div>
     </div>
     </div>
@@ -922,26 +923,26 @@
         <!-- 7. Relief Strategy Selector -->
         <div class="glass-panel" style="padding: 20px;">
             <h4
-                style="color: #4dd2ff; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 16px;">
+                style="color: #0d6efd; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 16px;">
                 Strategy Selector</h4>
             <div style="display: flex; flex-direction: column; gap: 10px;">
                 <button class="item-card"
-                    style="width: 100%; text-align: left; background: rgba(77,210,255,0.1); border-color: #4dd2ff;">
-                    <p style="color: #4dd2ff; font-weight: 800; font-size: 12px;">Recourse:
+                    style="width: 100%; text-align: left; background: rgba(77,210,255,0.1); border-color: #0d6efd;">
+                    <p style="color: #0d6efd; font-weight: 800; font-size: 12px;">Recourse:
                         Special Issuance (SI)</p>
-                    <p style="color: #aaa; font-size: 10px; margin-top: 4px;">Recommended
+                    <p style="color: #6c757d; font-size: 10px; margin-top: 4px;">Recommended
                         based on waiver requirements.</p>
                 </button>
                 <button class="item-card" style="width: 100%; text-align: left; opacity: 0.5;">
-                    <p style="color: #eee; font-weight: 700; font-size: 12px;">Recourse:
+                    <p style="color: #111; font-weight: 700; font-size: 12px;">Recourse:
                         Unrestricted</p>
-                    <p style="color: #888; font-size: 10px; margin-top: 4px;">Standard
+                    <p style="color: #6c757d; font-size: 10px; margin-top: 4px;">Standard
                         certification path.</p>
                 </button>
                 <button class="item-card" style="width: 100%; text-align: left; opacity: 0.5;">
-                    <p style="color: #eee; font-weight: 700; font-size: 12px;">Recourse:
+                    <p style="color: #111; font-weight: 700; font-size: 12px;">Recourse:
                         Appeal / Reconsideration</p>
-                    <p style="color: #888; font-size: 10px; margin-top: 4px;">Secondary
+                    <p style="color: #6c757d; font-size: 10px; margin-top: 4px;">Secondary
                         level review.</p>
                 </button>
             </div>
@@ -950,46 +951,46 @@
         <!-- 8. Procedural Timeline -->
         <div class="glass-panel" style="padding: 20px;">
             <h4
-                style="color: #4dd2ff; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 24px;">
+                style="color: #0d6efd; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 24px;">
                 Chronological Timeline</h4>
             <div style="border-left: 2px solid rgba(77,210,255,0.1) ; padding-left: 20px; margin-left: 10px;">
                 <template x-for="event in (caseDetails.timeline || [])">
                     <div style="position: relative; padding-bottom: 24px;">
                         <div
-                            style="position: absolute; left: -27px; top: 0; width: 12px; height: 12px; background: #111; border: 2px solid #4dd2ff ; border-radius: 50%; z-index: 1;">
+                            style="position: absolute; left: -27px; top: 0; width: 12px; height: 12px; background: #ffffff; border: 2px solid #111111 ; border-radius: 0; z-index: 1;">
                         </div>
-                        <p style="color: #4dd2ff; font-size: 11px; font-weight: 800; margin-bottom: 4px;"
+                        <p style="color: #0d6efd; font-size: 11px; font-weight: 800; margin-bottom: 4px;"
                             x-text="event.date"></p>
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                             <span class="badge"
                                 style="font-size: 8px; background: rgba(52,152,219,0.1); color: #3498db; border-color: rgba(52,152,219,0.2);"
                                 x-text="event.event_type"></span>
-                            <p style="color: #eee; font-weight: 700; font-size: 13px;" x-text="event.description"></p>
+                            <p style="color: #111; font-weight: 700; font-size: 13px;" x-text="event.description"></p>
                         </div>
                         <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px;">
                             <template x-for="id in (event.linked_issue_ids || [])">
                                 <span
-                                    style="font-size: 8px; color: #4dd2ff; background: rgba(77, 210, 255, 0.05); padding: 1px 4px; border: 1px solid rgba(77, 210, 255, 0.2); border-radius: 3px;"
+                                    style="font-size: 8px; color: #0d6efd; background: rgba(17, 17, 17, 0.05); padding: 1px 4px; border: 1px solid #dee2e6; border-radius: 0;"
                                     x-text="'Issue: ' + id"></span>
                             </template>
                         </div>
                         <template x-for="cite in (event.source_citations || [])">
                             <div
-                                style="margin-top: 8px; padding: 6px; background: rgba(0,0,0,0.2); border-radius: 4px; border-left: 2px solid #4dd2ff;">
-                                <p style="color: #ccc; font-style: italic; font-size: 9px; margin-bottom: 4px;"
+                                style="margin-top: 8px; padding: 6px; background: #f8f9fa; border-radius: 0; border-left: 2px solid #111111;">
+                                <p style="color: #6c757d; font-style: italic; font-size: 9px; margin-bottom: 4px;"
                                     x-text="'\"' + (cite.excerpt || ' No excerpt available') + ' \"'"></p>
                                                             <div style=" display: flex; justify-content: space-between;
                                     align-items: center;">
-                                    <span style="color: #4dd2ff; font-weight: 700; font-size: 8px;"
+                                    <span style="color: #0d6efd; font-weight: 700; font-size: 8px;"
                                         x-text="cite.citation_label"></span>
-                                    <span style="color: #666; font-size: 8px;" x-text="cite.source_document"></span>
+                                    <span style="color: #9ca3af; font-size: 8px;" x-text="cite.source_document"></span>
                             </div>
                     </div>
                 </template>
             </div>
             </template>
             <template x-if="!caseDetails.timeline || caseDetails.timeline.length === 0">
-                <div style="color: #555; font-size: 12px; font-style: italic; text-align: center; padding: 20px;">
+                <div style="color: #6c757d; font-size: 12px; font-style: italic; text-align: center; padding: 20px;">
                     No timeline events recorded.</div>
             </template>
         </div>
@@ -997,13 +998,13 @@
 
     <!-- 9. Draft Preview & Sign-off -->
     <div class="glass-panel" style="padding: 20px; background: rgba(0,0,0,0.5);">
-        <h4 style="color: #4dd2ff; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 16px;">
+        <h4 style="color: #0d6efd; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 16px;">
             Draft Preview Shell</h4>
         <div
-            style="font-family: serif; color: #888; font-size: 11px; line-height: 1.6; max-height: 300px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(77, 210, 255, 0.4) rgba(77, 210, 255, 0.1); padding-right: 12px; margin-bottom: 24px;">
+            style="font-family: serif; color: #6c757d; font-size: 11px; line-height: 1.6; max-height: 300px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(17, 17, 17, 0.4) rgba(17, 17, 17, 0.1); padding-right: 12px; margin-bottom: 24px;">
             <template x-for="(content, section) in (caseDetails.draft_outline || {})" :key="section">
                 <div style="margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
-                    <p style="color: #ccc; font-weight: 800; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;"
+                    <p style="color: #6c757d; font-weight: 800; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;"
                         x-text="section.replace(/_/g, ' ')"></p>
                     <div style="display: flex; flex-direction: column; gap: 4px;">
                         <template x-for="line in content">
@@ -1031,25 +1032,25 @@
                 <div class="glass-panel modal-content" style="padding: 32px; max-width: 500px;">
                     <div
                         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                        <h2 style="color: #4dd2ff; font-size: 20px; font-weight: 700;">Upload Zip Archive</h2>
-                        <button @click="showUploadModal = false" class="text-gray-500 text-2xl">Ã—</button>
+                        <h2 style="color: #0d6efd; font-size: 20px; font-weight: 700;">Upload Zip Archive</h2>
+                        <button @click="showUploadModal = false" class="text-gray-500 text-2xl">X</button>
                     </div>
 
                     <form @submit.prevent="runUploadGeneration()" class="flex flex-col gap-6">
                         <div>
-                            <label class="block text-xs font-bold text-[#4dd2ff] mb-2 uppercase">Zip File
+                            <label class="block text-xs font-bold text-[#0d6efd] mb-2 uppercase">Zip File
                                 Archive</label>
                             <input type="file" @change="uploadArchiveFile = $event.target.files[0]" required
-                                accept=".zip" class="w-full bg-black border border-[#444] rounded p-2 text-white">
+                                accept=".zip" class="w-full bg-white border border-[#444] rounded p-2 text-[#111]">
                         </div>
                         <div x-show="isUploadGenerating" class="text-center p-4">
                             <span class="spinner"></span>
-                            <p class="mt-2 text-[#4dd2ff]" x-text="uploadStepMessage"></p>
-                            <p style="color: #666; font-size: 10px; margin-top: 4px;" x-text="uploadStepDetail"></p>
+                            <p class="mt-2 text-[#0d6efd]" x-text="uploadStepMessage"></p>
+                            <p style="color: #9ca3af; font-size: 10px; margin-top: 4px;" x-text="uploadStepDetail"></p>
                         </div>
 
                         <button x-show="!isUploadGenerating" type="submit"
-                            class="login-btn w-full !bg-[#4dd2ff] !text-black !font-bold">UPLOAD ZIP</button>
+                            class=" w-full login-btn">UPLOAD ZIP</button>
                     </form>
                 </div>
             </div>
@@ -1058,7 +1059,7 @@
     </div>
 
     <script>
-        const API_BASE_URL = "https://slimy-leonia-kyphotic.ngrok-free.dev";
+        const API_BASE_URL = "https://unpossessable-marylee-unsnobbish.ngrok-free.dev";
 
         function toggleUserMenu() {
             const popover = document.getElementById("user-menu-popover");
@@ -1490,19 +1491,19 @@
                     const usersList = document.getElementById("active-users-list");
                     if (usersList) {
                         if (count === 0) {
-                            usersList.innerHTML = '<div style="padding: 8px 0; color: #666;">No active users</div>';
+                            usersList.innerHTML = '<div style="padding: 8px 0; color: #9ca3af;">No active users</div>';
                         } else {
                             usersList.innerHTML = data.map(user => `
                   <div style="
                     padding: 10px 8px;
-                    border-bottom: 1px solid rgba(77, 210, 255, 0.2);
+                    border-bottom: 1px solid rgba(17, 17, 17, 0.2);
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
                     gap: 16px;
                   ">
-                    <span style="color: #4dd2ff; font-weight: 500; flex: 1;">${user.email}</span>
-                    <span style="color: #aaa; font-size: 12px; white-space: nowrap; flex-shrink: 0;">${formatLastActive(user.last_active)}</span>
+                    <span style="color: #0d6efd; font-weight: 500; flex: 1;">${user.email}</span>
+                    <span style="color: #6c757d; font-size: 12px; white-space: nowrap; flex-shrink: 0;">${formatLastActive(user.last_active)}</span>
                   </div>
                 `).join("");
                         }

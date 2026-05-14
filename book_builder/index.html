@@ -25,8 +25,8 @@
 </head>
 
 <body class="min-h-screen p-4">
-  <div class="video-background"></div>
-  <div class="overlay"></div>
+  
+  
 
   <div class="w-full max-w-[40rem] relative z-10 mx-auto mt-6 md:mt-10" x-data="loginApp()" x-show="!loggedIn">
     <div class="header-text">
@@ -36,17 +36,17 @@
     </div>
 
     <div class="dark-theme-card p-6 space-y-5">
-      <h2 class="text-[36px] font-extrabold uppercase tracking-[0.5px] text-center text-[#4dd2ff] mt-0 mb-0">
+      <h2 class="text-[36px] font-extrabold uppercase tracking-[0.5px] text-center text-[#0d6efd] mt-0 mb-0">
         Login
       </h2>
 
       <div>
-        <label class="block text-[#4dd2ff] font-semibold mb-2">Email</label>
+        <label class="block text-[#0d6efd] font-semibold mb-2">Email</label>
         <input type="email" placeholder="Enter your email" x-model="email" @keydown.enter="email && password && login()"
           class="w-full p-3 dark-theme-input font-medium text-[15px] leading-[28px]" />
       </div>
       <div>
-        <label class="block text-[#4dd2ff] font-semibold mb-2">Password</label>
+        <label class="block text-[#0d6efd] font-semibold mb-2">Password</label>
         <input type="password" placeholder="Enter your password" x-model="password"
           @keydown.enter="email && password && login()"
           class="w-full p-3 dark-theme-input font-medium text-[15px] leading-[28px]" />
@@ -67,13 +67,13 @@
       <div class="flex justify-between items-center header-layout">
         <div class="flex items-center gap-3 top-logo-area">
           <img src="/Designer.png" alt="Book Builder" style="width: 50px; height: auto;" />
-          <h2 class="mb-0 text-[#4dd2ff]" style="font-size: 20px; font-weight: 600">
+          <h2 class="mb-0 text-[#0d6efd]" style="font-size: 20px; font-weight: 600">
             Book Builder
           </h2>
           <button id="active-users-btn" onclick="toggleActiveUsers()"
             class="flex items-center gap-2 text-xs font-semibold px-2 py-1 rounded hover:bg-cyan-500/10"
             title="Active users">
-            <span class="w-2 h-2 bg-green-500 rounded-full shadow"></span>
+            <span class="w-2 h-2 bg-green-500 rounded-none "></span>
             <span id="active-user-count">0</span>
             Active Users
           </button>
@@ -81,8 +81,8 @@
             <div style="
                   padding: 8px 0;
                   margin-bottom: 8px;
-                  border-bottom: 1px solid rgba(77, 210, 255, 0.3);
-                  color: #4dd2ff;
+                  border-bottom: 1px solid rgba(17, 17, 17, 0.3);
+                  color: #0d6efd;
                   font-size: 12px;
                   font-weight: 600;
                 ">
@@ -94,7 +94,7 @@
 
         <div class="flex items-center gap-4">
           <div class="text-right text-[0.9rem] text-[#aaa] hidden sm:block">
-            <span class="block text-[#4dd2ff] font-semibold heading-top-mail" x-text="userEmail"></span>
+            <span class="block text-[#0d6efd] font-semibold heading-top-mail" x-text="userEmail"></span>
             <span class="text-[0.85rem]">Logged in</span>
           </div>
           <div class="menu-container" x-data="{ menuOpen: false }">
@@ -211,7 +211,7 @@
             <div class="p-4">
               <div x-show="loadingNoveltyScan" class="flex flex-col items-center justify-center py-10 gap-3">
                 <div class="loader"></div>
-                <div class="text-[#4dd2ff] text-sm font-semibold">
+                <div class="text-[#0d6efd] text-sm font-semibold">
                   Fetching novelty results...
                 </div>
               </div>
@@ -228,10 +228,10 @@
                 x-show="!loadingNoveltyScan && noveltyScanItems.length > 0">
                 <template x-for="(item, idx) in noveltyScanItems" :key="idx">
                   <div class="dark-theme-card p-4 space-y-3">
-                    <div class="text-[#4dd2ff] font-semibold text-sm" x-text="`Result ${idx + 1}`"></div>
+                    <div class="text-[#0d6efd] font-semibold text-sm" x-text="`Result ${idx + 1}`"></div>
 
                     <div x-show="item.query_context">
-                      <div class="text-[#4dd2ff] font-semibold text-sm mb-1">
+                      <div class="text-[#0d6efd] font-semibold text-sm mb-1">
                         Query context
                       </div>
                       <div class="text-[#ddd] text-sm leading-6 whitespace-pre-wrap break-words"
@@ -239,7 +239,7 @@
                     </div>
 
                     <div x-show="item.adjacent_books && item.adjacent_books.length">
-                      <div class="text-[#4dd2ff] font-semibold text-sm mb-1">
+                      <div class="text-[#0d6efd] font-semibold text-sm mb-1">
                         Adjacent books
                       </div>
                       <ul class="list-disc pl-5 text-[#ddd] text-sm space-y-1">
@@ -250,14 +250,14 @@
                     </div>
 
                     <div x-show="item.derivative_risk">
-                      <div class="text-[#4dd2ff] font-semibold text-sm mb-1">
+                      <div class="text-[#0d6efd] font-semibold text-sm mb-1">
                         Derivative risk
                       </div>
                       <div class="text-[#ddd] text-sm" x-text="item.derivative_risk"></div>
                     </div>
 
                     <div x-show="item.recommendations && item.recommendations.length">
-                      <div class="text-[#4dd2ff] font-semibold text-sm mb-1">
+                      <div class="text-[#0d6efd] font-semibold text-sm mb-1">
                         Recommendations
                       </div>
                       <ul class="list-disc pl-5 text-[#ddd] text-sm space-y-1">
@@ -268,7 +268,7 @@
                     </div>
 
                     <div x-show="item.gap_analysis">
-                      <div class="text-[#4dd2ff] font-semibold text-sm mb-1">
+                      <div class="text-[#0d6efd] font-semibold text-sm mb-1">
                         Gap analysis
                       </div>
                       <div class="text-[#ddd] text-sm leading-6 whitespace-pre-wrap break-words"
@@ -276,7 +276,7 @@
                     </div>
 
                     <div x-show="item.overlapping_titles && item.overlapping_titles.length">
-                      <div class="text-[#4dd2ff] font-semibold text-sm mb-1">
+                      <div class="text-[#0d6efd] font-semibold text-sm mb-1">
                         Overlapping titles
                       </div>
                       <ul class="list-disc pl-5 text-[#ddd] text-sm space-y-2">
@@ -294,7 +294,7 @@
                     </div>
 
                     <div x-show="item.uniqueness_summary">
-                      <div class="text-[#4dd2ff] font-semibold text-sm mb-1">
+                      <div class="text-[#0d6efd] font-semibold text-sm mb-1">
                         Uniqueness summary
                       </div>
                       <div class="text-[#ddd] text-sm leading-6 whitespace-pre-wrap break-words"
@@ -302,7 +302,7 @@
                     </div>
 
                     <div x-show="item.created_at">
-                      <div class="text-[#4dd2ff] font-semibold text-sm mb-1">
+                      <div class="text-[#0d6efd] font-semibold text-sm mb-1">
                         Created at
                       </div>
                       <div class="text-[#ddd] text-sm" x-text="item.created_at"></div>
@@ -325,7 +325,7 @@
             <div class="p-4">
               <div x-show="loadingAuthorityMap" class="flex flex-col items-center justify-center py-10 gap-3">
                 <div class="loader"></div>
-                <div class="text-[#4dd2ff] text-sm font-semibold">
+                <div class="text-[#0d6efd] text-sm font-semibold">
                   Fetching authority results...
                 </div>
               </div>
@@ -342,10 +342,10 @@
                 x-show="!loadingAuthorityMap && authorityMapItems.length > 0">
                 <template x-for="(item, idx) in authorityMapItems" :key="idx">
                   <div class="dark-theme-card p-4 space-y-3">
-                    <div class="text-[#4dd2ff] font-semibold text-sm" x-text="`Result ${idx + 1}`"></div>
+                    <div class="text-[#0d6efd] font-semibold text-sm" x-text="`Result ${idx + 1}`"></div>
 
                     <div x-show="item.why_author_credible">
-                      <div class="text-[#4dd2ff] font-semibold text-sm mb-1">
+                      <div class="text-[#0d6efd] font-semibold text-sm mb-1">
                         Why author credible
                       </div>
 
@@ -363,7 +363,7 @@
                     </div>
 
                     <div x-show="item.weak_areas && item.weak_areas.length">
-                      <div class="text-[#4dd2ff] font-semibold text-sm mb-1">
+                      <div class="text-[#0d6efd] font-semibold text-sm mb-1">
                         Weak areas
                       </div>
                       <ul class="list-disc pl-5 text-[#ddd] text-sm space-y-1">
@@ -374,7 +374,7 @@
                     </div>
 
                     <div x-show="item.experience_areas && item.experience_areas.length">
-                      <div class="text-[#4dd2ff] font-semibold text-sm mb-1">
+                      <div class="text-[#0d6efd] font-semibold text-sm mb-1">
                         Experience areas
                       </div>
                       <ul class="list-disc pl-5 text-[#ddd] text-sm space-y-1">
@@ -385,7 +385,7 @@
                     </div>
 
                     <div x-show="item.caution_flags">
-                      <div class="text-[#4dd2ff] font-semibold text-sm mb-1">
+                      <div class="text-[#0d6efd] font-semibold text-sm mb-1">
                         Caution flags
                       </div>
 
@@ -403,7 +403,7 @@
                     </div>
 
                     <div x-show="item.created_at">
-                      <div class="text-[#4dd2ff] font-semibold text-sm mb-1">
+                      <div class="text-[#0d6efd] font-semibold text-sm mb-1">
                         Created at
                       </div>
                       <div class="text-[#ddd] text-sm" x-text="item.created_at"></div>
@@ -483,7 +483,7 @@
             <div class="p-4">
               <div x-show="loadingStories" class="flex flex-col items-center justify-center py-10 gap-3">
                 <div class="loader"></div>
-                <div class="text-[#4dd2ff] text-sm font-semibold">Loading stories...</div>
+                <div class="text-[#0d6efd] text-sm font-semibold">Loading stories...</div>
               </div>
 
               <div class="project-empty" x-show="!selectedProjectId && !loadingStories">Select a concept to view
@@ -500,7 +500,7 @@
                 <template x-for="(story, idx) in storyBankItems" :key="story.id || idx">
                   <div class="dark-theme-card p-4 space-y-3">
                     <div class="flex items-center justify-between gap-3">
-                      <div class="text-[#4dd2ff] font-semibold text-sm" x-text="story.title || `Story ${idx + 1}`">
+                      <div class="text-[#0d6efd] font-semibold text-sm" x-text="story.title || `Story ${idx + 1}`">
                       </div>
                       <div class="flex items-center gap-2 text-xs">
                         <button class="dark-theme-btn-primary px-3 py-1 text-xs"
@@ -519,7 +519,7 @@
                         x-text="(story.content || story.text || story.story_text || '-').trim()"></span>
                     </div>
                     <div x-show="story.principle_text" class="text-xs text-[#aaa] leading-5">
-                      <span class="text-[#4dd2ff] font-semibold">Principle:</span>
+                      <span class="text-[#0d6efd] font-semibold">Principle:</span>
                       <span x-text="story.principle_text"></span>
                     </div>
                     <div class="text-xs mt-1 text-[#aaa]">
@@ -791,10 +791,10 @@
             <div class="p-4 space-y-6">
               <!-- Draft List -->
               <div>
-                <h4 class="text-[#4dd2ff] font-bold text-sm uppercase mb-3">Existing Drafts</h4>
+                <h4 class="text-[#0d6efd] font-bold text-sm uppercase mb-3">Existing Drafts</h4>
                 <div x-show="loadingDrafts" class="flex flex-col items-center justify-center py-10 gap-3">
                   <div class="loader"></div>
-                  <div class="text-[#4dd2ff] text-sm font-semibold">Loading drafts...</div>
+                  <div class="text-[#0d6efd] text-sm font-semibold">Loading drafts...</div>
                 </div>
 
                 <div class="project-empty" x-show="!loadingDrafts && drafts.length === 0">No drafts found.</div>
@@ -803,36 +803,36 @@
                   x-show="!loadingDrafts && drafts.length > 0">
                   <template x-for="(draft, idx) in drafts" :key="draft.id">
                     <div
-                      class="dark-theme-card p-4 space-y-4 cursor-pointer hover:border-[#4dd2ff] transition-all border border-transparent"
+                      class="dark-theme-card p-4 space-y-4 cursor-pointer hover:border-[#111111] transition-all border border-transparent"
                       @click="openDraftDetails(draft.id)">
                       <div class="flex justify-between items-start border-b border-[rgba(241,196,15,0.2)] pb-2 mb-2">
-                        <div class="text-[#4dd2ff] font-bold text-xs" x-text="`Draft ${idx + 1}`"></div>
+                        <div class="text-[#0d6efd] font-bold text-xs" x-text="`Draft ${idx + 1}`"></div>
                         <button @click.stop="openInsightsModal('regenerate', draft.id)" :disabled="loadingDrafts"
-                          class="bg-[#4dd2ff]/10 border border-[#4dd2ff] text-[#4dd2ff] px-2 py-0.5 rounded text-[10px] hover:bg-[#4dd2ff]/20">
+                          class="bg-[#111111]/10 border border-[#111111] text-[#0d6efd] px-2 py-0.5 rounded text-[10px] hover:bg-[#111111]/20">
                           Regenerate
                         </button>
                       </div>
 
                       <div class="space-y-3">
                         <div>
-                          <div class="text-[#4dd2ff] font-semibold text-[10px] uppercase tracking-wider mb-1">Content
+                          <div class="text-[#0d6efd] font-semibold text-[10px] uppercase tracking-wider mb-1">Content
                             Preview</div>
                           <div class="text-[#ddd] text-xs line-clamp-3 leading-relaxed" x-text="draft.content"></div>
                         </div>
 
                         <div class="flex justify-between gap-2">
                           <div>
-                            <div class="text-[#4dd2ff] font-semibold text-[10px] uppercase mb-1">Generation Type</div>
+                            <div class="text-[#0d6efd] font-semibold text-[10px] uppercase mb-1">Generation Type</div>
                             <div class="text-[#ddd] text-[10px] uppercase" x-text="draft.generation_type"></div>
                           </div>
                           <div class="text-right">
-                            <div class="text-[#4dd2ff] font-semibold text-[10px] uppercase mb-1">Created At</div>
+                            <div class="text-[#0d6efd] font-semibold text-[10px] uppercase mb-1">Created At</div>
                             <div class="text-[#aaa] text-[10px]" x-text="formatDate(draft.created_at)"></div>
                           </div>
                         </div>
 
                         <div x-show="draft.principles_snapshot && draft.principles_snapshot.length > 0">
-                          <div class="text-[#4dd2ff] font-semibold text-[10px] uppercase mb-1">Principles Snapshot</div>
+                          <div class="text-[#0d6efd] font-semibold text-[10px] uppercase mb-1">Principles Snapshot</div>
                           <ul class="list-disc pl-4 text-[10px] text-[#ccc] space-y-0.5">
                             <template x-for="p in draft.principles_snapshot.slice(0, 2)" :key="p">
                               <li x-text="p"></li>
@@ -843,7 +843,7 @@
                       </div>
 
                       <div class="pt-2 border-t border-[rgba(255,255,255,0.05)] text-center">
-                        <span class="text-[#4dd2ff] text-[10px] font-bold uppercase tracking-widest">View Full Details
+                        <span class="text-[#0d6efd] text-[10px] font-bold uppercase tracking-widest">View Full Details
                           â†’</span>
                       </div>
                     </div>
@@ -858,20 +858,20 @@
       <div class="modal-backdrop" x-show="showEditStoryModal" x-transition.opacity @click="closeEditStoryModal()">
         <div class="create-project-modal" @click.stop>
           <div class="flex items-start justify-between gap-3 mb-5">
-            <h4 class="text-2xl font-bold text-[#4dd2ff]">Edit Story</h4>
+            <h4 class="text-2xl font-bold text-[#0d6efd]">Edit Story</h4>
             <button class="text-[#8f9bb3] text-xl leading-none" @click="closeEditStoryModal()">
               X
             </button>
           </div>
           <div class="space-y-4">
             <div>
-              <label class="block text-[#4dd2ff] font-semibold mb-2 text-sm uppercase tracking-wide">Working
+              <label class="block text-[#0d6efd] font-semibold mb-2 text-sm uppercase tracking-wide">Working
                 Title</label>
               <input type="text" x-model.trim="editStoryTitle" placeholder="Enter working title"
                 class="w-full p-3 dark-theme-input text-sm" />
             </div>
             <div>
-              <label class="block text-[#4dd2ff] font-semibold mb-2 text-sm uppercase tracking-wide">
+              <label class="block text-[#0d6efd] font-semibold mb-2 text-sm uppercase tracking-wide">
                 content</label>
               <textarea x-model.trim="editStoryContent" placeholder="Enter rough thesis" rows="5"
                 class="w-full p-3 dark-theme-input text-sm resize-none"></textarea>
@@ -888,7 +888,7 @@
         @click="closeCreateConceptModal()">
         <div class="create-project-modal" @click.stop>
           <div class="flex items-start justify-between gap-3 mb-5">
-            <h4 class="text-2xl font-bold text-[#4dd2ff]">Create Concept</h4>
+            <h4 class="text-2xl font-bold text-[#0d6efd]">Create Concept</h4>
             <!-- <button class="text-[#8f9bb3] text-xl leading-none" @click="closeCreateConceptModal()">
               Ã—
             </button> -->
@@ -898,19 +898,19 @@
           </div>
           <div class="space-y-4">
             <div>
-              <label class="block text-[#4dd2ff] font-semibold mb-2 text-sm uppercase tracking-wide">Working
+              <label class="block text-[#0d6efd] font-semibold mb-2 text-sm uppercase tracking-wide">Working
                 Title</label>
               <input type="text" x-model.trim="newConceptWorkingTitle" placeholder="Enter working title"
                 class="w-full p-3 dark-theme-input text-sm" />
             </div>
             <div>
-              <label class="block text-[#4dd2ff] font-semibold mb-2 text-sm uppercase tracking-wide">Concept
+              <label class="block text-[#0d6efd] font-semibold mb-2 text-sm uppercase tracking-wide">Concept
                 Brief</label>
               <textarea x-model.trim="newConceptBrief" placeholder="Enter concept brief" rows="3"
                 class="w-full p-3 dark-theme-input text-sm resize-none"></textarea>
             </div>
             <div>
-              <label class="block text-[#4dd2ff] font-semibold mb-2 text-sm uppercase tracking-wide">Rough
+              <label class="block text-[#0d6efd] font-semibold mb-2 text-sm uppercase tracking-wide">Rough
                 Thesis</label>
               <textarea x-model.trim="newConceptRoughThesis" placeholder="Enter rough thesis" rows="5"
                 class="w-full p-3 dark-theme-input text-sm resize-none"></textarea>
@@ -931,7 +931,7 @@
           <!-- Choice View -->
           <div x-show="modalView === 'choice'" class="py-6 space-y-6">
             <div class="flex justify-between items-center mb-4">
-              <h4 class="text-2xl font-bold text-[#4dd2ff]">Refine Thesis</h4>
+              <h4 class="text-2xl font-bold text-[#0d6efd]">Refine Thesis</h4>
               <button class="text-[#8f9bb3] text-2xl leading-none" @click="closeQuestionModal()">
                 Ã—
               </button>
@@ -943,7 +943,7 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path
                     d="M21.44 11.05l-8.49 8.49a5.5 5.5 0 01-7.78-7.78l9.19-9.19a3.5 3.5 0 114.95 4.95l-9.2 9.19a1.5 1.5 0 11-2.12-2.12l8.49-8.49"
-                    stroke="#4dd2ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
               </span>
 
@@ -954,7 +954,7 @@
               <!-- â¬† Upload Icon -->
               <span class="upload-arrow">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 16V4M12 4l-4 4M12 4l4 4M4 20h16" stroke="#4dd2ff" stroke-width="2" stroke-linecap="round"
+                  <path d="M12 16V4M12 4l-4 4M12 4l4 4M4 20h16" stroke="#111111" stroke-width="2" stroke-linecap="round"
                     stroke-linejoin="round" />
                 </svg>
               </span>
@@ -966,14 +966,14 @@
               How would you like to refine your thesis?
             </p>
             <div class="grid grid-cols-1 gap-4">
-              <button @click="refineThesis()" class="dark-theme-btn-primary py-4 text-lg font-bold shadow-lg"
+              <button @click="refineThesis()" class="dark-theme-btn-primary py-4 text-lg font-bold "
                 :disabled="refiningThesis">
                 <span x-show="!refiningThesis">Refine Directly</span>
                 <span x-show="refiningThesis">Refining...</span>
               </button>
               <div class="text-center text-[#555] font-bold">OR</div>
               <button @click="startQuestionGeneration()"
-                class="border-2 border-[#4dd2ff] text-[#4dd2ff] hover:bg-[#4dd2ff]/10 py-4 rounded-xl text-lg font-bold transition-all">
+                class="border-2 border-[#111111] text-[#0d6efd] hover:bg-[#111111]/10 py-4 rounded-none text-lg font-bold transition-all">
                 Generate Questions First
               </button>
             </div>
@@ -983,7 +983,7 @@
           <div x-show="modalView === 'questions'">
             <div
               class="flex items-center justify-between gap-3 sticky top-[-20px] bg-[#111] z-10 -mx-5 px-5 py-4 border-b border-[rgba(241,196,15,0.25)] mb-5 rounded-t-xl">
-              <h4 class="text-2xl font-bold text-[#4dd2ff]">
+              <h4 class="text-2xl font-bold text-[#0d6efd]">
                 Generated Questions
               </h4>
               <div class="flex items-center gap-3">
@@ -1002,14 +1002,14 @@
 
               <div x-show="loadingQuestions" class="flex flex-col items-center justify-center py-10">
                 <div class="loader"></div>
-                <p class="text-[#4dd2ff] text-sm mt-3 animate-pulse">
+                <p class="text-[#0d6efd] text-sm mt-3 animate-pulse">
                   Generating questions...
                 </p>
               </div>
 
               <template x-for="(question, idx) in generatedQuestions" :key="question.id">
                 <div class="dark-theme-card p-4 space-y-3">
-                  <div class="text-[#4dd2ff] font-semibold text-sm" x-text="`${idx + 1}. ${question.question || '-'}`">
+                  <div class="text-[#0d6efd] font-semibold text-sm" x-text="`${idx + 1}. ${question.question || '-'}`">
                   </div>
                   <textarea rows="3" x-model.trim="questionAnswers[question.id]" placeholder="Enter answer"
                     class="w-full p-3 dark-theme-input text-sm resize-none"></textarea>
@@ -1028,11 +1028,11 @@
     <div class="modal-backdrop" x-show="showDraftModal" x-transition.opacity @click="closeDraftModal()">
       <div class="create-project-modal !max-w-4xl w-[90%] max-h-[90vh] overflow-hidden flex flex-col" @click.stop>
         <div class="flex items-center justify-between gap-3 p-5 border-b border-[rgba(241,196,15,0.2)]">
-          <h4 class="text-2xl font-bold text-[#4dd2ff]">Draft Details</h4>
+          <h4 class="text-2xl font-bold text-[#0d6efd]">Draft Details</h4>
           <div class="flex items-center gap-3">
             <button @click="openInsightsModal('regenerate', selectedDraft.id)" :disabled="loadingDrafts"
               x-show="selectedDraft"
-              class="bg-[#4dd2ff]/10 border border-[#4dd2ff] text-[#4dd2ff] px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-[#4dd2ff]/20 transition-all">
+              class="bg-[#111111]/10 border border-[#111111] text-[#0d6efd] px-4 py-1.5 rounded-none text-sm font-bold hover:bg-[#111111]/20 transition-all">
               <span x-show="!loadingDrafts">Regenerate</span>
               <span x-show="loadingDrafts">Regenerating...</span>
             </button>
@@ -1045,7 +1045,7 @@
         <div class="flex-1 overflow-y-auto p-6 space-y-6">
           <div x-show="loadingDraftDetails" class="flex flex-col items-center justify-center py-20">
             <div class="loader"></div>
-            <p class="text-[#4dd2ff] text-sm mt-3 animate-pulse">Loading draft content...</p>
+            <p class="text-[#0d6efd] text-sm mt-3 animate-pulse">Loading draft content...</p>
           </div>
 
           <template x-if="selectedDraft && !loadingDraftDetails">
@@ -1054,7 +1054,7 @@
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div class="dark-theme-card p-3 border border-[rgba(241,196,15,0.1)]">
                   <div class="text-[10px] text-[#aaa] uppercase font-bold mb-1">Generation Type</div>
-                  <div class="text-[#4dd2ff] font-semibold uppercase" x-text="selectedDraft.generation_type"></div>
+                  <div class="text-[#0d6efd] font-semibold uppercase" x-text="selectedDraft.generation_type"></div>
                 </div>
                 <div class="dark-theme-card p-3 border border-[rgba(241,196,15,0.1)]">
                   <div class="text-[10px] text-[#aaa] uppercase font-bold mb-1">Created At</div>
@@ -1064,7 +1064,7 @@
 
               <!-- Content -->
               <div>
-                <h5 class="text-[#4dd2ff] font-bold text-sm uppercase mb-3 border-l-4 border-[#4dd2ff] pl-3">Draft
+                <h5 class="text-[#0d6efd] font-bold text-sm uppercase mb-3 border-l-4 border-[#111111] pl-3">Draft
                   Content</h5>
                 <div class="dark-theme-card p-5 bg-[#000] border border-[rgba(241,196,15,0.1)]">
                   <div class="markdown-content" x-html="renderMarkdown(selectedDraft.content || '')"></div>
@@ -1074,7 +1074,7 @@
               <!-- Principles Snapshot -->
               <template x-if="selectedDraft.principles_snapshot && selectedDraft.principles_snapshot.length > 0">
                 <div>
-                  <h5 class="text-[#4dd2ff] font-bold text-sm uppercase mb-3 border-l-4 border-[#4dd2ff] pl-3">
+                  <h5 class="text-[#0d6efd] font-bold text-sm uppercase mb-3 border-l-4 border-[#111111] pl-3">
                     Principles Snapshot</h5>
                   <ul class="space-y-2">
                     <template x-for="principle in selectedDraft.principles_snapshot" :key="principle">
@@ -1087,7 +1087,7 @@
               <!-- Author Seed Snapshot -->
               <template x-if="selectedDraft.author_seed_snapshot">
                 <div>
-                  <h5 class="text-[#4dd2ff] font-bold text-sm uppercase mb-3 border-l-4 border-[#4dd2ff] pl-3">Author
+                  <h5 class="text-[#0d6efd] font-bold text-sm uppercase mb-3 border-l-4 border-[#111111] pl-3">Author
                     Seed Snapshot</h5>
                   <template x-if="Array.isArray(selectedDraft.author_seed_snapshot)">
                     <ul class="space-y-2">
@@ -1109,7 +1109,7 @@
               <!-- Outline Snapshot -->
               <template x-if="selectedDraft.outline_snapshot">
                 <div>
-                  <h5 class="text-[#4dd2ff] font-bold text-sm uppercase mb-3 border-l-4 border-[#4dd2ff] pl-3">Outline
+                  <h5 class="text-[#0d6efd] font-bold text-sm uppercase mb-3 border-l-4 border-[#111111] pl-3">Outline
                     Snapshot</h5>
                   <template x-if="Array.isArray(selectedDraft.outline_snapshot)">
                     <ul class="space-y-2">
@@ -1139,12 +1139,12 @@
       <div class="create-project-modal !max-w-md w-[90%] overflow-hidden flex flex-col" @click.stop
         style="z-index: 10000 !important;">
         <div class="flex items-center justify-between gap-3 p-5 border-b border-[rgba(241,196,15,0.2)]">
-          <h4 class="text-xl font-bold text-[#4dd2ff]">User Insights</h4>
+          <h4 class="text-xl font-bold text-[#0d6efd]">User Insights</h4>
           <button class="text-[#8f9bb3] text-2xl leading-none" @click="showInsightsModal = false">Ã—</button>
         </div>
         <div class="p-6 space-y-4">
           <div>
-            <label class="block text-[#4dd2ff] text-sm font-semibold mb-2">Instructions / Insights</label>
+            <label class="block text-[#0d6efd] text-sm font-semibold mb-2">Instructions / Insights</label>
             <textarea x-model="userInsights" class="w-full p-3 dark-theme-input text-sm resize-none" rows="4"
               placeholder="e.g. generate a meaningful draft..."></textarea>
           </div>
@@ -1160,7 +1160,7 @@
     <div class="modal-backdrop" x-show="showOutlineModal" x-transition.opacity @click="closeOutlineModal()">
       <div class="create-project-modal !max-w-4xl w-[90%] max-h-[90vh] overflow-hidden flex flex-col" @click.stop>
         <div class="flex items-center justify-between gap-3 p-5 border-b border-[rgba(241,196,15,0.2)]">
-          <h4 class="text-2xl font-bold text-[#4dd2ff]">Outline Details</h4>
+          <h4 class="text-2xl font-bold text-[#0d6efd]">Outline Details</h4>
           <button class="text-[#8f9bb3] text-2xl leading-none" @click="closeOutlineModal()">
             X
           </button>
@@ -1171,7 +1171,7 @@
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <!-- <div class="dark-theme-card p-3 border border-[rgba(241,196,15,0.1)]">
                   <div class="text-[10px] text-[#aaa] uppercase font-bold mb-1">Version</div>
-                  <div class="text-[#4dd2ff] font-semibold" x-text="selectedOutline.version_number"></div>
+                  <div class="text-[#0d6efd] font-semibold" x-text="selectedOutline.version_number"></div>
                 </div> -->
                 <div class="dark-theme-card p-3 border border-[rgba(241,196,15,0.1)]">
                   <div class="text-[10px] text-[#aaa] uppercase font-bold mb-1">Created At</div>
@@ -1179,7 +1179,7 @@
                 </div>
               </div>
               <div>
-                <h5 class="text-[#4dd2ff] font-bold text-sm uppercase mb-3 border-l-4 border-[#4dd2ff] pl-3">Full
+                <h5 class="text-[#0d6efd] font-bold text-sm uppercase mb-3 border-l-4 border-[#111111] pl-3">Full
                   Outline</h5>
                 <div class="dark-theme-card p-5 bg-[#000] border border-[rgba(241,196,15,0.1)]">
                   <div class="markdown-content" x-html="renderMarkdown(selectedOutline.expanded_outline_text || '')">
@@ -2848,7 +2848,7 @@
             div.style.gap = "16px";
 
             const emailSpan = document.createElement("span");
-            emailSpan.style.color = "#4dd2ff";
+            emailSpan.style.color = "#111111";
             emailSpan.style.fontWeight = "500";
             emailSpan.style.flex = "1";
             emailSpan.innerText = user.email || "";

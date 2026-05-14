@@ -25,7 +25,7 @@
   </head>
 
   <body class="min-h-screen flex flex-col items-center justify-center">
-    <div class="overlay"></div>
+    
 
     <!-- LOGIN PAGE -->
     <div
@@ -39,7 +39,7 @@
         <div class="login-logo-section">
           <img
             src="/Designer.png"
-            alt=""
+            alt="logo-img"
           />
           <h1>Settlement Predictor</h1>
           <p>Secure Access for Authorized Users</p>
@@ -113,7 +113,7 @@
       style="display: none; width: 100vw; height: 100svh; position: fixed; top: 0; left: 0;"
       class="flex flex-col"
     >
-      <div style="flex-shrink: 0; padding: 20px 20px; border-bottom: 2px solid rgba(77, 210, 255, 0.2); position: relative; z-index: 100; background-color: rgba(17, 17, 17, 0.98);">
+      <div style="flex-shrink: 0; padding: 20px 20px; border-bottom: 2px solid rgba(17, 17, 17, 0.2); position: relative; z-index: 100">
         <div style="display: flex; align-items: center; justify-content: space-between; position: relative;">
           <div style="display: flex; align-items: center; gap: 20px;"  class="header_bar_top_in">
             <img
@@ -121,11 +121,11 @@
               class="h-16"
             />
             <div>
-              <h1 style="font-size: 24px; font-weight: 700; color: #4dd2ff; letter-spacing: 1px; margin: 0 0 8px 0; text-shadow: 0 0 20px rgba(77, 210, 255, 0.4);">
+              <h1 style="font-size: 24px; font-weight: 700; color: #0d6efd; letter-spacing: 1px; margin: 0 0 8px 0; text-shadow: none;">
                 Settlement Optimizer
               </h1>
               <div style="display: flex; align-items: center; gap: 12px;">
-                <p style="margin: 0; color: #aaa; font-size: 13px;">AI-Powered Settlement Analysis</p>
+                <p style="margin: 0; color: #6c757d; font-size: 13px;">AI-Powered Settlement Analysis</p>
                 <!-- Active Users Count -->
                 <button
                   id="active-users-btn"
@@ -137,9 +137,9 @@
                     border: none;
                     cursor: pointer;
                     padding: 4px 10px;
-                    border-radius: 6px;
+                    border-radius: 0;
                     transition: all 0.3s;
-                    color: #4dd2ff;
+                    color: #0d6efd;
                     font-size: 12px;
                     font-weight: 600;
                   "
@@ -151,8 +151,8 @@
                     width: 8px;
                     height: 8px;
                     background: #2ecc71;
-                    border-radius: 50%;
-                    box-shadow: 0 0 8px #2ecc71;
+                    border-radius: 0;
+                    box-shadow: none;
                   "></span>
                   <span id="active-count">0</span>
                   <span style="margin-left: 4px;">Active Users</span>
@@ -165,7 +165,7 @@
             <button 
               id="start-new-test-btn-top"
               onclick="startNewTest()"
-              style="display: flex; align-items: center; gap: 8px; background-color: #4dd2ff; color: #111; border: none; padding: 10px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px; position: relative; z-index: 101;"
+              style="display: flex; align-items: center; gap: 8px; background-color: #0d6efd; color: #ffffff; border: none; padding: 10px 16px; border-radius: 0; font-weight: 600; cursor: pointer; font-size: 14px; position: relative; z-index: 101;"
               title="Start a new analysis"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -178,7 +178,7 @@
               onclick="toggleUserMenu()"
               title="User menu"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4dd2ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="4" y1="6" x2="20" y2="6"></line>
                 <line x1="4" y1="12" x2="20" y2="12"></line>
                 <line x1="4" y1="18" x2="20" y2="18"></line>
@@ -192,17 +192,17 @@
                 position: absolute;
                 top: 70px;
                 right: 20px;
-                background-color: #222;
-                border: 1px solid #444;
-                border-radius: 8px;
+                background-color: white;
+                border: 1px solid #dee2e6;
+                border-radius: 0;
                 padding: 12px;
                 min-width: 200px;
                 display: none;
                 z-index: 1000;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+                box-shadow: none;
               "
             >
-              <div style="padding: 8px 12px; border-bottom: 1px solid #444; margin-bottom: 8px; color: #bbb; font-size: 13px;">
+              <div style="padding: 8px 12px; border-bottom: 1px solid #dee2e6; margin-bottom: 8px; color: #6c757d; font-size: 13px;">
                 <span x-text="userEmail"></span>
               </div>
               <button
@@ -210,10 +210,10 @@
                 style="
                   width: 100%;
                   padding: 10px 12px;
-                  background-color: #e74c3c;
-                  color: white;
+                  background-color: #0d6efd;
+                  color: #111;
                   border: none;
-                  border-radius: 4px;
+                  border-radius: 0;
                   cursor: pointer;
                   font-weight: 600;
                   font-size: 14px;
@@ -234,12 +234,12 @@
         <!-- Chat Messages -->
         <div
           id="initial-chat-messages"
-          class="bg-[#0a0a0a] rounded-lg p-3 flex-grow overflow-y-auto mb-3 space-y-2"
+          class="bg-[#f8f9fa] rounded-none p-3 flex-grow overflow-y-auto mb-3 space-y-2"
         >
           <!-- Initial Case Details Message -->
           <div class="flex justify-start w-full">
             <div
-              class="px-4 py-2 rounded-lg bg-[#2b2b2b] text-[#4dd2ff]"
+              class="px-4 py-2 rounded-none bg-[#e9ecef] text-[#0d6efd]"
               style="
                 max-width: 90%;
                 word-break: break-word;
@@ -339,7 +339,7 @@
             <textarea
               id="initial-chat-input"
               placeholder="Describe your case details here..."
-              class="flex-1 p-2 rounded bg-black border border-[#444] text-white resize-none overflow-hidden text-sm"
+              class="flex-1 p-2 rounded bg-white border border-[#444] text-[#111] resize-none overflow-hidden text-sm"
               style="min-height: 50px; max-height: 200px"
             ></textarea>
             <!-- Templates Button -->
@@ -350,7 +350,7 @@
                 border: none;
                 cursor: pointer;
                 padding: 8px;
-                color: #4dd2ff;
+                color: #0d6efd;
                 transition: all 0.3s;
                 position: relative;
                 display: flex;
@@ -358,9 +358,9 @@
                 justify-content: center;
                 width: 44px;
                 height: 44px;
-                border-radius: 8px;
+                border-radius: 0;
               "
-              onmouseover="this.style.background='rgba(77, 210, 255, 0.1)'"
+              onmouseover="this.style.background='rgba(17, 17, 17, 0.1)'"
               onmouseout="this.style.background='none'"
               onclick="toggleTemplatesPopover(event)"
               title="Load template message"
@@ -374,7 +374,7 @@
             <button
               id="initial-chat-send-btn"
               onclick="sendInitialMessage()"
-              class="bg-[#4dd2ff] text-black px-4 py-2 rounded font-bold  transition flex-shrink-0 text-sm h-[50px]"
+              class="bg-[#111111] text-white px-4 py-2 rounded font-bold  transition flex-shrink-0 text-sm h-[50px]"
             >
               Analyze Case
             </button>
@@ -399,7 +399,7 @@
         <!-- Chat Messages -->
         <div
           id="chat-messages"
-          class="bg-[#0a0a0a] rounded-lg p-3 flex-grow overflow-y-auto mb-3 space-y-2"
+          class="bg-[#f8f9fa] rounded-none p-3 flex-grow overflow-y-auto mb-3 space-y-2"
           style="min-height: 300px"
         ></div>
 
@@ -408,7 +408,7 @@
           <textarea
             id="chat-input"
             placeholder="Ask a follow-up question..."
-            class="flex-1 p-2 rounded bg-black border border-[#444] text-white resize-none overflow-hidden text-sm"
+            class="flex-1 p-2 rounded bg-white border border-[#444] text-[#111] resize-none overflow-hidden text-sm"
             style="min-height: 50px; max-height: 200px"
           ></textarea>
           <!-- Templates Button -->
@@ -419,7 +419,7 @@
               border: none;
               cursor: pointer;
               padding: 8px;
-              color: #4dd2ff;
+              color: #0d6efd;
               transition: all 0.3s;
               position: relative;
               display: flex;
@@ -427,9 +427,9 @@
               justify-content: center;
               width: 44px;
               height: 44px;
-              border-radius: 8px;
+              border-radius: 0;
             "
-            onmouseover="this.style.background='rgba(77, 210, 255, 0.1)'"
+            onmouseover="this.style.background='rgba(17, 17, 17, 0.1)'"
             onmouseout="this.style.background='none'"
             onclick="toggleTemplatesPopover(event)"
             title="Load template message"
@@ -443,7 +443,7 @@
           <button
             id="chat-send-btn"
             onclick="sendChatMessage()"
-            class="bg-[#4dd2ff] text-black px-4 py-2 rounded font-bold transition flex-shrink-0 text-sm h-[50px]"
+            class="bg-[#111111] text-white px-4 py-2 rounded font-bold transition flex-shrink-0 text-sm h-[50px]"
           >
             Send
           </button>
@@ -477,22 +477,22 @@
       onclick="event.target.id === 'save-template-modal' && closeSaveTemplateModal()"
     >
       <div style="
-        background: #1a1a1a;
-        border: 1px solid rgba(77, 210, 255, 0.4);
-        border-radius: 12px;
+        background: #ffffff;
+        border: 1px solid rgba(17, 17, 17, 0.4);
+        border-radius: 0;
         padding: 32px;
         max-width: 500px;
         width: 90%;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        box-shadow: none;
       ">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-          <h2 style="color: #4dd2ff; font-size: 20px; font-weight: 700; margin: 0;">Save as Template</h2>
+          <h2 style="color: #0d6efd; font-size: 20px; font-weight: 700; margin: 0;">Save as Template</h2>
           <button
             onclick="closeSaveTemplateModal()"
             style="
               background: none;
               border: none;
-              color: #999;
+              color: #6c757d;
               font-size: 24px;
               cursor: pointer;
               padding: 0;
@@ -504,10 +504,10 @@
             "
           >×</button>
         </div>
-        <p style="color: #aaa; margin: 0 0 20px 0; font-size: 14px;">Save this message as a template for future use</p>
+        <p style="color: #6c757d; margin: 0 0 20px 0; font-size: 14px;">Save this message as a template for future use</p>
         <form onsubmit="saveMsgAsTemplate(event)" style="display: flex; flex-direction: column; gap: 16px;">
           <div>
-            <label style="display: block; color: #4dd2ff; font-size: 13px; font-weight: 600; margin-bottom: 8px;">Template Name *</label>
+            <label style="display: block; color: #0d6efd; font-size: 13px; font-weight: 600; margin-bottom: 8px;">Template Name *</label>
             <input
               id="template-name-input"
               type="text"
@@ -516,20 +516,20 @@
               style="
                 width: 100%;
                 padding: 10px 12px;
-                background: rgba(0, 0, 0, 0.6);
-                border: 1px solid rgba(77, 210, 255, 0.3);
-                border-radius: 6px;
-                color: #4dd2ff;
+                background: #ffffff;
+                border: 1px solid rgba(17, 17, 17, 0.3);
+                border-radius: 0;
+                color: #0d6efd;
                 font-family: 'Montserrat', sans-serif;
                 font-size: 14px;
                 transition: all 0.3s;
               "
-              onfocus="this.style.borderColor='rgba(77, 210, 255, 0.6)'"
-              onblur="this.style.borderColor='rgba(77, 210, 255, 0.3)'"
+              onfocus="this.style.borderColor='rgba(17, 17, 17, 0.6)'"
+              onblur="this.style.borderColor='rgba(17, 17, 17, 0.3)'"
             />
           </div>
           <div>
-            <label style="display: block; color: #4dd2ff; font-size: 13px; font-weight: 600; margin-bottom: 8px;">Description *</label>
+            <label style="display: block; color: #0d6efd; font-size: 13px; font-weight: 600; margin-bottom: 8px;">Description *</label>
             <textarea
               id="template-description-input"
               placeholder="Brief description of this template"
@@ -537,10 +537,10 @@
               style="
                 width: 100%;
                 padding: 10px 12px;
-                background: rgba(0, 0, 0, 0.6);
-                border: 1px solid rgba(77, 210, 255, 0.3);
-                border-radius: 6px;
-                color: #4dd2ff;
+                background: #ffffff;
+                border: 1px solid rgba(17, 17, 17, 0.3);
+                border-radius: 0;
+                color: #0d6efd;
                 font-family: 'Montserrat', sans-serif;
                 font-size: 14px;
                 resize: vertical;
@@ -548,8 +548,8 @@
                 transition: all 0.3s;
                 overflow: auto;
             "
-              onfocus="this.style.borderColor='rgba(77, 210, 255, 0.6)'"
-              onblur="this.style.borderColor='rgba(77, 210, 255, 0.3)'"
+              onfocus="this.style.borderColor='rgba(17, 17, 17, 0.6)'"
+              onblur="this.style.borderColor='rgba(17, 17, 17, 0.3)'"
             ></textarea>
           </div>
           <div id="template-modal-message" style="font-size: 14px; text-align: center; display: none;"></div>
@@ -558,11 +558,11 @@
               type="button"
               onclick="closeSaveTemplateModal()"
               style="
-                background: rgba(77, 210, 255, 0.1);
-                color: #4dd2ff;
-                border: 1px solid rgba(77, 210, 255, 0.3);
+                background: rgba(17, 17, 17, 0.1);
+                color: #0d6efd;
+                border: 1px solid rgba(17, 17, 17, 0.3);
                 padding: 10px 20px;
-                border-radius: 6px;
+                border-radius: 0;
                 font-weight: 600;
                 cursor: pointer;
                 transition: all 0.3s;
@@ -573,11 +573,11 @@
               id="save-template-btn"
               type="submit"
               style="
-                background: #4dd2ff;
+                background: #111111;
                 color: #000;
                 border: none;
                 padding: 10px 20px;
-                border-radius: 6px;
+                border-radius: 0;
                 font-weight: 700;
                 cursor: pointer;
                 transition: all 0.3s;
@@ -607,22 +607,22 @@
       onclick="event.target.id === 'delete-template-modal' && closeDeleteTemplateModal()"
     >
       <div style="
-        background: #1a1a1a;
-        border: 1px solid rgba(77, 210, 255, 0.4);
-        border-radius: 12px;
+        background: #ffffff;
+        border: 1px solid rgba(17, 17, 17, 0.4);
+        border-radius: 0;
         padding: 32px;
         max-width: 400px;
         width: 90%;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        box-shadow: none;
       ">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-          <h2 style="color: #4dd2ff; font-size: 20px; font-weight: 700; margin: 0;">Delete Template</h2>
+          <h2 style="color: #0d6efd; font-size: 20px; font-weight: 700; margin: 0;">Delete Template</h2>
           <button
             onclick="closeDeleteTemplateModal()"
             style="
               background: none;
               border: none;
-              color: #999;
+              color: #6c757d;
               font-size: 24px;
               cursor: pointer;
               padding: 0;
@@ -634,18 +634,18 @@
             "
           >×</button>
         </div>
-        <p style="color: #aaa; margin: 0 0 24px 0; font-size: 14px;">Are you sure you want to delete this template? This action cannot be undone.</p>
+        <p style="color: #6c757d; margin: 0 0 24px 0; font-size: 14px;">Are you sure you want to delete this template? This action cannot be undone.</p>
         <div id="delete-template-message" style="font-size: 14px; text-align: center; margin-bottom: 20px; display: none;"></div>
         <div style="display: flex; gap: 12px; justify-content: flex-end;">
           <button
             type="button"
             onclick="closeDeleteTemplateModal()"
             style="
-              background: rgba(77, 210, 255, 0.1);
-              color: #4dd2ff;
-              border: 1px solid rgba(77, 210, 255, 0.3);
+              background: rgba(17, 17, 17, 0.1);
+              color: #0d6efd;
+              border: 1px solid rgba(17, 17, 17, 0.3);
               padding: 10px 20px;
-              border-radius: 6px;
+              border-radius: 0;
               font-weight: 600;
               cursor: pointer;
               transition: all 0.3s;
@@ -658,10 +658,10 @@
             onclick="confirmDeleteTemplate()"
             style="
               background: #e74c3c;
-              color: white;
+              color: #111;
               border: none;
               padding: 10px 20px;
-              border-radius: 6px;
+              border-radius: 0;
               font-weight: 700;
               cursor: pointer;
               transition: all 0.3s;
@@ -679,28 +679,28 @@
         position: fixed;
         bottom: 90px;
         right: 32px;
-        background-color: #1a1a1a;
-        border: 1px solid rgba(77, 210, 255, 0.4);
-        border-radius: 8px;
+        background-color: #0d6efd;
+        border: 1px solid rgba(17, 17, 17, 0.4);
+        border-radius: 0;
         padding: 12px;
         min-width: 280px;
         max-height: 400px;
         display: none;
         z-index: 2000;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        box-shadow: none;
         overflow-y: auto;
       "
     >
       <div style="
         padding: 8px 0;
         margin-bottom: 8px;
-        border-bottom: 1px solid rgba(77, 210, 255, 0.3);
-        color: #4dd2ff;
+        border-bottom: 1px solid rgba(17, 17, 17, 0.3);
+        color: #0d6efd;
         font-size: 12px;
         font-weight: 600;
       ">Templates</div>
-      <div id="templates-list" style="color: #aaa; font-size: 13px;">
-        <div style="padding: 8px 0; color: #666;">Loading...</div>
+      <div id="templates-list" style="color: #6c757d; font-size: 13px;">
+        <div style="padding: 8px 0; color: #9ca3af;">Loading...</div>
       </div>
     </div>
 
@@ -711,35 +711,35 @@
         position: fixed;
         top: 80px;
         left: 350px;
-            background-color: rgb(26, 26, 26);
-    border: 1px solid rgba(77, 210, 255, 0.4);
-    border-radius: 8px;
+            background-color: #0d6efd;
+    border: 1px solid rgba(17, 17, 17, 0.4);
+    border-radius: 0;
     padding: 12px;
     min-width: auto;
     min-height: auto;
     max-height: 400px;
     display: block;
     z-index: 2100;
-    box-shadow: rgba(0, 0, 0, 0.5) 0px 4px 20px;
+    box-shadow: none;
     overflow-y: auto;
       "
     >
       <div style="
         padding: 8px 0;
         margin-bottom: 8px;
-        border-bottom: 1px solid rgba(77, 210, 255, 0.3);
-        color: #4dd2ff;
+        border-bottom: 1px solid rgba(17, 17, 17, 0.3);
+        color: #0d6efd;
         font-size: 12px;
         font-weight: 600;
       ">Active Users</div>
-      <div id="active-users-list" style="color: #aaa; font-size: 13px;">
-        <div style="padding: 8px 0; color: #666;">Loading...</div>
+      <div id="active-users-list" style="color: #6c757d; font-size: 13px;">
+        <div style="padding: 8px 0; color: #9ca3af;">Loading...</div>
       </div>
     </div>
 
     <script>
       // API Base URL
-      const API_BASE_URL = "https://slimy-leonia-kyphotic.ngrok-free.dev";
+      const API_BASE_URL = "https://unpossessable-marylee-unsnobbish.ngrok-free.dev";
 
       // Track which threads have had the Optimize button shown
       const optimizeButtonShownForThread = {};
@@ -808,7 +808,7 @@
           initialChatMessages.innerHTML = `
           <!-- Initial Case Details Message -->
           <div class="flex justify-start w-full">
-            <div class="px-4 py-2 rounded-lg bg-[#2b2b2b] text-[#4dd2ff]" style="max-width: 90%; word-break: break-word; overflow-wrap: break-word;">
+            <div class="px-4 py-2 rounded-none bg-[#e9ecef] text-[#0d6efd]" style="max-width: 90%; word-break: break-word; overflow-wrap: break-word;">
               Example Description: My client is a 42-year-old female (Likability: 9/10). She was T-boned by a 2023 Ford F-150 (Commercial Tier) while driving her 2018 Toyota Camry. The at-fault driver is insured by Liberty Mutual with $100k limits. Her car was totaled. Airbags deployed.
               <br/><br/>
               Medical: $45k in past bills including injections and PT. No treatment gaps. Social: She is employed but stressed about Low credit score below 600. No opioid history. Firm: Demand package was Top Tier (5/5). My Confidence Score is 4/5.
@@ -1002,7 +1002,7 @@
               position: absolute;
               top: 8px;
               right: 8px;
-              background: #4dd2ff;
+              background: #111111;
               color: #000;
               border: none;
               padding: 6px 10px;
@@ -1023,10 +1023,10 @@
             console.log("🔍 Analysis bubble created without Optimize button");
           }
         } else {
-          messageBubble.className = `px-4 py-2 rounded-lg ${
+          messageBubble.className = `px-4 py-2 rounded-none ${
             sender === "user"
-              ? "bg-[#4dd2ff] text-black"
-              : "bg-[#2b2b2b] text-[#4dd2ff]"
+              ? "bg-[#111111] text-white"
+              : "bg-[#e9ecef] text-[#0d6efd]"
           }`;
           messageBubble.style.maxWidth = "90%";
           messageBubble.style.wordBreak = "break-word";
@@ -1044,7 +1044,7 @@
           saveBtn.style.cssText = `
             background: none;
             border: none;
-            color: #4dd2ff;
+            color: #0d6efd;
             cursor: pointer;
             padding: 4px 8px;
             border-radius: 4px;
@@ -1054,7 +1054,7 @@
           `;
           saveBtn.title = "Save this message as template";
           saveBtn.innerHTML = "💾";
-          saveBtn.onmouseover = function() { this.style.background = "rgba(77, 210, 255, 0.2)"; };
+          saveBtn.onmouseover = function() { this.style.background = "rgba(17, 17, 17, 0.2)"; };
           saveBtn.onmouseout = function() { this.style.background = "none"; };
           saveBtn.onclick = function(e) {
             e.stopPropagation();
@@ -1150,10 +1150,10 @@
 
         const messageDiv = document.createElement("div");
         const messageBubble = document.createElement("div");
-        messageBubble.className = `px-4 py-2 rounded-lg ${
+        messageBubble.className = `px-4 py-2 rounded-none ${
           sender === "user"
-            ? "bg-[#4dd2ff] text-black"
-            : "bg-[#2b2b2b] text-[#4dd2ff]"
+            ? "bg-[#111111] text-white"
+            : "bg-[#e9ecef] text-[#0d6efd]"
         }`;
         messageBubble.style.maxWidth = "90%";
         messageBubble.style.wordBreak = "break-word";
@@ -1168,7 +1168,7 @@
           saveBtn.style.cssText = `
             background: none;
             border: none;
-            color: #4dd2ff;
+            color: #0d6efd;
             cursor: pointer;
             padding: 4px 8px;
             border-radius: 4px;
@@ -1178,7 +1178,7 @@
           `;
           saveBtn.title = "Save this message as template";
           saveBtn.innerHTML = "💾";
-          saveBtn.onmouseover = function() { this.style.background = "rgba(77, 210, 255, 0.2)"; };
+          saveBtn.onmouseover = function() { this.style.background = "rgba(17, 17, 17, 0.2)"; };
           saveBtn.onmouseout = function() { this.style.background = "none"; };
           saveBtn.onclick = function(e) {
             e.stopPropagation();
@@ -1642,7 +1642,7 @@
           initialChatMessages.innerHTML = `
           <!-- Initial Case Details Message -->
           <div class="flex justify-start w-full">
-            <div class="px-4 py-2 rounded-lg bg-[#2b2b2b] text-[#4dd2ff]" style="max-width: 90%; word-break: break-word; overflow-wrap: break-word;">
+            <div class="px-4 py-2 rounded-none bg-[#e9ecef] text-[#0d6efd]" style="max-width: 90%; word-break: break-word; overflow-wrap: break-word;">
               Example Description: My client is a 42-year-old female (Likability: 9/10). She was T-boned by a 2023 Ford F-150 (Commercial Tier) while driving her 2018 Toyota Camry. The at-fault driver is insured by Liberty Mutual with $100k limits. Her car was totaled. Airbags deployed.
               <br/><br/>
               Medical: $45k in past bills including injections and PT. No treatment gaps. Social: She is employed but stressed about Low credit score below 600. No opioid history. Firm: Demand package was Top Tier (5/5). My Confidence Score is 4/5.
@@ -1715,7 +1715,7 @@
           initialChatMessages.innerHTML = `
           <!-- Initial Case Details Message -->
           <div class="flex justify-start w-full">
-            <div class="px-4 py-2 rounded-lg bg-[#2b2b2b] text-[#4dd2ff]" style="max-width: 90%; word-break: break-word; overflow-wrap: break-word;">
+            <div class="px-4 py-2 rounded-none bg-[#e9ecef] text-[#0d6efd]" style="max-width: 90%; word-break: break-word; overflow-wrap: break-word;">
               Example Description: My client is a 42-year-old female (Likability: 9/10). She was T-boned by a 2023 Ford F-150 (Commercial Tier) while driving her 2018 Toyota Camry. The at-fault driver is insured by Liberty Mutual with $100k limits. Her car was totaled. Airbags deployed.
               <br/><br/>
               Medical: $45k in past bills including injections and PT. No treatment gaps. Social: She is employed but stressed about Low credit score below 600. No opioid history. Firm: Demand package was Top Tier (5/5). My Confidence Score is 4/5.
@@ -1805,19 +1805,19 @@
             const usersList = document.getElementById("active-users-list");
             if (usersList) {
               if (count === 0) {
-                usersList.innerHTML = '<div style="padding: 8px 0; color: #666;">No active users</div>';
+                usersList.innerHTML = '<div style="padding: 8px 0; color: #9ca3af;">No active users</div>';
               } else {
                 usersList.innerHTML = data.map(user => `
                   <div style="
                     padding: 10px 8px;
-                    border-bottom: 1px solid rgba(77, 210, 255, 0.2);
+                    border-bottom: 1px solid rgba(17, 17, 17, 0.2);
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
                     gap: 16px;
                   ">
-                    <span style="color: #4dd2ff; font-weight: 500; flex: 1;">${user.email}</span>
-                    <span style="color: #aaa; font-size: 12px; white-space: nowrap; flex-shrink: 0;">${formatLastActive(user.last_active)}</span>
+                    <span style="color: #0d6efd; font-weight: 500; flex: 1;">${user.email}</span>
+                    <span style="color: #6c757d; font-size: 12px; white-space: nowrap; flex-shrink: 0;">${formatLastActive(user.last_active)}</span>
                   </div>
                 `).join("");
               }
@@ -1913,7 +1913,7 @@
         const popover = document.getElementById("templates-popover");
         if (popover && popover.style.display === "block") {
           const templatesList = document.getElementById("templates-list");
-          templatesList.innerHTML = '<div style="padding: 8px 0; color: #666;">Loading...</div>';
+          templatesList.innerHTML = '<div style="padding: 8px 0; color: #9ca3af;">Loading...</div>';
           loadTemplates();
         }
       }
@@ -1941,7 +1941,7 @@
           saveBtn.disabled = true;
           saveBtn.textContent = "Saving...";
           messageDiv.style.display = "block";
-          messageDiv.style.color = "#4dd2ff";
+          messageDiv.style.color = "#111111";
           messageDiv.textContent = "Saving...";
 
           const token = localStorage.getItem("jwtsettle");
@@ -2009,7 +2009,7 @@
           
           const templatesList = document.getElementById("templates-list");
           if (!Array.isArray(templates) || templates.length === 0) {
-            templatesList.innerHTML = '<div style="padding: 8px 0; color: #666;">No templates yet</div>';
+            templatesList.innerHTML = '<div style="padding: 8px 0; color: #9ca3af;">No templates yet</div>';
             return;
           }
 
@@ -2017,15 +2017,15 @@
             <div
               style="
                 padding: 12px 8px;
-                border-bottom: 1px solid rgba(77, 210, 255, 0.2);
+                border-bottom: 1px solid rgba(17, 17, 17, 0.2);
                 display: flex;
                 justify-content: space-between;
                 align-items: flex-start;
                 gap: 12px;
                 transition: all 0.2s;
-                border-radius: 4px;
+                border-radius: 0;
               "
-              onmouseover="this.style.background='rgba(77, 210, 255, 0.1)'"
+              onmouseover="this.style.background='rgba(17, 17, 17, 0.1)'"
               onmouseout="this.style.background='transparent'"
             >
               <div
@@ -2035,8 +2035,8 @@
                   cursor: pointer;
                 "
               >
-                <div style="color: #4dd2ff; font-weight: 600; font-size: 13px;">${escapeHtml(template.template_name || template.name)}</div>
-                <div style="color: #888; font-size: 12px; margin-top: 4px;">${escapeHtml(template.description)}</div>
+                <div style="color: #0d6efd; font-weight: 600; font-size: 13px;">${escapeHtml(template.template_name || template.name)}</div>
+                <div style="color: #6c757d; font-size: 12px; margin-top: 4px;">${escapeHtml(template.description)}</div>
               </div>
               <button
                 onclick="deleteTemplate(${template.template_id || template.id}, event)"
@@ -2046,7 +2046,7 @@
                   color: #e74c3c;
                   cursor: pointer;
                   padding: 4px 8px;
-                  border-radius: 4px;
+                  border-radius: 0;
                   transition: all 0.2s;
                   font-size: 18px;
                   flex-shrink: 0;
@@ -2075,7 +2075,7 @@
           popover.style.display = "block";
           // Show loading and fetch templates
           const templatesList = document.getElementById("templates-list");
-          templatesList.innerHTML = '<div style="padding: 8px 0; color: #666;">Loading...</div>';
+          templatesList.innerHTML = '<div style="padding: 8px 0; color: #9ca3af;">Loading...</div>';
           loadTemplates();
           
           // Change button to show loader
@@ -2162,7 +2162,7 @@
           deleteBtn.disabled = true;
           deleteBtn.textContent = "Deleting...";
           messageDiv.style.display = "block";
-          messageDiv.style.color = "#4dd2ff";
+          messageDiv.style.color = "#111111";
           messageDiv.textContent = "Deleting...";
 
           const token = localStorage.getItem("jwtsettle");

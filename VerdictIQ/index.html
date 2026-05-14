@@ -1,0 +1,1268 @@
+<!doctype html>
+<html lang="en" class="hub-panel-cursor">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VerdictIQ — Study Explorer</title>
+    <link
+      rel="icon"
+      type="image/webp"
+      href="/Designer.png"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+      defer
+      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <link rel="stylesheet" href="index.css" />
+    <link rel="stylesheet" href="/static/css/common-theme.css" />
+    <link rel="stylesheet" href="/static/css/common-sky-typography.css" />
+  </head>
+
+  <body>
+    <script>
+      function updateDisplay() {
+        const hasToken = localStorage.getItem("jwtVerdictIQ");
+        const loginPage = document.querySelector(".login-page-wrapper");
+        const mainApp = document.getElementById("main-app-container");
+        if (hasToken) {
+          if (loginPage) loginPage.style.display = "none";
+          if (mainApp) {
+            mainApp.style.display = "flex";
+            mainApp.style.visibility = "visible";
+          }
+        } else {
+          if (loginPage) {
+            loginPage.style.display = "flex";
+            loginPage.style.visibility = "visible";
+          }
+          if (mainApp) {
+            mainApp.style.display = "none";
+            mainApp.style.visibility = "hidden";
+          }
+        }
+      }
+      document.addEventListener("DOMContentLoaded", updateDisplay);
+      window.addEventListener("login-success", () =>
+        setTimeout(updateDisplay, 100),
+      );
+      window.addEventListener("logout-success", () => {
+        const mainApp = document.getElementById("main-app-container");
+        const loginPage = document.querySelector(".login-page-wrapper");
+        if (mainApp) {
+          mainApp.style.display = "none";
+          mainApp.style.visibility = "hidden";
+        }
+        if (loginPage) {
+          loginPage.style.display = "flex";
+          loginPage.style.visibility = "visible";
+        }
+      });
+    </script>
+
+    
+    
+
+    <!-- ═══════════════ LOGIN PAGE ═══════════════ -->
+    <div
+      class="login-page-wrapper"
+      x-data="loginApp()"
+      x-init="init()"
+      x-show="!loggedIn"
+    >
+      <div class="login-page-content">
+        <div class="login-logo-section">
+          <img src="/Designer.png" alt="logo-img" />
+          <h1>VerdictIQ</h1>
+          <p>Secure Access for Authorized Ramos Law Users</p>
+        </div>
+        <div class="login-form-card">
+          <h2>Login</h2>
+          <div class="login-form-group">
+            <label for="login-email">Email</label>
+            <input
+              id="login-email"
+              type="email"
+              placeholder="Enter your email"
+              x-model="email"
+              @input.debounce.500="verifyEmail()"
+              @keydown.enter="emailValid && login()"
+            />
+            <div
+              class="login-email-status"
+              :class="email && email.includes('@') ? 'visible' : ''"
+              x-show="email && email.includes('@')"
+            >
+              <span
+                class="status-icon"
+                :class="emailChecking ? 'checking' : emailValid ? 'valid' : 'invalid'"
+              ></span>
+              <span
+                x-text="emailChecking ? 'Checking email...' : emailValid ? 'Email authorized' : 'Email not authorized'"
+              ></span>
+            </div>
+          </div>
+          <div x-show="error" x-text="error" class="login-error-message"></div>
+          <button
+            @click="login()"
+            :disabled="!emailValid || !email"
+            class="login-btn"
+          >
+            <span x-show="!loggingIn">Login</span>
+            <span x-show="loggingIn" class="login-btn-spinner">
+              <span
+                style="
+                  width: 14px;
+                  height: 14px;
+                  border: 2px solid rgba(0, 0, 0, 0.05);
+                  border-top-color: #000;
+                  border-radius: 0;
+                  animation: spin 0.8s linear infinite;
+                  display: inline-block;
+                "
+              ></span>
+              Logging in...
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ MAIN APP ═══════════════ -->
+    <div
+      id="main-app-container"
+      class="app-container"
+      x-data="verdictIQApp()"
+      x-init="init()"
+      x-show="isLoggedIn"
+      style="display: none"
+    >
+      <!-- HEADER -->
+      <div class="app-header">
+        <div class="header-left">
+          <img src="/Designer.png" alt="logo-img" class="logo" />
+          <div class="header-title">
+            <h1>VerdictIQ</h1>
+            <div style="display: flex; align-items: center; gap: 12px">
+              <p>Study & Verdict Intelligence Explorer</p>
+              <button
+                id="active-users-btn"
+                onclick="toggleActiveUsersPopover()"
+                title="Active users"
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 6px;
+                  background: none;
+                  border: none;
+                  cursor: pointer;
+                  padding: 4px 10px;
+                  border-radius: 0;
+                  color: var(--gold);
+                  font-size: 12px;
+                  font-weight: 600;
+                  transition: all 0.3s;
+                "
+              >
+                <span
+                  style="
+                    display: inline-block;
+                    width: 8px;
+                    height: 8px;
+                    background: #2ecc71;
+                    border-radius: 0;
+                    box-shadow: none;
+                  "
+                ></span>
+                <span id="active-count">0</span>
+                <span style="margin-left: 4px">Active Users</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="header-right">
+          <!-- Refresh button -->
+          <button
+            onclick="refreshStudies()"
+            style="
+              background: rgba(201, 168, 76, 0.15);
+              color: var(--gold);
+              border: 1px solid rgba(201, 168, 76, 0.4);
+              padding: 10px 18px;
+              border-radius: 0;
+              font-size: 14px;
+              font-weight: 600;
+              cursor: pointer;
+              transition: all 0.3s;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              position: relative;
+            "
+            onmouseover="this.style.background = 'rgba(201,168,76,.25)'"
+            onmouseout="this.style.background = 'rgba(201,168,76,.15)'"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="1 4 1 10 7 10" />
+              <path d="M3.51 15a9 9 0 1 0 .49-3.15" />
+            </svg>
+            Refresh
+          </button>
+          <!-- User menu -->
+          <div style="position: relative">
+            <button class="menu-icon-btn" onclick="toggleUserMenu()">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </button>
+            <div class="popover" id="user-menu-popover">
+              <div class="popover-item email-info">
+                <span class="popover-email" x-text="userEmail"></span>
+                <span class="popover-status">Logged in</span>
+              </div>
+              <div
+                class="popover-item"
+                style="color: var(--gold); font-weight: 600; cursor: pointer"
+                onclick="
+                  openStudyModal('recompute');
+                  toggleUserMenu();
+                "
+              >
+                Recompute
+              </div>
+              <div
+                class="popover-item"
+                style="color: var(--gold); font-weight: 600; cursor: pointer"
+                onclick="
+                  openStudyModal('ingestion');
+                  toggleUserMenu();
+                "
+              >
+                Ingestion Runs
+              </div>
+              <div
+                class="popover-item logout-btn"
+                @click="logout(); toggleUserMenu()"
+              >
+                Logout
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BODY -->
+      <div class="main-content">
+        <!-- SIDEBAR: study list -->
+        <div class="sidebar">
+          <!-- upload / regenerate controls -->
+          <div
+            id="study-upload-section"
+            style="
+              padding: 12px 16px;
+              border-bottom: 1px solid rgba(201, 168, 76, 0.1);
+            "
+          >
+            <label
+              for="study-file-input"
+              style="
+                color: var(--gold);
+                font-size: 13px;
+                font-weight: 600;
+                display: block;
+                margin-bottom: 6px;
+              "
+              >Upload file</label
+            >
+            <input
+              id="study-file-input"
+              type="file"
+              accept=".xlsx,.xls,.csv,.json"
+              style="
+                width: 100%;
+                padding: 8px 10px;
+                background: #ffffff;
+                border: 1px solid rgba(201, 168, 76, 0.3);
+                border-radius: 0;
+                color: var(--gold);
+                font-family: &quot;Montserrat&quot;, sans-serif;
+                font-size: 13px;
+              "
+            />
+            <div style="margin-top: 8px; display: flex; gap: 8px">
+              <button
+                id="study-upload-btn"
+                class="login-btn"
+                onclick="handleStudyUpload()"
+                style="flex: 1; padding: 6px 0; font-size: 13px"
+              >
+                Upload
+              </button>
+              <button
+                id="study-regenerate-btn"
+                class="login-btn"
+                onclick="handleStudyRegenerate()"
+                style="flex: 1; padding: 6px 0; font-size: 13px; display: none"
+              >
+                Regenerate
+              </button>
+            </div>
+            <div
+              id="study-upload-message"
+              style="margin-top: 6px; font-size: 12px; display: none"
+            ></div>
+          </div>
+          <div class="sidebar-header">
+            <h2>Studies</h2>
+            <span
+              id="studies-count"
+              style="font-size: 12px; color: #6c757d"
+            ></span>
+          </div>
+          <div class="search-box">
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Search studies…"
+              oninput="filterStudies(this.value)"
+            />
+          </div>
+          <div class="studies-list" id="studies-list">
+            <div class="sidebar-loading">
+              <div
+                class="spinner"
+                style="width: 24px; height: 24px; border-width: 2px"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DETAIL PANEL -->
+        <div class="detail-panel">
+          <!-- Empty state -->
+          <div class="detail-empty" id="detail-empty">
+            <div class="detail-empty-icon"></div>
+            <h2>VerdictIQ</h2>
+            <p>Select a study from the list to view details</p>
+          </div>
+
+          <!-- Loading state -->
+          <div class="detail-empty" id="detail-loading" style="display: none">
+            <div class="spinner"></div>
+            <p style="color: #6c757d; margin-top: 16px">Loading study…</p>
+          </div>
+
+          <!-- Detail content -->
+          <div class="detail-scroll" id="detail-content" style="display: none">
+            <div class="detail-card" id="detail-card">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Users Popover -->
+      <div
+        id="active-users-popover"
+        style="
+          position: fixed;
+          top: 80px;
+          left: 350px;
+          background: #ffffff;
+          border: 1px solid rgba(201, 168, 76, 0.4);
+          border-radius: 0;
+          padding: 12px;
+          min-width: 280px;
+          max-height: 400px;
+          z-index: 2100;
+          box-shadow: none;
+          overflow-y: auto;
+        "
+      >
+        <div
+          style="
+            padding: 8px 0;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(201, 168, 76, 0.3);
+            color: var(--gold);
+            font-size: 12px;
+            font-weight: 600;
+          "
+        >
+          Active Users
+        </div>
+        <div id="active-users-list" style="color: #6c757d; font-size: 13px">
+          <div style="padding: 8px 0; color: #9ca3af">Loading…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ SCRIPTS ═══════════════ -->
+    <!-- API Modal (Recompute / Ingestion Runs) -->
+    <div class="modal-overlay" id="api-modal" onclick="closeApiModal(event)">
+      <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h2 id="api-modal-title">Loading...</h2>
+          <button class="modal-close-btn" onclick="closeApiModal()">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body" id="api-modal-body">
+          <div class="modal-loading">
+            <div
+              class="spinner"
+              style="
+                width: 36px;
+                height: 36px;
+                border-width: 3px;
+                border-color: rgba(201, 168, 76, 0.3);
+                border-top-color: var(--gold);
+                margin: 0 auto 12px;
+              "
+            ></div>
+            <div>Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE_URL = window.location.origin;
+      let allStudies = [];
+      let activeStudyId = null; // numeric or original id
+      let activeStudyStudyId = null; // study_id for recompute/ingestion APIs
+      // for upload/regenerate workflow
+      let studyLastFile = null;
+
+      function getAuthHeaders(extra = {}) {
+        const token = localStorage.getItem("jwtVerdictIQ");
+        if (!token) throw new Error("Not authenticated");
+        return {
+          ...extra,
+          Authorization: `Bearer ${token}`,
+          "ngrok-skip-browser-warning": "true",
+        };
+      }
+
+      // ─── UI helpers ───
+      function toggleUserMenu() {
+        document.getElementById("user-menu-popover").classList.toggle("active");
+      }
+      document.addEventListener("click", (e) => {
+        const p = document.getElementById("user-menu-popover");
+        if (!e.target.closest(".menu-icon-btn") && p && !p.contains(e.target))
+          p.classList.remove("active");
+      });
+
+      function toggleActiveUsersPopover() {
+        const pop = document.getElementById("active-users-popover");
+        const opening = !pop.classList.contains("open");
+        pop.classList.toggle("open");
+        if (opening) loadActiveUsers();
+      }
+      document.addEventListener("click", (e) => {
+        const pop = document.getElementById("active-users-popover");
+        const btn = document.getElementById("active-users-btn");
+        if (btn && !btn.contains(e.target) && pop && !pop.contains(e.target))
+          pop.classList.remove("open");
+      });
+
+      // ─── ACTIVE USERS ───
+      async function loadActiveUsers() {
+        try {
+          const res = await fetch(`${API_BASE_URL}/VerdictIQ/active-today`, {
+            headers: getAuthHeaders(),
+          });
+          const data = await res.json();
+          const list = document.getElementById("active-users-list");
+          const count = document.getElementById("active-count");
+          if (!Array.isArray(data)) return;
+          count.textContent = data.length;
+          list.innerHTML =
+            data.length === 0
+              ? '<div style="padding:8px 0;color:#666;">No active users</div>'
+              : data
+                  .map(
+                    (u) => `
+            <div style="padding:10px 8px;border-bottom:1px solid rgba(201,168,76,.15);display:flex;justify-content:space-between;align-items:center;gap:16px;">
+              <span style="color:var(--gold);font-weight:500;flex:1;">${escapeHtml(u.email)}</span>
+              <span style="color:#aaa;font-size:11px;flex-shrink:0;">${formatLastActive(u.last_active)}</span>
+            </div>`,
+                  )
+                  .join("");
+        } catch (e) {
+          console.error("Active users error", e);
+        }
+      }
+
+      function formatLastActive(d) {
+        try {
+          const diff = Date.now() - new Date(d).getTime();
+          const m = Math.floor(diff / 60000),
+            h = Math.floor(diff / 3600000),
+            day = Math.floor(diff / 86400000);
+          if (m < 1) return "just now";
+          if (m < 60) return `${m}m ago`;
+          if (h < 24) return `${h}h ago`;
+          if (day < 7) return `${day}d ago`;
+          return new Date(d).toLocaleDateString();
+        } catch (e) {
+          return d;
+        }
+      }
+
+      // ─── STUDIES LIST ───
+      async function loadStudies() {
+        const list = document.getElementById("studies-list");
+        list.innerHTML =
+          '<div class="sidebar-loading"><div class="spinner" style="width:24px;height:24px;border-width:2px;"></div></div>';
+        try {
+          const res = await fetch(`${API_BASE_URL}/VerdictIQ/studies`, {
+            headers: {
+              ...getAuthHeaders(),
+              "ngrok-skip-browser-warning": "true",
+              Accept: "application/json",
+            },
+          });
+          const text = await res.text();
+          let data;
+          try {
+            data = JSON.parse(text);
+          } catch (e) {
+            list.innerHTML = `<div class="sidebar-empty" style="color:#e74c3c;">Server error — unexpected response.<br><small>${text.slice(0, 120)}</small></div>`;
+            return;
+          }
+          allStudies = Array.isArray(data)
+            ? data
+            : data.studies || data.results || data.data || [];
+          document.getElementById("studies-count").textContent =
+            `${allStudies.length} total`;
+          renderStudiesList(allStudies);
+        } catch (e) {
+          list.innerHTML = `<div class="sidebar-empty" style="color:#e74c3c;">Failed to load studies.<br><small>${e.message}</small></div>`;
+        }
+      }
+
+      function renderStudiesList(studies) {
+        const list = document.getElementById("studies-list");
+        if (!studies.length) {
+          list.innerHTML = '<div class="sidebar-empty">No studies found.</div>';
+          return;
+        }
+        list.innerHTML = studies
+          .map((s) => {
+            // Robustly find ID and title from any field name
+            const id = s.id ?? s.studyId ?? s.study_no ?? s.case_id ?? "?";
+            const studyId = s.study_id ?? "";
+            const title =
+              s.title ||
+              s.name ||
+              s.study_name ||
+              s.case_name ||
+              s.study_title ||
+              s.case_title ||
+              s.subject ||
+              s.heading ||
+              Object.values(s).find(
+                (v) => typeof v === "string" && v.length > 6 && v.length < 200,
+              ) ||
+              `Study #${id}`;
+            // Pick a secondary info line
+            const meta = [
+              s.year,
+              s.date,
+              s.type,
+              s.category,
+              s.jurisdiction,
+              s.court,
+            ]
+              .filter(Boolean)
+              .slice(0, 2)
+              .join(" · ");
+            return `
+          <div class="study-item${activeStudyId == id ? " active" : ""}"
+               onclick='loadStudyDetail(${JSON.stringify(id)}, ${JSON.stringify(studyId)})'
+               id="study-item-${id}"
+               data-study-id="${studyId}">
+            <span class="study-item-id">Study ID #${studyId}</span>
+            <span class="study-item-title">${escapeHtml(String(title))}</span>
+            ${meta ? `<span class="study-item-meta">${escapeHtml(meta)}</span>` : ""}
+          </div>`;
+          })
+          .join("");
+      }
+
+      function filterStudies(q) {
+        if (!q) {
+          renderStudiesList(allStudies);
+          return;
+        }
+        const lq = q.toLowerCase();
+        const filtered = allStudies.filter((s) => {
+          const id = String(s.id || s.study_id || "");
+          const title = String(
+            s.title || s.name || s.study_name || s.case_name || "",
+          );
+          const meta = String(
+            s.year || s.type || s.category || s.jurisdiction || "",
+          );
+          return (
+            id.includes(lq) ||
+            title.toLowerCase().includes(lq) ||
+            meta.toLowerCase().includes(lq)
+          );
+        });
+        renderStudiesList(filtered);
+      }
+
+      function refreshStudies() {
+        loadStudies();
+      }
+
+      // Open API modal for recompute or ingestion runs for active study
+      async function openStudyModal(action) {
+        const modal = document.getElementById("api-modal");
+        const title = document.getElementById("api-modal-title");
+        const body = document.getElementById("api-modal-body");
+
+        if (!activeStudyStudyId) {
+          alert("Please select a study first");
+          return;
+        }
+
+        modal.classList.add("active");
+        title.textContent =
+          action === "recompute"
+            ? `Recompute — ${activeStudyStudyId}`
+            : `Ingestion Runs — ${activeStudyStudyId}`;
+        body.innerHTML = `<div class="modal-loading"><div class="spinner" style="width:36px;height:36px;border-width:3px;border-color:rgba(201,168,76,0.3);border-top-color:var(--gold);margin:0 auto 12px;"></div><div>Calling API…</div></div>`;
+
+        try {
+          const token = localStorage.getItem("jwtVerdictIQ");
+          if (!token) throw new Error("Not authenticated");
+
+          let res;
+          if (action === "recompute") {
+            // POST with form-data - simulate by sending empty FormData
+            const fd = new FormData();
+            res = await fetch(
+              `${API_BASE_URL}/VerdictIQ/studies/${encodeURIComponent(activeStudyStudyId)}/aggregates:recompute`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "ngrok-skip-browser-warning": "true",
+                },
+                body: fd,
+              },
+            );
+          } else {
+            // ingestion runs (GET)
+            res = await fetch(
+              `${API_BASE_URL}/VerdictIQ/studies/${encodeURIComponent(activeStudyStudyId)}/ingestion-runs`,
+              {
+                method: "GET",
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("jwtVerdictIQ")}`,
+                  "ngrok-skip-browser-warning": "true",
+                },
+              },
+            );
+          }
+
+          const text = await res.text();
+          let data;
+          try {
+            data = JSON.parse(text);
+          } catch (e) {
+            data = { raw: text };
+          }
+
+          // Render response
+          if (action === "recompute") {
+            const msg = data.message || (data.raw ? data.raw : "No response");
+            body.innerHTML = `<div class="data-item" style="color:var(--gold)">${escapeHtml(String(msg))}</div>`;
+          } else {
+            // ingestion runs - show table if present
+            const runs = data.ingestion_runs || [];
+            if (runs.length === 0) {
+              body.innerHTML = `<div class="data-item">No ingestion runs found.</div>`;
+            } else {
+              const rows = runs
+                .map(
+                  (r) =>
+                    `<tr><td>${escapeHtml(String(r.run_id))}</td><td>${escapeHtml(r.source_filename || "")}</td><td>${escapeHtml(String(r.row_count_received || "0"))}</td><td>${escapeHtml(String(r.jurors_inserted || "0"))}</td><td>${escapeHtml(String(r.jurors_updated || "0"))}</td><td>${escapeHtml(String(r.warnings_count || "0"))}</td><td>${escapeHtml(r.status || "")}</td><td>${escapeHtml(r.created_at || "")}</td></tr>`,
+                )
+                .join("");
+              body.innerHTML = `<table class="data-table"><thead><tr><th>Run ID</th><th>Source File</th><th>Rows</th><th>Jurors Inserted</th><th>Jurors Updated</th><th>Warnings</th><th>Status</th><th>Created At</th></tr></thead><tbody>${rows}</tbody></table>`;
+            }
+          }
+        } catch (err) {
+          body.innerHTML = `<div class="data-item" style="color:#e74c3c">Error: ${escapeHtml(err.message || String(err))}</div>`;
+        }
+      }
+
+      function closeApiModal(e) {
+        if (!e || e.target.id === "api-modal") {
+          document.getElementById("api-modal").classList.remove("active");
+        }
+      }
+
+      // ─── UPLOAD / REGENERATE HANDLERS ───
+      async function handleStudyUpload() {
+        const input = document.getElementById("study-file-input");
+        const uploadBtn = document.getElementById("study-upload-btn");
+        const regenBtn = document.getElementById("study-regenerate-btn");
+        const msg = document.getElementById("study-upload-message");
+        const file = input.files[0];
+        if (!file) {
+          msg.style.display = "block";
+          msg.style.color = "#e74c3c";
+          msg.textContent = "Please select a file";
+          return;
+        }
+        uploadBtn.disabled = true;
+        uploadBtn.textContent = "Uploading...";
+        msg.style.display = "none";
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+          const res = await fetch(
+            `${API_BASE_URL}/VerdictIQ/studies/jurors:upload`,
+            {
+              method: "POST",
+              headers: getAuthHeaders(),
+              body: formData,
+            },
+          );
+          const text = await res.text();
+          if (!res.ok) {
+            throw new Error(text);
+          }
+          let data;
+          try {
+            data = JSON.parse(text);
+          } catch (e) {
+            throw new Error("Server returned non-JSON response");
+          }
+
+          if (data.message && data.message.includes("already exists")) {
+            // store the file for later regenerate
+            studyLastFile = file;
+            msg.style.display = "block";
+            msg.style.color = "var(--gold)";
+            msg.textContent = data.message;
+            uploadBtn.style.display = "none";
+            regenBtn.style.display = "inline-block";
+            regenBtn.disabled = false;
+            setTimeout(() => {
+              msg.style.display = "none";
+            }, 3000);
+          } else {
+            msg.style.display = "block";
+            msg.style.color = "#2ecc71";
+            msg.textContent = data.message || "Uploaded successfully";
+            loadStudies();
+            setTimeout(() => {
+              input.value = "";
+              msg.style.display = "none";
+              uploadBtn.disabled = false;
+              uploadBtn.textContent = "Upload";
+            }, 3000);
+          }
+        } catch (err) {
+          msg.style.display = "block";
+          msg.style.color = "#e74c3c";
+          msg.textContent = `Error: ${err.message}`;
+          uploadBtn.disabled = false;
+          uploadBtn.textContent = "Upload";
+          setTimeout(() => {
+            msg.style.display = "none";
+          }, 3000);
+        }
+      }
+
+      async function handleStudyRegenerate() {
+        const regenBtn = document.getElementById("study-regenerate-btn");
+        const uploadBtn = document.getElementById("study-upload-btn");
+        const input = document.getElementById("study-file-input");
+        const msg = document.getElementById("study-upload-message");
+        if (!studyLastFile) {
+          msg.style.display = "block";
+          msg.style.color = "#e74c3c";
+          msg.textContent = "No file to regenerate";
+          setTimeout(() => {
+            msg.style.display = "none";
+          }, 3000);
+          return;
+        }
+        regenBtn.disabled = true;
+        regenBtn.textContent = "Regenerating...";
+        msg.style.display = "none";
+
+        const formData = new FormData();
+        formData.append("file", studyLastFile);
+
+        try {
+          const res = await fetch(
+            `${API_BASE_URL}/VerdictIQ/studies/jurors:upload?regenerate=true`,
+            {
+              method: "POST",
+              headers: getAuthHeaders(),
+              body: formData,
+            },
+          );
+          const txt = await res.text();
+          if (!res.ok) {
+            throw new Error(txt);
+          }
+          // parse JSON if possible to expose message field
+          let data;
+          try {
+            data = JSON.parse(txt);
+          } catch (e) {
+            data = {};
+          }
+          msg.style.display = "block";
+          msg.style.color = "#2ecc71";
+          msg.textContent = data.message || "Regenerated successfully";
+          studyLastFile = null;
+          regenBtn.style.display = "none";
+          uploadBtn.style.display = "inline-block";
+          uploadBtn.disabled = false;
+          uploadBtn.textContent = "Upload";
+          setTimeout(() => {
+            msg.style.display = "none";
+          }, 3000);
+          loadStudies();
+        } catch (err) {
+          msg.style.display = "block";
+          msg.style.color = "#e74c3c";
+          msg.textContent = `Error: ${err.message}`;
+          regenBtn.disabled = false;
+          regenBtn.textContent = "Regenerate";
+          setTimeout(() => {
+            msg.style.display = "none";
+          }, 3000);
+        }
+      }
+
+      // ─── STUDY DETAIL ───
+      async function loadStudyDetail(id, studyId) {
+        activeStudyId = id;
+        activeStudyStudyId = studyId || id; // fallback to id if study_id not provided
+
+        // Mark active in sidebar
+        document
+          .querySelectorAll(".study-item")
+          .forEach((el) => el.classList.remove("active"));
+        const activeEl = document.getElementById(`study-item-${id}`);
+        if (activeEl) activeEl.classList.add("active");
+
+        // Show loading
+        document.getElementById("detail-empty").style.display = "none";
+        document.getElementById("detail-content").style.display = "none";
+        document.getElementById("detail-loading").style.display = "flex";
+
+        try {
+          const res = await fetch(
+            `${API_BASE_URL}/VerdictIQ/studies/${encodeURIComponent(activeStudyStudyId)}`,
+            {
+              headers: {
+                ...getAuthHeaders(),
+                "ngrok-skip-browser-warning": "true",
+                Accept: "application/json",
+              },
+            },
+          );
+          const text = await res.text();
+          let study;
+          try {
+            study = JSON.parse(text);
+          } catch (e) {
+            throw new Error("Server returned non-JSON response");
+          }
+          renderStudyDetail(study);
+        } catch (e) {
+          document.getElementById("detail-loading").style.display = "none";
+          document.getElementById("detail-content").style.display = "block";
+          document.getElementById("detail-card").innerHTML =
+            `<div style="color:#e74c3c;padding:20px;">Error loading study: ${e.message}</div>`;
+        }
+      }
+
+      function renderStudyDetail(study) {
+        document.getElementById("detail-loading").style.display = "none";
+        document.getElementById("detail-content").style.display = "block";
+
+        const card = document.getElementById("detail-card");
+        // show study_id in header if available
+        const displayId = study.study_id || study.id;
+        const id = study.id || study.study_id; // keep logical id for fallback
+        const title =
+          study.title ||
+          study.name ||
+          study.study_name ||
+          study.case_name ||
+          `Study #${displayId}`;
+
+        // Collect known fields to skip in raw fields
+        const knownFields = new Set([
+          "id",
+          "study_id",
+          "title",
+          "name",
+          "study_name",
+          "case_name",
+          "description",
+          "summary",
+          "abstract",
+          "notes",
+          "verdict",
+          "outcome",
+          "result",
+          "plaintiff",
+          "defendant",
+          "attorney",
+          "judge",
+          "court",
+          "jurisdiction",
+          "year",
+          "date",
+          "filed_date",
+          "settlement_amount",
+          "verdict_amount",
+          "award",
+          "type",
+          "category",
+          "status",
+          "tags",
+        ]);
+
+        // Build badge tags
+        const badges = [];
+        if (study.year || study.date)
+          badges.push({ text: study.year || study.date, cls: "badge-blue" });
+        if (study.type || study.category)
+          badges.push({
+            text: study.type || study.category,
+            cls: "badge-yellow",
+          });
+        if (study.status)
+          badges.push({
+            text: study.status,
+            cls: study.status.toLowerCase().includes("settled")
+              ? "badge-green"
+              : "badge-red",
+          });
+        if (study.jurisdiction)
+          badges.push({ text: study.jurisdiction, cls: "badge-blue" });
+
+        let html = `
+        <div class="detail-header">
+          <div class="detail-study-id">Study ID #${displayId}</div>
+          <div class="detail-title">${escapeHtml(title)}</div>
+          ${badges.length ? `<div class="detail-badges">${badges.map((b) => `<span class="badge ${b.cls}">${escapeHtml(String(b.text))}</span>`).join("")}</div>` : ""}
+        </div>`;
+
+        // Core key fields to show in grid
+        const gridFields = [
+          ["Court / Jurisdiction", study.court || study.jurisdiction],
+          ["Year / Date", study.year || study.date || study.filed_date],
+          ["Case Type", study.type || study.category],
+          ["Status", study.status],
+          ["Plaintiff", study.plaintiff],
+          ["Defendant", study.defendant],
+          ["Attorney", study.attorney],
+          ["Judge", study.judge],
+          [
+            "Verdict Amount",
+            study.verdict_amount || study.award
+              ? formatCurrency(study.verdict_amount || study.award)
+              : null,
+          ],
+          [
+            "Settlement Amount",
+            study.settlement_amount
+              ? formatCurrency(study.settlement_amount)
+              : null,
+          ],
+        ].filter(([, v]) => v !== undefined && v !== null && v !== "");
+
+        if (gridFields.length) {
+          html += `<div class="section-title">📋 Case Overview</div>
+          <div class="kv-grid">
+            ${gridFields
+              .map(
+                ([k, v]) => `
+              <div class="kv-item">
+                <div class="kv-key">${escapeHtml(k)}</div>
+                <div class="kv-value ${["Verdict Amount", "Settlement Amount"].includes(k) ? "highlight" : ""}">${escapeHtml(String(v))}</div>
+              </div>`,
+              )
+              .join("")}
+          </div>`;
+        }
+
+        // Narrative fields
+        const narrativeFields = [
+          [
+            "Summary / Abstract",
+            study.summary || study.abstract || study.description,
+          ],
+          ["Verdict / Outcome", study.verdict || study.outcome || study.result],
+          ["Notes", study.notes],
+        ].filter(([, v]) => v !== undefined && v !== null && v !== "");
+
+        narrativeFields.forEach(([k, v]) => {
+          html += `<div class="section-title"> ${k}</div>
+          <div class="text-block">${escapeHtml(String(v))}</div>`;
+        });
+
+        // Tags
+        if (study.tags) {
+          const tags = Array.isArray(study.tags)
+            ? study.tags
+            : String(study.tags)
+                .split(",")
+                .map((t) => t.trim())
+                .filter(Boolean);
+          if (tags.length) {
+            html += `<div class="section-title">Tags</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              ${tags.map((t) => `<span class="badge badge-yellow">${escapeHtml(t)}</span>`).join("")}
+            </div>`;
+          }
+        }
+
+        // Remaining fields as a table (catch-all for extra API fields)
+        const extraEntries = Object.entries(study).filter(
+          ([k]) => !knownFields.has(k) && typeof study[k] !== "object",
+        );
+        if (extraEntries.length) {
+          html += `<div class="section-title">Case Data</div>
+          <table class="data-table">
+            <thead><tr><th>Field</th><th>Value</th></tr></thead>
+            <tbody>
+              ${extraEntries
+                .map(
+                  ([k, v]) => `<tr>
+                <td style="color:var(--gold);font-weight:600;white-space:nowrap;">${escapeHtml(humanize(k))}</td>
+                <td>${escapeHtml(String(v))}</td>
+              </tr>`,
+                )
+                .join("")}
+            </tbody>
+          </table>`;
+        }
+
+        // Nested objects / arrays (e.g. witnesses, exhibits, etc.)
+        Object.entries(study).forEach(([k, v]) => {
+          if (typeof v === "object" && v !== null && !knownFields.has(k)) {
+            const rows = Array.isArray(v) ? v : [v];
+            if (!rows.length) return;
+            html += `<div class="section-title"> ${humanize(k)}</div>`;
+            if (typeof rows[0] === "object") {
+              const cols = [...new Set(rows.flatMap((r) => Object.keys(r)))];
+              html += `<table class="data-table">
+              <thead><tr>${cols.map((c) => `<th>${escapeHtml(humanize(c))}</th>`).join("")}</tr></thead>
+              <tbody>${rows
+                .map(
+                  (r) =>
+                    `<tr>${cols
+                      .map(
+                        (c) => `<td>${
+                          r[c] === null
+                            ? "null"
+                            : escapeHtml(String(r[c] ?? ""))
+                        }
+</td>`,
+                      )
+                      .join("")}</tr>`,
+                )
+                .join("")}</tbody>
+            </table>`;
+            } else {
+              html += `<div class="text-block">${rows.map((r) => escapeHtml(String(r))).join("<br>")}</div>`;
+            }
+          }
+        });
+
+        card.innerHTML = html;
+        document.getElementById("detail-content").scrollTop = 0;
+      }
+
+      function formatCurrency(v) {
+        const n = parseFloat(String(v).replace(/[^0-9.]/g, ""));
+        if (isNaN(n)) return v;
+        return "$" + n.toLocaleString("en-US");
+      }
+
+      function humanize(str) {
+        return str
+          .replace(/_/g, " ")
+          .replace(/([A-Z])/g, " $1")
+          .replace(/^./, (s) => s.toUpperCase())
+          .trim();
+      }
+
+      function escapeHtml(text) {
+        const d = document.createElement("div");
+        d.textContent = text;
+        return d.innerHTML;
+      }
+
+      // ─── ALPINE APPS ───
+      function loginApp() {
+        return {
+          email: "",
+          emailValid: false,
+          emailChecking: false,
+          error: "",
+          loggedIn: false,
+          loggingIn: false,
+          init() {
+            const token = localStorage.getItem("jwtVerdictIQ");
+            const saved = localStorage.getItem("verdictIQEmail");
+            if (token && saved) {
+              this.loggedIn = true;
+            }
+            window.addEventListener("logout-success", () => {
+              this.loggedIn = false;
+              this.email = "";
+              this.emailValid = false;
+              this.error = "";
+            });
+          },
+          verifyEmail() {
+            if (!this.email.includes("@")) {
+              this.emailValid = false;
+              this.error = "";
+              return;
+            }
+            this.emailChecking = true;
+            this.error = "";
+            fetch(
+              `${API_BASE_URL}/VerdictIQ/verify-email?email=${encodeURIComponent(this.email)}`,
+              { headers: { "ngrok-skip-browser-warning": "true" } },
+            )
+              .then((r) => r.json())
+              .then((j) => {
+                this.emailValid = j.valid;
+                this.emailChecking = false;
+                if (!j.valid)
+                  this.error =
+                    "Access denied: Your email is not on the authorized list.";
+              })
+              .catch(() => {
+                this.emailValid = false;
+                this.emailChecking = false;
+                this.error =
+                  "Access denied: Your email is not on the authorized list.";
+              });
+          },
+          login() {
+            if (!this.emailValid || !this.email) return;
+            this.loggingIn = true;
+            const body = new URLSearchParams({
+              username: this.email,
+              password: "not-used-but-required",
+            });
+            fetch(`${API_BASE_URL}/VerdictIQ/login`, {
+              method: "POST",
+              headers: { "ngrok-skip-browser-warning": "true" },
+              body,
+            })
+              .then((r) => {
+                if (!r.ok) throw new Error("Unauthorized email");
+                return r.json();
+              })
+              .then((j) => {
+                localStorage.setItem("jwtVerdictIQ", j.access_token);
+                localStorage.setItem("verdictIQEmail", this.email);
+                this.loggedIn = true;
+                this.error = "";
+                this.loggingIn = false;
+                window.dispatchEvent(new CustomEvent("login-success"));
+              })
+              .catch((e) => {
+                this.error = e.message;
+                this.loggingIn = false;
+              });
+          },
+        };
+      }
+
+      function verdictIQApp() {
+        return {
+          isLoggedIn: false,
+          userEmail: "",
+          init() {
+            const token = localStorage.getItem("jwtVerdictIQ");
+            const email = localStorage.getItem("verdictIQEmail");
+            if (token && email) {
+              this.isLoggedIn = true;
+              this.userEmail = email;
+            }
+            window.addEventListener("login-success", () => {
+              this.isLoggedIn = true;
+              this.userEmail = localStorage.getItem("verdictIQEmail");
+              setTimeout(scheduleLoad, 200);
+            });
+            window.addEventListener("logout-success", () => {
+              this.isLoggedIn = false;
+              this.userEmail = "";
+            });
+            if (this.isLoggedIn) {
+              setTimeout(scheduleLoad, 200);
+            }
+          },
+          logout() {
+            localStorage.removeItem("jwtVerdictIQ");
+            localStorage.removeItem("verdictIQEmail");
+            window.dispatchEvent(new Event("logout-success"));
+            this.isLoggedIn = false;
+            this.userEmail = "";
+            setTimeout(() => location.reload(), 100);
+          },
+        };
+      }
+
+      // helper that ensures studies/active users are only fetched once per second
+      let _lastLoad = 0;
+      function scheduleLoad() {
+        const now = Date.now();
+        if (now - _lastLoad < 1000) return;
+        _lastLoad = now;
+        loadStudies();
+        loadActiveUsers();
+      }
+    </script>
+    <script defer src="/static/js/common-cursor.js"></script>
+  </body>
+</html>

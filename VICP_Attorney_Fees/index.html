@@ -11,8 +11,8 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <link rel="stylesheet" href="/static/css/common-theme.css" />
-
+  <link rel="stylesheet" href="/static/index.css" />
+  <script src="/static/common-cursor.js" defer></script>
  <link rel="stylesheet" href="index.css">
 </head>
 
@@ -24,6 +24,8 @@
   <div id="login-page-wrapper" class="login-page-wrapper" x-data="loginApp()">
     <div class="login-page-content">
       <div class="login-logo-section">
+        <img src="/Designer.png"
+            alt="logo-img" class="logo" />
         <h1>VICP Attorney Tab</h1>
         <p>Professional Legal Case Analysis Platform</p>
       </div>
@@ -230,8 +232,7 @@
 
     <div class="app-header">
       <div class="header-left">
-        <img   src="/Designer.png"
-            alt="logo-img" class="logo" />
+        <img   src="/Designer.png" alt="logo-img" class="logo" />
         <div class="header-title">
           <h1>VICP ATTORNEY FEES</h1>
           <div style="display: flex; align-items: center; gap: 12px;">
@@ -291,9 +292,9 @@
         </button>
 
         <!-- MENU ICON -->
-        <button style="background: none; border: none; cursor: pointer; padding: 8px; position: relative;"
+        <button class="menu-icon-btn" style="background: none; border: none; cursor: pointer; padding: 8px; position: relative;"
           onclick="toggleUserMenu()" title="User menu" x-show="currentView === 'chat'">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--lx-sky)" stroke-width="2"
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
             <line x1="4" y1="6" x2="20" y2="6"></line>
             <line x1="4" y1="12" x2="20" y2="12"></line>
@@ -306,7 +307,7 @@
               position: absolute;
               top: 70px;
               right: 20px;
-              background-color: #0d6efd;
+              background-color: #fff;
               border: 1px solid #dee2e6;
               border-radius: 0;
               padding: 12px;
@@ -1094,7 +1095,7 @@
               border: none;
               cursor: pointer;
               padding: 8px;
-              color: #0d6efd;
+              color: #fff;
               transition: all 0.3s;
               position: relative;
               display: flex;
@@ -1123,8 +1124,8 @@
           position: fixed;
           bottom: 90px;
           right: 32px;
-          background-color: #0d6efd;
-          border: 1px solid rgba(var(--lx-sky-rgb), 0.4);
+          background-color: #ffffff;
+          border: 1px solid #dee2e6;
           border-radius: 0;
           padding: 12px;
           min-width: auto;
@@ -1148,7 +1149,7 @@
     </div>
 
     <!-- Active Users Popover (Outside header) -->
-    <div id="active-users-popover" class="active_user">
+    <div id="active-users-popover" class="active_user" style="background-color: #ffffff;">
       <div style="
           padding: 8px 0;
           margin-bottom: 8px;

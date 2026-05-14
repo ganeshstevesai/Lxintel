@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="hub-panel-cursor">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -16,6 +16,8 @@
       defer
       src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
     ></script>
+    <link rel="stylesheet" href="/static/index.css" />
+    <script src="/static/common-cursor.js" defer></script>
     <link
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap"
       rel="stylesheet"
@@ -178,7 +180,7 @@
               onclick="toggleUserMenu()"
               title="User menu"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="4" y1="6" x2="20" y2="6"></line>
                 <line x1="4" y1="12" x2="20" y2="12"></line>
                 <line x1="4" y1="18" x2="20" y2="18"></line>
@@ -711,7 +713,7 @@
         position: fixed;
         top: 80px;
         left: 350px;
-            background-color: #0d6efd;
+            background-color: #fff;
     border: 1px solid rgba(17, 17, 17, 0.4);
     border-radius: 0;
     padding: 12px;

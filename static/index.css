@@ -571,7 +571,7 @@ footer span {
 }
 
 .app-header {
-  background: rgba(14, 14, 14, 0.98);
+  background: #ffffff;
   backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--cyan-border);
   box-shadow: none !important;

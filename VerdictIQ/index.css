@@ -6,7 +6,7 @@
         }
 
         body, html {
-            font-family: "Montserrat", sans-serif;
+            font-family: var(--lx-font-body), "Montserrat", sans-serif;
             background-color: #f8f9fa;
             color: #111111;
             overflow: hidden;
@@ -66,6 +66,7 @@
         .login-page-content h1 {
             font-size: 2rem;
             font-weight: 700;
+            font-family: var(--lx-font-heading), serif;
             color: #0d6efd;
             margin: 0 0 1rem 0;
             letter-spacing: 2px;
@@ -78,7 +79,7 @@
         }
 
         .login-form-card {
-            background-color: #0d6efd;
+            background-color: #ffffff;
             border: 1px solid #dee2e6;
             border-radius: 0 !important;
             padding: 2.5rem;
@@ -88,6 +89,7 @@
         .login-form-card h2 {
             font-size: 2.5rem;
             font-weight: 800;
+            font-family: var(--lx-font-heading), serif;
             color: #0d6efd;
             margin: 0 0 2rem 0;
             letter-spacing: 1px;
@@ -111,7 +113,7 @@
             width: 100%;
             padding: 0.875rem 1rem;
             font-size: 0.95rem;
-            background-color: #0d6efd;
+            background-color: #fff;
             color: #111;
             border: 1px solid #dee2e6;
             border-radius: 0 !important;
@@ -277,6 +279,7 @@
         .header-title h1 {
             font-size: 24px;
             font-weight: 700;
+            font-family: var(--lx-font-heading), serif;
             color: #0d6efd;
             letter-spacing: 1px;
         }
@@ -544,6 +547,7 @@
         .detail-empty h2 {
             font-size: 28px;
             color: #0d6efd;
+            font-family: var(--lx-font-heading), serif;
             font-weight: 700;
             opacity: 0.4;
         }
@@ -603,6 +607,7 @@
         .detail-title {
             font-size: 22px;
             font-weight: 700;
+            font-family: var(--lx-font-heading), serif;
             color: #0d6efd;
             line-height: 1.4;
             margin-bottom: 12px;
@@ -651,6 +656,7 @@
         .section-title {
             font-size: 13px;
             font-weight: 700;
+            font-family: var(--lx-font-heading), serif;
             color: #0d6efd;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -941,4 +947,15 @@ button:hover,
     filter: none !important;
     box-shadow: none !important;
     transform: none !important;
+}
+
+/* Fix for small icon buttons collapsed by global padding */
+#templates-btn, .menu-icon-btn, #active-users-btn, .icon-btn {
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
 }

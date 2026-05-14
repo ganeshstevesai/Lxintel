@@ -627,7 +627,7 @@
     }
 
     .login-form-card {
-      background-color: #0d6efd;
+      background-color: #ffffff;
       border: 1px solid #dee2e6;
       border-radius: 0 !important;
       padding: 2.5rem;
@@ -661,7 +661,7 @@
       width: 100%;
       padding: 0.875rem 1rem;
       font-size: 0.95rem;
-      background-color: #0d6efd;
+      /* background-color: #0d6efd; */
       color: #0d6efd;
       border: 1px solid #dee2e6;
       border-radius: 0 !important;
@@ -775,8 +775,8 @@
       position: fixed;
       top: 80px;
       left: 350px;
-      background-color: #0d6efd;
-      border: 1px solid rgba(var(--lx-sky-rgb), 0.4);
+      background-color: #ffffff;
+      border: 1px solid #dee2e6;
       border-radius: 0 !important;
       padding: 12px;
       min-width: auto;
@@ -1155,4 +1155,15 @@ button:hover,
     filter: none !important;
     box-shadow: none !important;
     transform: none !important;
+}
+
+/* Fix for small icon buttons collapsed by global padding */
+#templates-btn, .menu-icon-btn, #active-users-btn, .icon-btn {
+    padding: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    /* width: 44px !important;
+    height: 44px !important; */
+    min-width: 44px !important;
 }

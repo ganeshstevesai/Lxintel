@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="hub-panel-cursor">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,10 +8,14 @@
     <link rel="stylesheet" href="index.css" />
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/index.css" />
+    <script src="/static/common-cursor.js" defer></script>
+
     <script
       defer
       src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
     ></script>
+
     <link
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap"
       rel="stylesheet"
@@ -84,8 +88,6 @@
         updateDisplay();
       }
     </script>
-    
-    
 
     <!-- LOGIN PAGE -->
     <div
@@ -725,7 +727,7 @@
           position: fixed;
           top: 80px;
           left: 350px;
-          background-color: #0d6efd;
+          background-color: #fff;
           border: 1px solid rgba(17, 17, 17, 0.4);
           border-radius: 0;
           padding: 12px;

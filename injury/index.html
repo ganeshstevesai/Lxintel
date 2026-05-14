@@ -1,0 +1,2063 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Injury Intelligence:Vision</title>
+    <link rel="icon" type="image/webp" href="/Designer.png" />
+    <link rel="stylesheet" href="index.css" />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+      defer
+      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <script>
+      // Simple check: if token exists, show main app, else show login
+      function updateDisplay() {
+        const hasToken = localStorage.getItem("jwtinjury");
+        const loginPage = document.querySelector(".login-page-wrapper");
+        const mainApp = document.getElementById("main-app-container");
+
+        console.log("[updateDisplay] Token exists:", !!hasToken);
+
+        if (hasToken) {
+          // Show main app, hide login
+          if (loginPage) loginPage.style.display = "none";
+          if (mainApp) {
+            mainApp.style.display = "flex";
+            mainApp.style.visibility = "visible";
+            mainApp.style.opacity = "1";
+          }
+        } else {
+          // Show login, hide main app
+          if (loginPage) {
+            loginPage.style.display = "flex";
+            loginPage.style.visibility = "visible";
+            loginPage.style.opacity = "1";
+          }
+          if (mainApp) {
+            mainApp.style.display = "none !important";
+            mainApp.style.visibility = "hidden";
+            mainApp.style.opacity = "0";
+          }
+        }
+      }
+
+      // Run on DOMContentLoaded
+      document.addEventListener("DOMContentLoaded", updateDisplay);
+
+      // Listen for login success event
+      window.addEventListener("login-success", () => {
+        console.log("[login-success event] Showing main app");
+        setTimeout(() => {
+          updateDisplay();
+        }, 100);
+      });
+
+      // Listen for logout event
+      window.addEventListener("logout-success", () => {
+        console.log("[logout event] Hiding main app");
+        const mainApp = document.getElementById("main-app-container");
+        const loginPage = document.querySelector(".login-page-wrapper");
+        if (mainApp) {
+          mainApp.style.display = "none !important";
+          mainApp.style.visibility = "hidden";
+          mainApp.style.opacity = "0";
+        }
+        if (loginPage) {
+          loginPage.style.display = "flex";
+          loginPage.style.visibility = "visible";
+          loginPage.style.opacity = "1";
+        }
+      });
+
+      // Initial check before DOMContentLoaded
+      if (document.readyState === "loading") {
+        updateDisplay();
+      }
+    </script>
+    <div class="video-background"></div>
+    <div class="overlay"></div>
+
+    <!-- LOGIN PAGE -->
+    <div
+      class="login-page-wrapper"
+      x-data="loginApp()"
+      x-init="init()"
+      x-show="!loggedIn"
+    >
+      <div class="login-page-content">
+        <!-- LOGO AND TITLE -->
+        <div class="login-logo-section">
+          <img src="/Designer.png" alt="" />
+          <h1>Injury Intelligence:Vision</h1>
+          <p>Secure Access for Authorized Users</p>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <div class="login-form-card">
+          <h2>Login</h2>
+
+          <!-- Email Input -->
+          <div class="login-form-group">
+            <label for="login-email">Email</label>
+            <input
+              id="login-email"
+              type="email"
+              placeholder="Enter your email"
+              x-model="email"
+              @input.debounce.500="verifyEmail()"
+              @keydown.enter="emailValid && login()"
+            />
+
+            <!-- Email Status -->
+            <div
+              class="login-email-status"
+              :class="email && email.includes('@') ? 'visible' : ''"
+              x-show="email && email.includes('@')"
+            >
+              <span
+                class="status-icon"
+                :class="emailChecking ? 'checking' : emailValid ? 'valid' : 'invalid'"
+              ></span>
+              <span
+                class="status-text"
+                x-text="emailChecking ? 'Checking email...' : emailValid ? 'Email authorized' : 'Email not authorized'"
+              ></span>
+            </div>
+          </div>
+
+          <!-- Error Message -->
+          <div x-show="error" x-text="error" class="login-error-message"></div>
+
+          <!-- Login Button -->
+          <button
+            @click="login()"
+            :disabled="!emailValid || !email"
+            class="login-btn"
+          >
+            <span x-show="!loggingIn">Login</span>
+            <span x-show="loggingIn" class="login-btn-spinner">
+              <span
+                class="spinner"
+                style="
+                  width: 14px;
+                  height: 14px;
+                  border-width: 2px;
+                  margin-left: 0;
+                  border: 2px solid rgba(0, 0, 0, 0.3);
+                  border-top-color: #000;
+                "
+              ></span>
+              Logging in...
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN APPLICATION CONTAINER -->
+    <div
+      id="main-app-container"
+      x-data="injuryApp()"
+      x-init="init()"
+      x-show="isLoggedIn"
+      style="display: none"
+    >
+      <div class="app-header">
+        <div class="header-left">
+          <img src="/Designer.png" alt="" class="logo" />
+          <div class="header-title">
+            <h1>Injury Intelligence:Vision</h1>
+            <div style="display: flex; align-items: center; gap: 12px">
+              <p>AI-Powered Injury Intelligence</p>
+              <!-- Active Users Count -->
+              <button
+                id="active-users-btn"
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 6px;
+                  background: none;
+                  border: none;
+                  cursor: pointer;
+                  padding: 4px 10px;
+                  border-radius: 6px;
+                  transition: all 0.3s;
+                  color: #4dd2ff;
+                  font-size: 12px;
+                  font-weight: 600;
+                "
+                onclick="toggleActiveUsersPopover()"
+                title="Active users on this tool"
+              >
+                <span
+                  style="
+                    display: inline-block;
+                    width: 8px;
+                    height: 8px;
+                    background: #2ecc71;
+                    border-radius: 50%;
+                    box-shadow: 0 0 8px #2ecc71;
+                  "
+                ></span>
+                <span id="active-count">0</span>
+                <span style="margin-left: 4px">Active Users</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="new-chat-btn" onclick="startNewChat()">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+              ></path>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="12" x2="15" y2="12"></line>
+              <line x1="12" y1="12" x2="9" y2="12"></line>
+            </svg>
+            New Chat
+            <span class="tooltip">Start a new conversation</span>
+          </button>
+          <div style="position: relative">
+            <button class="menu-icon-btn" onclick="toggleUserMenu()">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+            </button>
+            <div class="popover" id="user-menu-popover">
+              <div class="popover-item email-info">
+                <span class="popover-email" x-text="userEmail"></span>
+                <span class="popover-status">Logged in</span>
+              </div>
+              <div
+                class="popover-item logout-btn"
+                @click="logout(); toggleUserMenu()"
+              >
+                Logout
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-container">
+        <div class="chat-messages" id="chat-messages"></div>
+      </div>
+
+      <div class="input-container">
+        <div class="input-wrapper">
+          <div class="input-content">
+            <textarea
+              id="message-input"
+              placeholder="Type message or paste images (JPG/PNG) and links (starting with http)"
+              onkeydown="handleKeyPress(event)"
+              onpaste="handlePaste(event)"
+            ></textarea>
+            <div id="attachment-indicators" class="attachment-indicators"></div>
+            <button
+              class="upload-icon-btn"
+              id="upload-btn"
+              title="Upload Image (JPG/PNG)"
+              onclick="document.getElementById('image-file-input').click()"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 200 200"
+                width="36"
+                height="36"
+                style="display: inline-block"
+              >
+                <path
+                  d="M 150 80 C 150 65 138 53 123 53 C 121 53 119 53.2 117 53.5 C 112 38 98 27 81 27 C 60 27 43 44 43 65 C 43 66 43 67 43.1 68 C 32 71 24 81 24 93 C 24 107 35 118 49 118 L 145 118 C 162 118 176 104 176 87 C 176 72 165 60 150 60 C 150 66.5 150 73 150 80 Z"
+                  fill="#4dd2ff"
+                  stroke="#4dd2ff"
+                  stroke-width="6"
+                  stroke-linejoin="round"
+                />
+                <g
+                  fill="#4dd2ff"
+                  stroke="#4dd2ff"
+                  stroke-width="8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <line x1="100" y1="170" x2="100" y2="95" />
+                  <polyline points="75,120 100,95 125,120" fill="none" />
+                </g>
+              </svg>
+            </button>
+            <input
+              type="file"
+              id="image-file-input"
+              accept=".jpg,.jpeg,.png"
+              onchange="handleFileUpload(event)"
+            />
+          </div>
+          <!-- Templates Button -->
+          <button
+            id="templates-btn"
+            style="
+              background: none;
+              border: none;
+              cursor: pointer;
+              padding: 8px;
+              color: #4dd2ff;
+              transition: all 0.3s;
+              position: relative;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 44px;
+              height: 44px;
+              border-radius: 8px;
+            "
+            onmouseover="this.style.background = 'rgba(77, 210, 255, 0.1)'"
+            onmouseout="this.style.background = 'none'"
+            onclick="toggleTemplatesPopover(event)"
+            title="Load template message"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
+              ></path>
+              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+              <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+          </button>
+          <button class="send-btn" onclick="sendMessage()" id="send-btn">
+            Send
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-overlay" id="link-modal"></div>
+
+      <!-- Save Template Modal -->
+      <div
+        id="save-template-modal"
+        style="
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.8);
+          display: none;
+          align-items: center;
+          justify-content: center;
+          z-index: 2000;
+        "
+        onclick="
+          event.target.id === 'save-template-modal' && closeSaveTemplateModal()
+        "
+      >
+        <div
+          style="
+            background: #1a1a1a;
+            border: 1px solid rgba(77, 210, 255, 0.4);
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+          "
+        >
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 24px;
+            "
+          >
+            <h2
+              style="
+                color: #4dd2ff;
+                font-size: 20px;
+                font-weight: 700;
+                margin: 0;
+              "
+            >
+              Save as Template
+            </h2>
+            <button
+              onclick="closeSaveTemplateModal()"
+              style="
+                background: none;
+                border: none;
+                color: #999;
+                font-size: 24px;
+                cursor: pointer;
+                padding: 0;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+            >
+              �
+            </button>
+          </div>
+          <p style="color: #aaa; margin: 0 0 20px 0; font-size: 14px">
+            Save this message as a template for future use
+          </p>
+          <form
+            onsubmit="saveMsgAsTemplate(event)"
+            style="display: flex; flex-direction: column; gap: 16px"
+          >
+            <div>
+              <label
+                style="
+                  display: block;
+                  color: #4dd2ff;
+                  font-size: 13px;
+                  font-weight: 600;
+                  margin-bottom: 8px;
+                "
+                >Template Name *</label
+              >
+              <input
+                id="template-name-input"
+                type="text"
+                placeholder="e.g., Initial Demand Letter"
+                required
+                style="
+                  width: 100%;
+                  padding: 10px 12px;
+                  background: rgba(0, 0, 0, 0.6);
+                  border: 1px solid rgba(77, 210, 255, 0.3);
+                  border-radius: 6px;
+                  color: #4dd2ff;
+                  font-family: &quot;Montserrat&quot;, sans-serif;
+                  font-size: 14px;
+                  transition: all 0.3s;
+                "
+                onfocus="this.style.borderColor = 'rgba(77, 210, 255, 0.6)'"
+                onblur="this.style.borderColor = 'rgba(77, 210, 255, 0.3)'"
+              />
+            </div>
+            <div>
+              <label
+                style="
+                  display: block;
+                  color: #4dd2ff;
+                  font-size: 13px;
+                  font-weight: 600;
+                  margin-bottom: 8px;
+                "
+                >Description *</label
+              >
+              <textarea
+                id="template-description-input"
+                placeholder="Brief description of this template"
+                required
+                style="
+                  width: 100%;
+                  padding: 10px 12px;
+                  background: rgba(0, 0, 0, 0.6);
+                  border: 1px solid rgba(77, 210, 255, 0.3);
+                  border-radius: 6px;
+                  color: #4dd2ff;
+                  font-family: &quot;Montserrat&quot;, sans-serif;
+                  font-size: 14px;
+                  resize: vertical;
+                  min-height: 80px;
+                  transition: all 0.3s;
+                "
+                onfocus="this.style.borderColor = 'rgba(77, 210, 255, 0.6)'"
+                onblur="this.style.borderColor = 'rgba(77, 210, 255, 0.3)'"
+              ></textarea>
+            </div>
+            <div
+              id="template-modal-message"
+              style="font-size: 14px; text-align: center; display: none"
+            ></div>
+            <div
+              style="
+                display: flex;
+                gap: 12px;
+                justify-content: flex-end;
+                margin-top: 8px;
+              "
+            >
+              <button
+                type="button"
+                onclick="closeSaveTemplateModal()"
+                style="
+                  background: rgba(77, 210, 255, 0.1);
+                  color: #4dd2ff;
+                  border: 1px solid rgba(77, 210, 255, 0.3);
+                  padding: 10px 20px;
+                  border-radius: 6px;
+                  font-weight: 600;
+                  cursor: pointer;
+                  transition: all 0.3s;
+                  font-size: 14px;
+                "
+              >
+                Cancel
+              </button>
+              <button
+                id="save-template-btn"
+                type="submit"
+                style="
+                  background: #4dd2ff;
+                  color: #000;
+                  border: none;
+                  padding: 10px 20px;
+                  border-radius: 6px;
+                  font-weight: 700;
+                  cursor: pointer;
+                  transition: all 0.3s;
+                  font-size: 14px;
+                "
+              >
+                Save Template
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Delete Template Confirmation Modal -->
+      <div
+        id="delete-template-modal"
+        style="
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.8);
+          display: none;
+          align-items: center;
+          justify-content: center;
+          z-index: 2000;
+        "
+        onclick="
+          event.target.id === 'delete-template-modal' &&
+            closeDeleteTemplateModal()
+        "
+      >
+        <div
+          style="
+            background: #1a1a1a;
+            border: 1px solid rgba(77, 210, 255, 0.4);
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+          "
+        >
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 24px;
+            "
+          >
+            <h2
+              style="
+                color: #4dd2ff;
+                font-size: 20px;
+                font-weight: 700;
+                margin: 0;
+              "
+            >
+              Delete Template
+            </h2>
+            <button
+              onclick="closeDeleteTemplateModal()"
+              style="
+                background: none;
+                border: none;
+                color: #999;
+                font-size: 24px;
+                cursor: pointer;
+                padding: 0;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+            >
+              �
+            </button>
+          </div>
+          <p style="color: #aaa; margin: 0 0 24px 0; font-size: 14px">
+            Are you sure you want to delete this template? This action cannot be
+            undone.
+          </p>
+          <div
+            id="delete-template-message"
+            style="
+              font-size: 14px;
+              text-align: center;
+              margin-bottom: 20px;
+              display: none;
+            "
+          ></div>
+          <div style="display: flex; gap: 12px; justify-content: flex-end">
+            <button
+              type="button"
+              onclick="closeDeleteTemplateModal()"
+              style="
+                background: rgba(77, 210, 255, 0.1);
+                color: #4dd2ff;
+                border: 1px solid rgba(77, 210, 255, 0.3);
+                padding: 10px 20px;
+                border-radius: 6px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s;
+                font-size: 14px;
+              "
+            >
+              Cancel
+            </button>
+            <button
+              id="confirm-delete-btn"
+              type="button"
+              onclick="confirmDeleteTemplate()"
+              style="
+                background: #e74c3c;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 6px;
+                font-weight: 700;
+                cursor: pointer;
+                transition: all 0.3s;
+                font-size: 14px;
+              "
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Templates Popover -->
+      <div
+        id="templates-popover"
+        style="
+          position: fixed;
+          bottom: 90px;
+          right: 32px;
+          background-color: #1a1a1a;
+          border: 1px solid rgba(77, 210, 255, 0.4);
+          border-radius: 8px;
+          padding: 12px;
+          min-width: 280px;
+          max-height: 400px;
+          display: none;
+          z-index: 2000;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+          overflow-y: auto;
+        "
+      >
+        <div
+          style="
+            padding: 8px 0;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(77, 210, 255, 0.3);
+            color: #4dd2ff;
+            font-size: 12px;
+            font-weight: 600;
+          "
+        >
+          Templates
+        </div>
+        <div id="templates-list" style="color: #aaa; font-size: 13px">
+          <div style="padding: 8px 0; color: #666">Loading...</div>
+        </div>
+      </div>
+
+      <!-- Active Users Popover -->
+      <div
+        id="active-users-popover"
+        style="
+          position: fixed;
+          top: 80px;
+          left: 350px;
+          background-color: rgb(26, 26, 26);
+          border: 1px solid rgba(77, 210, 255, 0.4);
+          border-radius: 8px;
+          padding: 12px;
+          min-width: auto;
+          min-height: auto;
+          max-height: 400px;
+          display: block;
+          z-index: 2100;
+          box-shadow: rgba(0, 0, 0, 0.5) 0px 4px 20px;
+          overflow-y: auto;
+        "
+      >
+        <div
+          style="
+            padding: 8px 0;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(77, 210, 255, 0.3);
+            color: #4dd2ff;
+            font-size: 12px;
+            font-weight: 600;
+          "
+        >
+          Active Users
+        </div>
+        <div id="active-users-list" style="color: #aaa; font-size: 13px">
+          <div style="padding: 8px 0; color: #666">Loading...</div>
+        </div>
+      </div>
+    </div>
+    <!-- END MAIN APPLICATION CONTAINER -->
+
+    <div class="modal-overlay" id="link-modal"></div>
+
+    <script>
+      const API_BASE_URL = "https://slimy-leonia-kyphotic.ngrok-free.dev";
+      let threadId = null;
+      let isProcessing = false;
+      let uploadedImages = [];
+      let imageLinks = [];
+      let currentMessageToSave = ""; // Store message for saving as template
+
+      marked.setOptions({
+        gfm: true,
+        breaks: true,
+        tables: true,
+      });
+
+      // Toggle user menu popover
+      function toggleUserMenu() {
+        const popover = document.getElementById("user-menu-popover");
+        popover.classList.toggle("active");
+      }
+
+      // Close popover when clicking outside
+      document.addEventListener("click", function (event) {
+        const popover = document.getElementById("user-menu-popover");
+        const menuBtn = event.target.closest(".menu-icon-btn");
+        if (!menuBtn && popover && !popover.contains(event.target)) {
+          popover.classList.remove("active");
+        }
+      });
+
+      function getAuthHeaders(extraHeaders = {}) {
+        const token = localStorage.getItem("jwtinjury");
+
+        if (!token) {
+          throw new Error("Not authenticated");
+        }
+
+        return {
+          ...extraHeaders,
+          Authorization: `Bearer ${token}`,
+        };
+      }
+
+      function loadResponseId() {
+        return localStorage.getItem("vicp_response_id");
+      }
+
+      function saveResponseId(responseId) {
+        localStorage.setItem("vicp_response_id", responseId);
+      }
+
+      function clearResponseId() {
+        localStorage.removeItem("vicp_response_id");
+      }
+
+      function loadInitialMessage() {
+        const initialMessage = `
+
+# Hello! I'm Injury Intelligence:Vision, your firm's specialized accident and injury evaluation tool.
+
+## ?? What I Do
+
+I use the picture you upload of a damaged client vehicle to quickly generate a preliminary, data-driven report. I analyze the crash dynamics and visible damage to:
+
+- **Estimate Crash Severity:** Determine the force and direction of the impact.
+- **Predict Likely Injuries:** Based on the damage, I predict the most probable injuries for the driver.
+- **Calculate a Settlement Estimate:** I run a detailed synthetic case profile (HIPAA Compliant) through the proprietary Settlement Model to give you an estimated settlement range and a strategic analysis.
+
+## ?? How to Use Me
+
+### Upload an Image
+The essential step is to upload a picture or provide a link to a picture of the damaged client vehicle. My full capabilities activate only after I see an image of a damaged car.
+
+### Optional: Add Case Details (Recommended for Accuracy)
+
+While an image is all I strictly need, you can provide any additional case information you have. The more details you provide, the more relevant the synthetic case profile I generate will be, leading to a more useful estimate.
+
+#### Helpful Information to Include:
+
+- Year, make, and model of the client's and at-fault vehicles.
+- Age and sex of both the client and the at-fault driver.
+- Insurance carrier for both parties.
+- Client financial distress (e.g., low credit score, foreclosure).
+- Client likability score (1-10) for a jury.
+- At-fault driver aggravated circumstances (DUI, drug use, reckless driving).
+- Ambulance involvement.
+
+#### Example Prompt:
+
+"My client is driving a 2023 Honda Civic. At-fault was a commercial semi-truck. Client is a 25-year-old female, likeability score 9, low estimated credit score insured by Geico. At-fault driver 55, driving 2025 Corvette with USAA insurance was cited for reckless driving."
+
+## ?? Important Note and Disclaimer
+
+The report I generate is a synthetic, data-inspired estimate for preliminary analysis only. It is not legal advice, a medical diagnosis, or a guarantee of any outcome. Always use your professional judgment and consult with qualified medical and legal professionals.`;
+
+        addMessage("assistant", initialMessage, [], [], false, true);
+      }
+
+      function handlePaste(event) {
+        if (isProcessing) {
+          event.preventDefault();
+          return;
+        }
+
+        const clipboardData = event.clipboardData || window.clipboardData;
+        const items = clipboardData.items;
+
+        let hasHandledPaste = false;
+        let isLinkOnly = false;
+
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i];
+
+          // Handle image paste
+          if (item.type.indexOf("image") !== -1) {
+            event.preventDefault();
+            hasHandledPaste = true;
+            const file = item.getAsFile();
+            if (
+              file &&
+              (file.type === "image/jpeg" || file.type === "image/png")
+            ) {
+              uploadedImages.push(file);
+              renderAttachmentPreviews();
+            } else {
+              alert("Only JPG and PNG images are supported");
+            }
+          }
+          // Handle text paste (for links)
+          else if (item.type === "text/plain") {
+            item.getAsString((text) => {
+              const trimmedText = text.trim();
+              // Check if it's a URL
+              if (
+                trimmedText.startsWith("http://") ||
+                trimmedText.startsWith("https://")
+              ) {
+                if (!imageLinks.includes(trimmedText)) {
+                  event.preventDefault();
+                  imageLinks.push(trimmedText);
+                  renderAttachmentPreviews();
+                  // Clear the textarea if only a link was pasted
+                  document.getElementById("message-input").value = "";
+                }
+              }
+            });
+          }
+        }
+      }
+
+      function handleFileUpload(event) {
+        const files = event.target.files;
+        for (let file of files) {
+          if (
+            file.type === "image/jpeg" ||
+            file.type === "image/png" ||
+            file.name.endsWith(".jpg") ||
+            file.name.endsWith(".jpeg") ||
+            file.name.endsWith(".png")
+          ) {
+            uploadedImages.push(file);
+          } else {
+            alert("Only JPG and PNG files are accepted");
+          }
+        }
+        renderAttachmentPreviews();
+        event.target.value = "";
+      }
+
+      function disableInput() {
+        const textarea = document.getElementById("message-input");
+        const uploadBtn = document.getElementById("upload-btn");
+        textarea.disabled = true;
+        uploadBtn.disabled = true;
+      }
+
+      function enableInput() {
+        const textarea = document.getElementById("message-input");
+        const uploadBtn = document.getElementById("upload-btn");
+        textarea.disabled = false;
+        uploadBtn.disabled = false;
+      }
+
+      function resetInput() {
+        document.getElementById("message-input").value = "";
+        document.getElementById("attachment-indicators").innerHTML = "";
+        uploadedImages = [];
+        imageLinks = [];
+      }
+
+      function renderAttachmentPreviews() {
+        const indicatorsContainer = document.getElementById(
+          "attachment-indicators",
+        );
+        if (!indicatorsContainer) return;
+
+        indicatorsContainer.innerHTML = "";
+
+        // Show image icon if images uploaded
+        if (uploadedImages.length > 0) {
+          const imgIndicator = document.createElement("div");
+          imgIndicator.className = "attachment-indicator";
+          imgIndicator.title =
+            uploadedImages.length +
+            " image" +
+            (uploadedImages.length > 1 ? "s" : "");
+          imgIndicator.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75-3.54c-.3-.38-.77-.62-1.3-.62-.92 0-1.66.74-1.66 1.66 0 .53.24 1 .62 1.3l2.75 3.54c.3.38.77.62 1.3.62.92 0 1.66-.74 1.66-1.66 0-.53-.24-1-.62-1.3z"></path>
+            </svg>
+          `;
+          indicatorsContainer.appendChild(imgIndicator);
+        }
+
+        // Show link icon if links added
+        if (imageLinks.length > 0) {
+          const linkIndicator = document.createElement("div");
+          linkIndicator.className = "attachment-indicator";
+          linkIndicator.title =
+            imageLinks.length + " link" + (imageLinks.length > 1 ? "s" : "");
+          linkIndicator.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+            </svg>
+          `;
+          indicatorsContainer.appendChild(linkIndicator);
+        }
+      }
+
+      function removeImage(index) {
+        uploadedImages.splice(index, 1);
+        renderAttachmentPreviews();
+      }
+
+      function removeLink(index) {
+        imageLinks.splice(index, 1);
+        renderAttachmentPreviews();
+      }
+
+      function handleKeyPress(event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+          event.preventDefault();
+          sendMessage();
+        }
+      }
+
+      function startNewChat() {
+        if (
+          confirm("Start a new conversation? This will clear the current chat.")
+        ) {
+          threadId = null;
+          uploadedImages = [];
+          imageLinks = [];
+          clearResponseId();
+          isProcessing = false;
+          hideTypingIndicator();
+
+          // Reset send button
+          const sendBtn = document.getElementById("send-btn");
+          sendBtn.disabled = false;
+          sendBtn.textContent = "Send";
+
+          // Enable input
+          enableInput();
+
+          // Clear chat and load initial message
+          document.getElementById("chat-messages").innerHTML = "";
+          document.getElementById("message-input").value = "";
+          document.getElementById("attachment-indicators").innerHTML = "";
+
+          // Load the initial instruction message
+          loadInitialMessage();
+        }
+      }
+
+      async function sendMessage() {
+        if (isProcessing) return;
+
+        const input = document.getElementById("message-input");
+        const message = input.value.trim();
+
+        if (
+          !message &&
+          uploadedImages.length === 0 &&
+          imageLinks.length === 0
+        ) {
+          alert("Please enter a message or upload an image/link");
+          return;
+        }
+
+        isProcessing = true;
+        const sendBtn = document.getElementById("send-btn");
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '<span class="spinner"></span>';
+
+        disableInput();
+
+        const userSummary = [];
+        if (message) userSummary.push(`Message: ${message}`);
+        if (uploadedImages.length > 0)
+          userSummary.push(`${uploadedImages.length} image(s) uploaded`);
+        if (imageLinks.length > 0)
+          userSummary.push(`${imageLinks.length} link(s) added`);
+
+        addMessage("user", message, uploadedImages, imageLinks);
+        showTypingIndicator();
+
+        try {
+          const formData = new FormData();
+
+          // Only add user_message if it's not a link (links are handled separately)
+          const isLink =
+            message &&
+            (message.startsWith("http://") || message.startsWith("https://"));
+          if (message && !isLink) {
+            formData.append("user_message", message);
+          } else if (message && !imageLinks.includes(message)) {
+            formData.append("user_message", message);
+          }
+
+          if (uploadedImages.length > 0) {
+            uploadedImages.forEach((file) => {
+              formData.append("damage_images", file);
+            });
+          }
+
+          if (imageLinks.length > 0) {
+            imageLinks.forEach((link) => {
+              formData.append("image_links", link);
+            });
+          }
+
+          const previousResponseId = loadResponseId();
+          if (previousResponseId) {
+            formData.append("previous_response_id", previousResponseId);
+          }
+
+          const response = await fetch(
+            `${API_BASE_URL}/Injury_Intelligence/injury-intelligence`,
+            {
+              method: "POST",
+              mode: "cors",
+              headers: {
+                ...getAuthHeaders(),
+                "ngrok-skip-browser-warning": "true",
+              },
+              body: formData,
+            },
+          );
+
+          const data = await response.json();
+
+          if (data.report) {
+            if (data.response_id) {
+              saveResponseId(data.response_id);
+            }
+            addMessage("assistant", data.report);
+          } else {
+            addMessage("assistant", `Error: Invalid response from server`);
+          }
+        } catch (error) {
+          addMessage("assistant", `Connection Error: ${error.message}`);
+        } finally {
+          hideTypingIndicator();
+          isProcessing = false;
+          sendBtn.disabled = false;
+          sendBtn.textContent = "Send";
+          enableInput();
+          resetInput();
+          scrollToBottom();
+        }
+      }
+
+      function addMessage(
+        role,
+        content,
+        userImages = [],
+        userLinks = [],
+        shouldScroll = true,
+        isInitial = false,
+      ) {
+        const messagesDiv = document.getElementById("chat-messages");
+
+        const emptyState = messagesDiv.querySelector(".empty-state");
+        if (emptyState) emptyState.remove();
+
+        const wrapper = document.createElement("div");
+        wrapper.className = `message-wrapper ${role}`;
+
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `message ${role}${
+          isInitial ? " initial-message" : ""
+        }`;
+
+        if (role === "user") {
+          // Display images first
+          if (userImages && userImages.length > 0) {
+            userImages.forEach((file) => {
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                const img = document.createElement("img");
+                img.src = e.target.result;
+                img.style.maxWidth = "200px";
+                img.style.height = "auto";
+                img.style.borderRadius = "8px";
+                img.style.marginBottom = "8px";
+                img.style.display = "block";
+                messageDiv.insertBefore(img, messageDiv.firstChild);
+              };
+              reader.readAsDataURL(file);
+            });
+          }
+
+          // Display links
+          if (userLinks && userLinks.length > 0) {
+            const linksContainer = document.createElement("div");
+            linksContainer.style.marginBottom = "12px";
+            linksContainer.style.display = "block";
+            userLinks.forEach((link) => {
+              const linkEl = document.createElement("div");
+              linkEl.style.marginBottom = "6px";
+              linkEl.style.wordBreak = "break-word";
+              linkEl.style.color = "#000";
+              linkEl.innerHTML = `<a href="${link}" target="_blank" style="color: #000; text-decoration: underline; font-weight: 500;">${
+                new URL(link).hostname
+              }</a>`;
+              linksContainer.appendChild(linkEl);
+            });
+            messageDiv.appendChild(linksContainer);
+          }
+
+          // Display text message
+          if (content && content.trim()) {
+            const textEl = document.createElement("div");
+            textEl.textContent = content;
+            textEl.style.display = "block";
+            textEl.style.color = "#000";
+            messageDiv.appendChild(textEl);
+
+            // Add save button only if there's text content
+            const saveBtn = document.createElement("button");
+            saveBtn.style.cssText = `
+              background: none;
+              border: none;
+              color: #4dd2ff;
+              cursor: pointer;
+              padding: 4px 8px;
+              border-radius: 4px;
+              transition: all 0.3s;
+              font-size: 16px;
+              flex-shrink: 0;
+              margin-top: 8px;
+              display: block;
+            `;
+            saveBtn.title = "Save this message as template";
+            saveBtn.innerHTML = "??";
+            saveBtn.onmouseover = function () {
+              this.style.background = "rgba(77, 210, 255, 0.2)";
+            };
+            saveBtn.onmouseout = function () {
+              this.style.background = "none";
+            };
+            saveBtn.onclick = function (e) {
+              e.stopPropagation();
+              currentMessageToSave = content;
+              openSaveTemplateModal();
+            };
+            messageDiv.appendChild(saveBtn);
+          }
+        } else {
+          let processedContent = processTableContent(content);
+          messageDiv.innerHTML = marked.parse(processedContent);
+        }
+
+        wrapper.appendChild(messageDiv);
+        messagesDiv.appendChild(wrapper);
+
+        if (shouldScroll) {
+          scrollToBottom();
+        }
+      }
+
+      function showTypingIndicator() {
+        const messagesDiv = document.getElementById("chat-messages");
+        const wrapper = document.createElement("div");
+        wrapper.className = "typing-wrapper";
+        wrapper.id = "typing-wrapper";
+
+        const indicator = document.createElement("div");
+        indicator.className = "typing-indicator active";
+        indicator.innerHTML =
+          '<div class="typing-dots"><span></span><span></span><span></span></div>';
+
+        wrapper.appendChild(indicator);
+        messagesDiv.appendChild(wrapper);
+        scrollToBottom();
+      }
+
+      function hideTypingIndicator() {
+        const wrapper = document.getElementById("typing-wrapper");
+        if (wrapper) wrapper.remove();
+      }
+
+      function processTableContent(content) {
+        const lines = content.split("\n");
+        let processedContent = [];
+        let i = 0;
+
+        while (i < lines.length) {
+          let line = lines[i].trim();
+
+          if (line.startsWith("|") && line.endsWith("|")) {
+            const tableLines = [];
+            while (i < lines.length && lines[i].trim().startsWith("|")) {
+              const tableLine = lines[i].trim();
+              if (tableLine.length > 0) {
+                tableLines.push(tableLine);
+              }
+              i++;
+            }
+
+            if (tableLines.length > 0) {
+              const markdownTable = convertToMarkdownTable(tableLines);
+              processedContent.push(markdownTable);
+            }
+            continue;
+          }
+
+          processedContent.push(line);
+          i++;
+        }
+
+        return processedContent.join("\n");
+      }
+
+      function convertToMarkdownTable(tableLines) {
+        const rows = tableLines.map((line) => {
+          const cells = line
+            .slice(1, -1)
+            .split("|")
+            .map((cell) => cell.trim());
+          return cells;
+        });
+
+        if (rows.length === 0) return "";
+
+        let separatorIndex = rows.findIndex((row) =>
+          row.every((cell) => /^[\s\-]+$/.test(cell) || cell === ""),
+        );
+
+        let headerRow, dataRows;
+
+        if (separatorIndex !== -1) {
+          headerRow = rows[0];
+          dataRows = rows
+            .slice(1)
+            .filter((_, idx) => idx !== separatorIndex - 1);
+        } else {
+          headerRow = rows[0];
+          dataRows = rows.slice(1);
+        }
+
+        const numCols = Math.max(
+          headerRow.length,
+          ...dataRows.map((row) => row.length),
+        );
+
+        while (headerRow.length < numCols) {
+          headerRow.push("");
+        }
+
+        dataRows = dataRows.map((row) => {
+          const newRow = [...row];
+          while (newRow.length < numCols) newRow.push("");
+          return newRow;
+        });
+
+        let markdown = "\n\n";
+        markdown += "| " + headerRow.join(" | ") + " |\n";
+        markdown += "| " + headerRow.map(() => "---").join(" | ") + " |\n";
+        dataRows.forEach((row) => {
+          markdown += "| " + row.join(" | ") + " |\n";
+        });
+        markdown += "\n";
+
+        return markdown;
+      }
+
+      function scrollToBottom() {
+        const messagesDiv = document.getElementById("chat-messages");
+        setTimeout(() => {
+          messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }, 100);
+      }
+
+      // Load initial message on page load
+      window.addEventListener("load", function () {
+        loadInitialMessage();
+        // Check main app visibility
+        setTimeout(() => {
+          const mainApp = document.getElementById("main-app-container");
+          if (mainApp) {
+            const computed = window.getComputedStyle(mainApp);
+            console.log(
+              "[Alpine check] Main app computed display:",
+              computed.display,
+            );
+            console.log(
+              "[Alpine check] Main app computed visibility:",
+              computed.visibility,
+            );
+            console.log(
+              "[Alpine check] Main app style.display:",
+              mainApp.style.display,
+            );
+          }
+        }, 500);
+        // Don't scroll to bottom on initial load
+      });
+    </script>
+
+    <!-- ALPINE.JS SCRIPTS FOR LOGIN -->
+    <script>
+      // Shared state between login and app
+      const appState = {
+        loggedIn: false,
+        email: "",
+      };
+
+      function loginApp() {
+        return {
+          email: "",
+          emailValid: false,
+          emailChecking: false,
+          error: "",
+          loggedIn: false,
+          loggingIn: false,
+
+          init() {
+            // Check if already logged in
+            const token = localStorage.getItem("jwtinjury");
+            const savedEmail = localStorage.getItem("injuryEmail");
+            if (token && savedEmail) {
+              this.loggedIn = true;
+              appState.loggedIn = true;
+              this.email = savedEmail;
+              appState.email = savedEmail;
+            }
+
+            // Listen for logout success event
+            window.addEventListener("logout-success", () => {
+              this.loggedIn = false;
+              this.email = "";
+              this.emailValid = false;
+              this.error = "";
+            });
+          },
+
+          // Backend Email Verification
+          verifyEmail() {
+            if (!this.email.includes("@")) {
+              this.emailValid = false;
+              this.error = "";
+              return;
+            }
+
+            this.emailChecking = true;
+            this.error = "";
+            fetch(
+              `${API_BASE_URL}/Injury_Intelligence/verify-email?email=${encodeURIComponent(this.email)}`,
+              {
+                method: "GET",
+                headers: {
+                  "ngrok-skip-browser-warning": "true",
+                },
+              },
+            )
+              .then((res) => res.json())
+              .then((json) => {
+                this.emailValid = json.valid;
+                this.emailChecking = false;
+                if (!json.valid) {
+                  this.error =
+                    "Access denied: Your email is not on the authorized list.";
+                }
+              })
+              .catch(() => {
+                this.emailValid = false;
+                this.emailChecking = false;
+                this.error =
+                  "Access denied: Your email is not on the authorized list.";
+              });
+          },
+
+          // Login only after email is validated
+          login() {
+            if (!this.emailValid) {
+              this.error = "Email not authorized";
+              return;
+            }
+
+            if (!this.email || !this.email.includes("@")) {
+              this.error = "Please enter a valid email";
+              return;
+            }
+
+            this.loggingIn = true;
+
+            const data = new URLSearchParams();
+            data.append("username", this.email);
+            data.append("password", "not-used-but-required");
+
+            fetch(`${API_BASE_URL}/Injury_Intelligence/login`, {
+              method: "POST",
+              headers: {
+                "ngrok-skip-browser-warning": "true",
+              },
+              body: data,
+            })
+              .then((res) => {
+                if (!res.ok) throw new Error("Unauthorized email");
+                return res.json();
+              })
+              .then((json) => {
+                localStorage.setItem("jwtinjury", json.access_token);
+                localStorage.setItem("injuryEmail", this.email);
+                this.loggedIn = true;
+                appState.loggedIn = true;
+                appState.email = this.email;
+                this.error = "";
+                this.loggingIn = false;
+
+                // Trigger custom event to notify main app
+                window.dispatchEvent(new CustomEvent("login-success"));
+              })
+              .catch((err) => {
+                this.error = err.message;
+                this.loggingIn = false;
+              });
+          },
+
+          logout() {
+            localStorage.removeItem("jwtinjury");
+            localStorage.removeItem("injuryEmail");
+            this.loggedIn = false;
+            appState.loggedIn = false;
+            this.email = "";
+            appState.email = "";
+            this.emailValid = false;
+          },
+        };
+      }
+
+      function injuryApp() {
+        return {
+          isLoggedIn: false,
+          userEmail: "",
+
+          init() {
+            // Load login state
+            const token = localStorage.getItem("jwtinjury");
+            const email = localStorage.getItem("injuryEmail");
+            console.log("[injuryApp.init] Token:", token, "Email:", email);
+            if (token && email) {
+              this.isLoggedIn = true;
+              this.userEmail = email;
+              console.log("[injuryApp.init] Set isLoggedIn to true");
+            } else {
+              console.log(
+                "[injuryApp.init] No token/email, keeping isLoggedIn false",
+              );
+            }
+
+            // Log current state and element display
+            console.log("[injuryApp.init] Final isLoggedIn:", this.isLoggedIn);
+            console.log(
+              "[injuryApp.init] Main app element display:",
+              document.querySelector('[x-data="injuryApp()"]')?.style.display,
+            );
+
+            // Listen for login success
+            window.addEventListener("login-success", () => {
+              this.isLoggedIn = true;
+              this.userEmail = localStorage.getItem("injuryEmail");
+              console.log(
+                "[injuryApp] Login success event - isLoggedIn:",
+                this.isLoggedIn,
+              );
+            });
+
+            // Listen for logout
+            window.addEventListener("logout-success", () => {
+              console.log("[injuryApp] Logout success event received");
+              this.isLoggedIn = false;
+              this.userEmail = "";
+              console.log(
+                "[injuryApp] After logout - isLoggedIn:",
+                this.isLoggedIn,
+              );
+            });
+          },
+
+          logout() {
+            console.log("[injuryApp.logout] Starting logout");
+            localStorage.removeItem("jwtinjury");
+            localStorage.removeItem("injuryEmail");
+            console.log("[injuryApp.logout] localStorage cleared");
+            // Dispatch logout event for all apps to listen
+            window.dispatchEvent(new Event("logout-success"));
+            console.log("[injuryApp.logout] logout-success event dispatched");
+            // Reset state
+            this.isLoggedIn = false;
+            this.userEmail = "";
+            console.log(
+              "[injuryApp.logout] State reset - isLoggedIn:",
+              this.isLoggedIn,
+            );
+            // Small delay to ensure event is processed
+            setTimeout(() => {
+              console.log("[injuryApp.logout] Reloading page");
+              location.reload();
+            }, 100);
+          },
+        };
+      }
+
+      // ============ FEATURE 1: ACTIVE USERS COUNT ============
+      async function loadActiveUsers() {
+        try {
+          const token = localStorage.getItem("jwtinjury");
+          if (!token) return;
+
+          const response = await fetch(
+            `${API_BASE_URL}/Injury_Intelligence/active-today`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true",
+              },
+            },
+          );
+
+          const data = await response.json();
+
+          if (Array.isArray(data)) {
+            // Update active users count
+            const count = data.length;
+            const countElement = document.getElementById("active-count");
+            if (countElement) {
+              countElement.textContent = count;
+            }
+
+            // Populate active users list
+            const usersList = document.getElementById("active-users-list");
+            if (usersList) {
+              if (count === 0) {
+                usersList.innerHTML =
+                  '<div style="padding: 8px 0; color: #666;">No active users</div>';
+              } else {
+                usersList.innerHTML = data
+                  .map(
+                    (user) => `
+                  <div style="
+                    padding: 10px 8px;
+                    border-bottom: 1px solid rgba(77, 210, 255, 0.2);
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 16px;
+                  ">
+                    <span style="color: #4dd2ff; font-weight: 500; flex: 1;">${user.email}</span>
+                    <span style="color: #aaa; font-size: 12px; white-space: nowrap; flex-shrink: 0;">${formatLastActive(user.last_active)}</span>
+                  </div>
+                `,
+                  )
+                  .join("");
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Failed to load active users:", error);
+        }
+      }
+
+      function formatLastActive(dateStr) {
+        try {
+          const date = new Date(dateStr);
+          const now = new Date();
+          const diffMs = now - date;
+          const diffMins = Math.floor(diffMs / 60000);
+          const diffHours = Math.floor(diffMs / 3600000);
+          const diffDays = Math.floor(diffMs / 86400000);
+
+          if (diffMins < 1) return "just now";
+          if (diffMins < 60) return `${diffMins}m ago`;
+          if (diffHours < 24) return `${diffHours}h ago`;
+          if (diffDays < 7) return `${diffDays}d ago`;
+
+          return date.toLocaleDateString();
+        } catch (e) {
+          return dateStr;
+        }
+      }
+
+      // function toggleActiveUsersPopover() {
+      //   const popover = document.getElementById("active-users-popover");
+      //   if (popover.style.display === "none" || popover.style.display === "") {
+      //     popover.style.display = "block";
+      //     loadActiveUsers();
+      //   } else {
+      //     popover.style.display = "none";
+      //   }
+      // }
+
+      document
+        .getElementById("active-users-btn")
+        .addEventListener("click", () => {
+          const popover = document.getElementById("active-users-popover");
+          const isOpening = !popover.classList.contains("open");
+          popover.classList.toggle("open");
+          if (isOpening) {
+            loadActiveUsers();
+          }
+        });
+
+      // Close active users popover when clicking outside
+      document.addEventListener("click", function (event) {
+        const popover = document.getElementById("active-users-popover");
+        const btn = document.getElementById("active-users-btn");
+        if (!btn.contains(event.target) && !popover.contains(event.target)) {
+          popover.style.display = "none";
+        }
+      });
+
+      // ============ FEATURE 2: SAVE MESSAGE AS TEMPLATE ============
+      function openSaveTemplateModal() {
+        const modal = document.getElementById("save-template-modal");
+        const nameInput = document.getElementById("template-name-input");
+        const descInput = document.getElementById("template-description-input");
+        const messageDiv = document.getElementById("template-modal-message");
+        const saveBtn = document.getElementById("save-template-btn");
+
+        modal.style.display = "flex";
+        nameInput.value = "";
+        descInput.value = "";
+        messageDiv.style.display = "none";
+        messageDiv.textContent = "";
+
+        // Reset button state
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save Template";
+
+        nameInput.focus();
+      }
+
+      function closeSaveTemplateModal() {
+        const modal = document.getElementById("save-template-modal");
+        modal.style.display = "none";
+        currentMessageToSave = "";
+      }
+
+      async function saveMsgAsTemplate(event) {
+        event.preventDefault();
+
+        const nameInput = document.getElementById("template-name-input");
+        const descInput = document.getElementById("template-description-input");
+        const saveBtn = document.getElementById("save-template-btn");
+        const messageDiv = document.getElementById("template-modal-message");
+
+        const templateName = nameInput.value.trim();
+        const templateDesc = descInput.value.trim();
+        const templateText = currentMessageToSave;
+
+        if (!templateName || !templateDesc) {
+          messageDiv.style.display = "block";
+          messageDiv.style.color = "#e74c3c";
+          messageDiv.textContent = "Please fill in all fields";
+          return;
+        }
+
+        try {
+          saveBtn.disabled = true;
+          saveBtn.textContent = "Saving...";
+          messageDiv.style.display = "block";
+          messageDiv.style.color = "#4dd2ff";
+          messageDiv.textContent = "Saving...";
+
+          const token = localStorage.getItem("jwtinjury");
+          const payload = new URLSearchParams();
+          payload.append("template_name", templateName);
+          payload.append("description", templateDesc);
+          payload.append("tags", "injury-intelligence");
+          payload.append("template_text", templateText);
+
+          const response = await fetch(
+            `${API_BASE_URL}/Injury_Intelligence/templates`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true",
+              },
+              body: payload,
+            },
+          );
+
+          if (response.ok) {
+            messageDiv.style.color = "#2ecc71";
+            messageDiv.textContent = "? Template saved successfully";
+            // Clear images and links after saving
+            uploadedImages = [];
+            imageLinks = [];
+            setTimeout(() => {
+              closeSaveTemplateModal();
+            }, 1500);
+          } else {
+            const errorData = await response.json();
+            messageDiv.style.color = "#e74c3c";
+            messageDiv.textContent = `Error: ${errorData.detail || "Failed to save template"}`;
+            saveBtn.disabled = false;
+            saveBtn.textContent = "Save Template";
+          }
+        } catch (error) {
+          messageDiv.style.color = "#e74c3c";
+          messageDiv.textContent = `Error: ${error.message}`;
+          saveBtn.disabled = false;
+          saveBtn.textContent = "Save Template";
+        }
+      }
+
+      // Global array to store templates
+      let cachedTemplates = [];
+
+      // ============ FEATURE 3: LOAD TEMPLATES ============
+      async function loadTemplates() {
+        try {
+          const token = localStorage.getItem("jwtinjury");
+          if (!token) return;
+
+          const response = await fetch(
+            `${API_BASE_URL}/Injury_Intelligence/templates`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true",
+              },
+            },
+          );
+
+          const templates = await response.json();
+          cachedTemplates = templates; // Store templates globally
+
+          const templatesList = document.getElementById("templates-list");
+          if (!Array.isArray(templates) || templates.length === 0) {
+            templatesList.innerHTML =
+              '<div style="padding: 8px 0; color: #666;">No templates yet</div>';
+            return;
+          }
+
+          templatesList.innerHTML = templates
+            .map(
+              (template, index) => `
+            <div
+              style="
+                padding: 12px 8px;
+                border-bottom: 1px solid rgba(77, 210, 255, 0.2);
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 12px;
+                transition: all 0.2s;
+                border-radius: 4px;
+              "
+              onmouseover="this.style.background='rgba(77, 210, 255, 0.1)'"
+              onmouseout="this.style.background='transparent'"
+            >
+              <div
+                onclick="selectTemplate(${index})"
+                style="
+                  flex: 1;
+                  cursor: pointer;
+                "
+              >
+                <div style="color: #4dd2ff; font-weight: 600; font-size: 13px;">${escapeHtml(template.template_name || template.name)}</div>
+                <div style="color: #888; font-size: 12px; margin-top: 4px;">${escapeHtml(template.description)}</div>
+              </div>
+              <button
+                onclick="deleteTemplate(${template.template_id || template.id}, event)"
+                style="
+                  background: none;
+                  border: none;
+                  color: #e74c3c;
+                  cursor: pointer;
+                  padding: 4px 8px;
+                  border-radius: 4px;
+                  transition: all 0.2s;
+                  font-size: 18px;
+                  flex-shrink: 0;
+                "
+                title="Delete template"
+                onmouseover="this.style.background='rgba(231, 76, 60, 0.2)'"
+                onmouseout="this.style.background='none'"
+              >???</button>
+            </div>
+          `,
+            )
+            .join("");
+        } catch (error) {
+          console.error("Failed to load templates:", error);
+          const templatesList = document.getElementById("templates-list");
+          templatesList.innerHTML =
+            '<div style="padding: 8px 0; color: #e74c3c;">Failed to load templates</div>';
+        }
+      }
+
+      function toggleTemplatesPopover(event) {
+        event.stopPropagation();
+        const popover = document.getElementById("templates-popover");
+        const btn = document.getElementById("templates-btn");
+
+        if (popover.style.display === "none" || popover.style.display === "") {
+          popover.style.display = "block";
+          // Show loading and fetch templates
+          const templatesList = document.getElementById("templates-list");
+          templatesList.innerHTML =
+            '<div style="padding: 8px 0; color: #666;">Loading...</div>';
+          loadTemplates();
+
+          // Change button to show loader
+          btn.innerHTML =
+            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 0.8s linear infinite;"><circle cx="12" cy="12" r="10"></circle></svg>';
+        } else {
+          popover.style.display = "none";
+          btn.innerHTML =
+            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>';
+        }
+      }
+
+      function selectTemplate(templateIndex) {
+        const input = document.getElementById("message-input");
+
+        // Get template from cached array
+        const template = cachedTemplates[templateIndex];
+        if (!template) {
+          console.error("Template not found at index:", templateIndex);
+          return;
+        }
+
+        // Extract text from template
+        let textContent = "";
+        uploadedImages = [];
+        imageLinks = [];
+
+        // Handle different response formats
+        if (template.content_parts && Array.isArray(template.content_parts)) {
+          // New format with content_parts
+          template.content_parts.forEach((part) => {
+            if (part.type === "input_text") {
+              textContent += part.text || "";
+            } else if (part.type === "input_image" && part.image_url) {
+              imageLinks.push(part.image_url);
+            }
+          });
+        } else {
+          // Old format - use Full Text or template_text field
+          textContent = template["Full Text"] || template.template_text || "";
+        }
+
+        input.value = textContent;
+
+        // Update attachment indicators if images/links are present
+        if (imageLinks.length > 0) {
+          updateAttachmentIndicators();
+        }
+
+        // Close popover
+        const popover = document.getElementById("templates-popover");
+        const btn = document.getElementById("templates-btn");
+        popover.style.display = "none";
+        btn.innerHTML =
+          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>';
+
+        // Focus on input
+        input.focus();
+      }
+
+      async function deleteTemplate(templateId, event) {
+        event.stopPropagation();
+
+        // Store template ID in global variable for confirmation
+        window.templateToDelete = templateId;
+        openDeleteTemplateModal();
+      }
+
+      function openDeleteTemplateModal() {
+        const modal = document.getElementById("delete-template-modal");
+        const messageDiv = document.getElementById("delete-template-message");
+        const deleteBtn = document.getElementById("confirm-delete-btn");
+
+        modal.style.display = "flex";
+        messageDiv.style.display = "none";
+        messageDiv.textContent = "";
+        deleteBtn.disabled = false;
+        deleteBtn.textContent = "Delete";
+      }
+
+      function closeDeleteTemplateModal() {
+        const modal = document.getElementById("delete-template-modal");
+        modal.style.display = "none";
+        window.templateToDelete = null;
+      }
+
+      async function confirmDeleteTemplate() {
+        const templateId = window.templateToDelete;
+        if (!templateId) return;
+
+        const deleteBtn = document.getElementById("confirm-delete-btn");
+        const messageDiv = document.getElementById("delete-template-message");
+
+        try {
+          deleteBtn.disabled = true;
+          deleteBtn.textContent = "Deleting...";
+          messageDiv.style.display = "block";
+          messageDiv.style.color = "#4dd2ff";
+          messageDiv.textContent = "Deleting...";
+
+          const token = localStorage.getItem("jwtinjury");
+          if (!token) return;
+
+          const response = await fetch(
+            `${API_BASE_URL}/Injury_Intelligence/templates/${templateId}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true",
+              },
+            },
+          );
+
+          if (response.ok) {
+            messageDiv.style.color = "#2ecc71";
+            messageDiv.textContent = "? Template deleted successfully";
+            setTimeout(() => {
+              closeDeleteTemplateModal();
+              loadTemplates();
+            }, 1500);
+          } else {
+            messageDiv.style.color = "#e74c3c";
+            messageDiv.textContent = "Failed to delete template";
+            deleteBtn.disabled = false;
+            deleteBtn.textContent = "Delete";
+          }
+        } catch (error) {
+          console.error("Failed to delete template:", error);
+          messageDiv.style.color = "#e74c3c";
+          messageDiv.textContent = "Error: " + error.message;
+          deleteBtn.disabled = false;
+          deleteBtn.textContent = "Delete";
+        }
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // Close templates popover when clicking outside
+      document.addEventListener("click", function (event) {
+        const popover = document.getElementById("templates-popover");
+        const btn = document.getElementById("templates-btn");
+
+        // Don't close if clicking on the button or popover itself
+        if (btn && btn.contains(event.target)) return;
+        if (popover && popover.contains(event.target)) return;
+
+        if (popover && popover.style.display === "block") {
+          popover.style.display = "none";
+          if (btn) {
+            btn.innerHTML =
+              '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>';
+          }
+        }
+      });
+
+      // Initialize active users on page load when logged in
+      function initializeFeatures() {
+        const token = localStorage.getItem("jwtinjury");
+        if (token) {
+          loadActiveUsers();
+        }
+      }
+
+      // Check authentication and initialize features
+      document.addEventListener("DOMContentLoaded", initializeFeatures);
+      window.addEventListener("login-success", initializeFeatures);
+    </script>
+  </body>
+</html>

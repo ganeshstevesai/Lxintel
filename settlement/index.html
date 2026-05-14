@@ -1,0 +1,2242 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settlement Optimizer</title>
+    <link
+      rel="icon"
+      type="image/webp"
+      href="/Designer.png"
+    />
+      <link rel="stylesheet" href="index.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script
+      defer
+      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+   
+  </head>
+
+  <body class="min-h-screen flex flex-col items-center justify-center">
+    <div class="overlay"></div>
+
+    <!-- LOGIN PAGE -->
+    <div
+      class="login-page-wrapper"
+      x-data="loginApp()"
+      x-init="init()"
+      x-show="!loggedIn"
+    >
+      <div class="login-page-content">
+        <!-- LOGO AND TITLE -->
+        <div class="login-logo-section">
+          <img
+            src="/Designer.png"
+            alt=""
+          />
+          <h1>Settlement Predictor</h1>
+          <p>Secure Access for Authorized Users</p>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <div class="login-form-card">
+          <h2>Login</h2>
+
+          <!-- Email Input -->
+          <div class="login-form-group">
+            <label for="login-email">Email</label>
+            <input
+              id="login-email"
+              type="email"
+              placeholder="Enter your email"
+              x-model="email"
+              @input.debounce.500="verifyEmail()" @keydown.enter="emailValid && login()"
+            />
+            <!-- Email Status -->
+            <div
+              class="login-email-status"
+              :class="email && email.includes('@') ? 'visible' : ''"
+              x-show="email && email.includes('@')"
+            >
+              <span
+                class="status-icon"
+                :class="emailChecking ? 'checking' : emailValid ? 'valid' : 'invalid'"
+              ></span>
+              <span
+                class="status-text"
+                x-text="emailChecking ? 'Checking email...' : emailValid ? 'Email authorized' : 'Email not authorized'"
+              ></span>
+            </div>
+          </div>
+
+          <!-- Error Message -->
+          <div x-show="error" x-text="error" class="login-error-message"></div>
+
+          <!-- Login Button -->
+          <button
+            @click="login()"
+            :disabled="!emailValid || !email"
+            class="login-btn"
+          >
+            <span x-show="!loggingIn">Login</span>
+            <span x-show="loggingIn" class="login-btn-spinner">
+              <span
+                class="spinner"
+                style="
+                  width: 14px;
+                  height: 14px;
+                  border-width: 2px;
+                  margin-left: 0;
+                  border: 2px solid rgba(0, 0, 0, 0.3);
+                  border-top-color: #000;
+                "
+              ></span>
+              Logging in...
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN APPLICATION CONTAINER -->
+    <div
+      id="main-app-wrapper"
+      x-data="settlementApp()"
+      x-init="init()"
+      style="display: none; width: 100vw; height: 100svh; position: fixed; top: 0; left: 0;"
+      class="flex flex-col"
+    >
+      <div style="flex-shrink: 0; padding: 20px 20px; border-bottom: 2px solid rgba(77, 210, 255, 0.2); position: relative; z-index: 100; background-color: rgba(17, 17, 17, 0.98);">
+        <div style="display: flex; align-items: center; justify-content: space-between; position: relative;">
+          <div style="display: flex; align-items: center; gap: 20px;"  class="header_bar_top_in">
+            <img
+              src="/Designer.png"
+              class="h-16"
+            />
+            <div>
+              <h1 style="font-size: 24px; font-weight: 700; color: #4dd2ff; letter-spacing: 1px; margin: 0 0 8px 0; text-shadow: 0 0 20px rgba(77, 210, 255, 0.4);">
+                Settlement Optimizer
+              </h1>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <p style="margin: 0; color: #aaa; font-size: 13px;">AI-Powered Settlement Analysis</p>
+                <!-- Active Users Count -->
+                <button
+                  id="active-users-btn"
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    padding: 4px 10px;
+                    border-radius: 6px;
+                    transition: all 0.3s;
+                    color: #4dd2ff;
+                    font-size: 12px;
+                    font-weight: 600;
+                  "
+                  onclick="toggleActiveUsersPopover()"
+                  title="Active users on this tool"
+                >
+                  <span style="
+                    display: inline-block;
+                    width: 8px;
+                    height: 8px;
+                    background: #2ecc71;
+                    border-radius: 50%;
+                    box-shadow: 0 0 8px #2ecc71;
+                  "></span>
+                  <span id="active-count">0</span>
+                  <span style="margin-left: 4px;">Active Users</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 16px; position: relative;" class="main_tl_st">
+            <!-- NEW CHAT BUTTON -->
+            <button 
+              id="start-new-test-btn-top"
+              onclick="startNewTest()"
+              style="display: flex; align-items: center; gap: 8px; background-color: #4dd2ff; color: #111; border: none; padding: 10px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px; position: relative; z-index: 101;"
+              title="Start a new analysis"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              NEW ANALYSIS
+            </button>
+            <button
+              style="background: none; border: none; cursor: pointer; padding: 8px; position: relative; z-index: 101;"
+              onclick="toggleUserMenu()"
+              title="User menu"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4dd2ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" y1="6" x2="20" y2="6"></line>
+                <line x1="4" y1="12" x2="20" y2="12"></line>
+                <line x1="4" y1="18" x2="20" y2="18"></line>
+              </svg>
+            </button>
+            
+            <!-- USER MENU POPOVER -->
+            <div 
+              id="user-menu-popover"
+              style="
+                position: absolute;
+                top: 70px;
+                right: 20px;
+                background-color: #222;
+                border: 1px solid #444;
+                border-radius: 8px;
+                padding: 12px;
+                min-width: 200px;
+                display: none;
+                z-index: 1000;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+              "
+            >
+              <div style="padding: 8px 12px; border-bottom: 1px solid #444; margin-bottom: 8px; color: #bbb; font-size: 13px;">
+                <span x-text="userEmail"></span>
+              </div>
+              <button
+                onclick="logout()"
+                style="
+                  width: 100%;
+                  padding: 10px 12px;
+                  background-color: #e74c3c;
+                  color: white;
+                  border: none;
+                  border-radius: 4px;
+                  cursor: pointer;
+                  font-weight: 600;
+                  font-size: 14px;
+                "
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INITIAL CHAT INTERFACE -->
+      <div
+        id="initial-chat-container"
+        class="glass-card p-6 flex flex-col flex-grow overflow-hidden"
+      >
+        <!-- Chat Messages -->
+        <div
+          id="initial-chat-messages"
+          class="bg-[#0a0a0a] rounded-lg p-3 flex-grow overflow-y-auto mb-3 space-y-2"
+        >
+          <!-- Initial Case Details Message -->
+          <div class="flex justify-start w-full">
+            <div
+              class="px-4 py-2 rounded-lg bg-[#2b2b2b] text-[#4dd2ff]"
+              style="
+                max-width: 90%;
+                word-break: break-word;
+                overflow-wrap: break-word;
+              "
+            >
+              Example Description: My client is a 42-year-old female
+              (Likability: 9/10). She was T-boned by a 2023 Ford F-150
+              (Commercial Tier) while driving her 2018 Toyota Camry. The
+              at-fault driver is insured by Liberty Mutual with $100k limits.
+              Her car was totaled. Airbags deployed.
+              <br />
+              Medical: $45k in past bills including injections and PT. No
+              treatment gaps. Social: She is employed but stressed about Low
+              credit score below 600. No opioid history. Firm: Demand package
+              was Top Tier (5/5). My Confidence Score is 4/5.
+            </div>
+          </div>
+
+          <!-- Expandable Scoring Legend Message -->
+          <div class="flex justify-start w-full">
+            <div
+              class="expandable-message"
+              style="max-width: 90%"
+              onclick="toggleScoringLegend(this)"
+            >
+              <div class="expandable-message-header">
+                <span>SCORING LEGEND & REQUIRED FIELDS Guide</span>
+                <div class="expandable-message-icon">▼</div>
+              </div>
+              <div class="expandable-message-content">
+                <div class="scoring-item">
+                  <div class="scoring-item-title">Likability Scale (1–10)</div>
+                  <div class="scoring-item-content">
+                    Rate the client's potential performance as a witness in
+                    front of a jury.
+                  </div>
+                  <div class="scoring-item-level">
+                    <strong>1 – 3 (Poor):</strong> Argumentative, inconsistent,
+                    untrustworthy, or bad demeanor. (Model applies negative
+                    multiplier).
+                  </div>
+                  <div class="scoring-item-level">
+                    <strong>4 – 7 (Neutral):</strong> Average witness. Clearly
+                    states facts but lacks "spark." (Standard baseline).
+                  </div>
+                  <div class="scoring-item-level">
+                    <strong>8 – 10 (Star):</strong> Charismatic, sympathetic,
+                    articulate, and trustworthy. "Jury Gold." (Model applies
+                    bonus multiplier).
+                  </div>
+                </div>
+
+                <div class="scoring-item">
+                  <div class="scoring-item-title">
+                    Attorney Confidence Score (1–5)
+                  </div>
+                  <div class="scoring-item-content">
+                    Your professional "gut check" on the winnability of the
+                    case.
+                  </div>
+                  <div class="scoring-item-level">
+                    <strong>1 (High Risk):</strong> Significant liability
+                    disputes or causation issues.
+                  </div>
+                  <div class="scoring-item-level">
+                    <strong>3 (Standard):</strong> Clear liability, typical
+                    defenses expected.
+                  </div>
+                  <div class="scoring-item-level">
+                    <strong>5 (Slam Dunk):</strong> Aggravated liability (DUI),
+                    clear damages, zero defenses.
+                  </div>
+                </div>
+
+                <div class="scoring-item">
+                  <div class="scoring-item-title">
+                    Vehicle Descriptions (Crucial)
+                  </div>
+                  <div class="scoring-item-content">
+                    Always include: Year, Make, and Model (e.g., "2024 Mercedes
+                    S-Class" vs. "2005 Honda Civic").
+                  </div>
+                  <div class="scoring-item-content" style="margin-top: 8px">
+                    <strong>Why?</strong> The model uses this to infer the
+                    defendant's asset tier and insurance policy limits.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="flex gap-2 flex-shrink-0 items-end flex-col">
+          <div class="flex gap-2 w-full items-center">
+            <textarea
+              id="initial-chat-input"
+              placeholder="Describe your case details here..."
+              class="flex-1 p-2 rounded bg-black border border-[#444] text-white resize-none overflow-hidden text-sm"
+              style="min-height: 50px; max-height: 200px"
+            ></textarea>
+            <!-- Templates Button -->
+            <button
+              id="templates-btn-initial"
+              style="
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 8px;
+                color: #4dd2ff;
+                transition: all 0.3s;
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 44px;
+                height: 44px;
+                border-radius: 8px;
+              "
+              onmouseover="this.style.background='rgba(77, 210, 255, 0.1)'"
+              onmouseout="this.style.background='none'"
+              onclick="toggleTemplatesPopover(event)"
+              title="Load template message"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+            </button>
+            <button
+              id="initial-chat-send-btn"
+              onclick="sendInitialMessage()"
+              class="bg-[#4dd2ff] text-black px-4 py-2 rounded font-bold  transition flex-shrink-0 text-sm h-[50px]"
+            >
+              Analyze Case
+            </button>
+          </div>
+          <!-- Progress Bar -->
+          <div id="progress-bar-wrapper" class="progress-bar-wrapper">
+            <div id="progress-bar-container" class="progress-bar-container">
+              <div id="progress-bar-fill" class="progress-bar-fill"></div>
+            </div>
+            <div id="progress-percentage" class="progress-percentage">0%</div>
+          </div>
+          <!-- Typewriter Text -->
+          <div id="typewriter-text" class="typewriter-text"></div>
+        </div>
+      </div>
+
+      <!-- MAIN CHAT INTERFACE -->
+      <div
+        id="main-chat-container"
+        class="glass-card hidden p-6 flex flex-col flex-grow overflow-hidden"
+      >
+        <!-- Chat Messages -->
+        <div
+          id="chat-messages"
+          class="bg-[#0a0a0a] rounded-lg p-3 flex-grow overflow-y-auto mb-3 space-y-2"
+          style="min-height: 300px"
+        ></div>
+
+        <!-- Chat Input -->
+        <div class="flex gap-2 flex-shrink-0 items-end">
+          <textarea
+            id="chat-input"
+            placeholder="Ask a follow-up question..."
+            class="flex-1 p-2 rounded bg-black border border-[#444] text-white resize-none overflow-hidden text-sm"
+            style="min-height: 50px; max-height: 200px"
+          ></textarea>
+          <!-- Templates Button -->
+          <button
+            id="templates-btn"
+            style="
+              background: none;
+              border: none;
+              cursor: pointer;
+              padding: 8px;
+              color: #4dd2ff;
+              transition: all 0.3s;
+              position: relative;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 44px;
+              height: 44px;
+              border-radius: 8px;
+            "
+            onmouseover="this.style.background='rgba(77, 210, 255, 0.1)'"
+            onmouseout="this.style.background='none'"
+            onclick="toggleTemplatesPopover(event)"
+            title="Load template message"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+              <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+          </button>
+          <button
+            id="chat-send-btn"
+            onclick="sendChatMessage()"
+            class="bg-[#4dd2ff] text-black px-4 py-2 rounded font-bold transition flex-shrink-0 text-sm h-[50px]"
+          >
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOADER -->
+    <div id="loader_overlay" class="loader-overlay">
+      <div class="flex flex-col items-center">
+        <div class="spinner"></div>
+        <div class="loader-text">Processing your request...</div>
+      </div>
+    </div>
+
+    <!-- Save Template Modal -->
+    <div
+      id="save-template-modal"
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+      "
+      onclick="event.target.id === 'save-template-modal' && closeSaveTemplateModal()"
+    >
+      <div style="
+        background: #1a1a1a;
+        border: 1px solid rgba(77, 210, 255, 0.4);
+        border-radius: 12px;
+        padding: 32px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      ">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <h2 style="color: #4dd2ff; font-size: 20px; font-weight: 700; margin: 0;">Save as Template</h2>
+          <button
+            onclick="closeSaveTemplateModal()"
+            style="
+              background: none;
+              border: none;
+              color: #999;
+              font-size: 24px;
+              cursor: pointer;
+              padding: 0;
+              width: 32px;
+              height: 32px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            "
+          >×</button>
+        </div>
+        <p style="color: #aaa; margin: 0 0 20px 0; font-size: 14px;">Save this message as a template for future use</p>
+        <form onsubmit="saveMsgAsTemplate(event)" style="display: flex; flex-direction: column; gap: 16px;">
+          <div>
+            <label style="display: block; color: #4dd2ff; font-size: 13px; font-weight: 600; margin-bottom: 8px;">Template Name *</label>
+            <input
+              id="template-name-input"
+              type="text"
+              placeholder="e.g., Initial Demand Letter"
+              required
+              style="
+                width: 100%;
+                padding: 10px 12px;
+                background: rgba(0, 0, 0, 0.6);
+                border: 1px solid rgba(77, 210, 255, 0.3);
+                border-radius: 6px;
+                color: #4dd2ff;
+                font-family: 'Montserrat', sans-serif;
+                font-size: 14px;
+                transition: all 0.3s;
+              "
+              onfocus="this.style.borderColor='rgba(77, 210, 255, 0.6)'"
+              onblur="this.style.borderColor='rgba(77, 210, 255, 0.3)'"
+            />
+          </div>
+          <div>
+            <label style="display: block; color: #4dd2ff; font-size: 13px; font-weight: 600; margin-bottom: 8px;">Description *</label>
+            <textarea
+              id="template-description-input"
+              placeholder="Brief description of this template"
+              required
+              style="
+                width: 100%;
+                padding: 10px 12px;
+                background: rgba(0, 0, 0, 0.6);
+                border: 1px solid rgba(77, 210, 255, 0.3);
+                border-radius: 6px;
+                color: #4dd2ff;
+                font-family: 'Montserrat', sans-serif;
+                font-size: 14px;
+                resize: vertical;
+                min-height: 80px;
+                transition: all 0.3s;
+                overflow: auto;
+            "
+              onfocus="this.style.borderColor='rgba(77, 210, 255, 0.6)'"
+              onblur="this.style.borderColor='rgba(77, 210, 255, 0.3)'"
+            ></textarea>
+          </div>
+          <div id="template-modal-message" style="font-size: 14px; text-align: center; display: none;"></div>
+          <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px;">
+            <button
+              type="button"
+              onclick="closeSaveTemplateModal()"
+              style="
+                background: rgba(77, 210, 255, 0.1);
+                color: #4dd2ff;
+                border: 1px solid rgba(77, 210, 255, 0.3);
+                padding: 10px 20px;
+                border-radius: 6px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s;
+                font-size: 14px;
+              "
+            >Cancel</button>
+            <button
+              id="save-template-btn"
+              type="submit"
+              style="
+                background: #4dd2ff;
+                color: #000;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 6px;
+                font-weight: 700;
+                cursor: pointer;
+                transition: all 0.3s;
+                font-size: 14px;
+              "
+            >Save Template</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Delete Template Modal -->
+    <div
+      id="delete-template-modal"
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+      "
+      onclick="event.target.id === 'delete-template-modal' && closeDeleteTemplateModal()"
+    >
+      <div style="
+        background: #1a1a1a;
+        border: 1px solid rgba(77, 210, 255, 0.4);
+        border-radius: 12px;
+        padding: 32px;
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      ">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <h2 style="color: #4dd2ff; font-size: 20px; font-weight: 700; margin: 0;">Delete Template</h2>
+          <button
+            onclick="closeDeleteTemplateModal()"
+            style="
+              background: none;
+              border: none;
+              color: #999;
+              font-size: 24px;
+              cursor: pointer;
+              padding: 0;
+              width: 32px;
+              height: 32px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            "
+          >×</button>
+        </div>
+        <p style="color: #aaa; margin: 0 0 24px 0; font-size: 14px;">Are you sure you want to delete this template? This action cannot be undone.</p>
+        <div id="delete-template-message" style="font-size: 14px; text-align: center; margin-bottom: 20px; display: none;"></div>
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+          <button
+            type="button"
+            onclick="closeDeleteTemplateModal()"
+            style="
+              background: rgba(77, 210, 255, 0.1);
+              color: #4dd2ff;
+              border: 1px solid rgba(77, 210, 255, 0.3);
+              padding: 10px 20px;
+              border-radius: 6px;
+              font-weight: 600;
+              cursor: pointer;
+              transition: all 0.3s;
+              font-size: 14px;
+            "
+          >Cancel</button>
+          <button
+            id="confirm-delete-btn"
+            type="button"
+            onclick="confirmDeleteTemplate()"
+            style="
+              background: #e74c3c;
+              color: white;
+              border: none;
+              padding: 10px 20px;
+              border-radius: 6px;
+              font-weight: 700;
+              cursor: pointer;
+              transition: all 0.3s;
+              font-size: 14px;
+            "
+          >Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Templates Popover -->
+    <div
+      id="templates-popover"
+      style="
+        position: fixed;
+        bottom: 90px;
+        right: 32px;
+        background-color: #1a1a1a;
+        border: 1px solid rgba(77, 210, 255, 0.4);
+        border-radius: 8px;
+        padding: 12px;
+        min-width: 280px;
+        max-height: 400px;
+        display: none;
+        z-index: 2000;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        overflow-y: auto;
+      "
+    >
+      <div style="
+        padding: 8px 0;
+        margin-bottom: 8px;
+        border-bottom: 1px solid rgba(77, 210, 255, 0.3);
+        color: #4dd2ff;
+        font-size: 12px;
+        font-weight: 600;
+      ">Templates</div>
+      <div id="templates-list" style="color: #aaa; font-size: 13px;">
+        <div style="padding: 8px 0; color: #666;">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Active Users Popover -->
+    <div
+      id="active-users-popover"
+      style="
+        position: fixed;
+        top: 80px;
+        left: 350px;
+            background-color: rgb(26, 26, 26);
+    border: 1px solid rgba(77, 210, 255, 0.4);
+    border-radius: 8px;
+    padding: 12px;
+    min-width: auto;
+    min-height: auto;
+    max-height: 400px;
+    display: block;
+    z-index: 2100;
+    box-shadow: rgba(0, 0, 0, 0.5) 0px 4px 20px;
+    overflow-y: auto;
+      "
+    >
+      <div style="
+        padding: 8px 0;
+        margin-bottom: 8px;
+        border-bottom: 1px solid rgba(77, 210, 255, 0.3);
+        color: #4dd2ff;
+        font-size: 12px;
+        font-weight: 600;
+      ">Active Users</div>
+      <div id="active-users-list" style="color: #aaa; font-size: 13px;">
+        <div style="padding: 8px 0; color: #666;">Loading...</div>
+      </div>
+    </div>
+
+    <script>
+      // API Base URL
+      const API_BASE_URL = "https://slimy-leonia-kyphotic.ngrok-free.dev";
+
+      // Track which threads have had the Optimize button shown
+      const optimizeButtonShownForThread = {};
+
+      // Global variables
+      let currentThreadId = null;
+      let typewriterInterval = null;
+      let currentMessageIndex = 0;
+      let currentMessageToSave = ""; // Store message for saving as template
+      const typewriterMessages = [
+        "Analyzing your case...",
+        "Processing settlement data...",
+        "Calculating potential outcomes...",
+      ];
+
+      // Clear thread ID on page reload
+      window.addEventListener("beforeunload", () => {
+        sessionStorage.removeItem("thread_id");
+      });
+
+      // Global functions for onclick handlers
+      function logout() {
+        // Clear storage
+        localStorage.removeItem("jwtsettle");
+        localStorage.removeItem("settlementEmail");
+        localStorage.removeItem("settlement_analysis");
+        localStorage.removeItem("settlement_chat_history");
+        sessionStorage.removeItem("thread_id");
+        
+        window.dispatchEvent(new Event("logout-success"));
+      }
+
+      function toggleUserMenu() {
+        const popover = document.getElementById("user-menu-popover");
+        if (popover) {
+          if (popover.style.display === "none" || popover.style.display === "") {
+            popover.style.display = "block";
+          } else {
+            popover.style.display = "none";
+          }
+        }
+      }
+
+      // Close menu when clicking outside
+      document.addEventListener("click", function(event) {
+        const popover = document.getElementById("user-menu-popover");
+        const menuBtn = event.target.closest("button[onclick='toggleUserMenu()']");
+        if (popover && !menuBtn && !popover.contains(event.target)) {
+          popover.style.display = "none";
+        }
+      });
+
+      function startNewTest() {
+        
+        // Clear all storage
+        sessionStorage.removeItem("thread_id");
+        localStorage.removeItem("settlement_analysis");
+        localStorage.removeItem("settlement_chat_history");
+
+        // Reset global variables
+        currentThreadId = null;
+
+        // Clear initial chat messages - reset to default template WITH SCORING LEGEND
+        const initialChatMessages = document.getElementById("initial-chat-messages");
+        if (initialChatMessages) {
+          initialChatMessages.innerHTML = `
+          <!-- Initial Case Details Message -->
+          <div class="flex justify-start w-full">
+            <div class="px-4 py-2 rounded-lg bg-[#2b2b2b] text-[#4dd2ff]" style="max-width: 90%; word-break: break-word; overflow-wrap: break-word;">
+              Example Description: My client is a 42-year-old female (Likability: 9/10). She was T-boned by a 2023 Ford F-150 (Commercial Tier) while driving her 2018 Toyota Camry. The at-fault driver is insured by Liberty Mutual with $100k limits. Her car was totaled. Airbags deployed.
+              <br/><br/>
+              Medical: $45k in past bills including injections and PT. No treatment gaps. Social: She is employed but stressed about Low credit score below 600. No opioid history. Firm: Demand package was Top Tier (5/5). My Confidence Score is 4/5.
+            </div>
+          </div>
+
+          <!-- Expandable Scoring Legend Message -->
+          <div class="flex justify-start w-full">
+            <div class="expandable-message" style="max-width: 90%;" onclick="toggleScoringLegend(this)">
+              <div class="expandable-message-header">
+                <span>SCORING LEGEND & REQUIRED FIELDS Guide</span>
+                <div class="expandable-message-icon">▼</div>
+              </div>
+              <div class="expandable-message-content">                
+                <div class="scoring-item">
+                  <div class="scoring-item-title">Likability Scale (1–10)</div>
+                  <div class="scoring-item-content">Rate the client's potential performance as a witness in front of a jury.</div>
+                  <div class="scoring-item-level"><strong>1 – 3 (Poor):</strong> Argumentative, inconsistent, untrustworthy, or bad demeanor. (Model applies negative multiplier).</div>
+                  <div class="scoring-item-level"><strong>4 – 7 (Neutral):</strong> Average witness. Clearly states facts but lacks "spark." (Standard baseline).</div>
+                  <div class="scoring-item-level"><strong>8 – 10 (Star):</strong> Charismatic, sympathetic, articulate, and trustworthy. "Jury Gold." (Model applies bonus multiplier).</div>
+                </div>
+                
+                <div class="scoring-item">
+                  <div class="scoring-item-title">Attorney Confidence Score (1–5)</div>
+                  <div class="scoring-item-content">Your professional "gut check" on the winnability of the case.</div>
+                  <div class="scoring-item-level"><strong>1 (High Risk):</strong> Significant liability disputes or causation issues.</div>
+                  <div class="scoring-item-level"><strong>3 (Standard):</strong> Clear liability, typical defenses expected.</div>
+                  <div class="scoring-item-level"><strong>5 (Slam Dunk):</strong> Aggravated liability (DUI), clear damages, zero defenses.</div>
+                </div>
+                
+                <div class="scoring-item">
+                  <div class="scoring-item-title">Vehicle Descriptions (Crucial)</div>
+                  <div class="scoring-item-content">Always include: Year, Make, and Model (e.g., "2024 Mercedes S-Class" vs. "2005 Honda Civic").</div>
+                  <div class="scoring-item-content" style="margin-top: 8px;"><strong>Why?</strong> The model uses this to infer the defendant's asset tier and insurance policy limits.</div>
+                </div>
+              </div>
+            </div>
+          </div>`;
+        }
+
+        // Clear main chat messages
+        const chatMessages = document.getElementById("chat-messages");
+        if (chatMessages) {
+          chatMessages.innerHTML = "";
+        }
+
+        // Clear initial chat input
+        const initialInput = document.getElementById("initial-chat-input");
+        if (initialInput) {
+          initialInput.value = "";
+          initialInput.style.height = "auto";
+          initialInput.style.height = "50px";
+        }
+
+        // Clear main chat input
+        const chatInput = document.getElementById("chat-input");
+        if (chatInput) {
+          chatInput.value = "";
+          chatInput.style.height = "auto";
+          chatInput.style.height = "50px";
+        }
+
+        // Hide the start new analysis button
+        const startBtn = document.getElementById("start-new-test-btn-top");
+        if (startBtn) {
+          startBtn.classList.add("hidden");
+        }
+
+        // Hide progress bar
+        const progressWrapper = document.getElementById("progress-bar-wrapper");
+        if (progressWrapper) {
+          progressWrapper.classList.remove("active");
+        }
+
+        // Show initial container, hide main chat
+        const initialContainer = document.getElementById("initial-chat-container");
+        if (initialContainer) {
+          initialContainer.classList.remove("hidden");
+        }
+        
+        const mainContainer = document.getElementById("main-chat-container");
+        if (mainContainer) {
+          mainContainer.classList.add("hidden");
+        }
+
+        // Scroll to top
+        window.scrollTo(0, 0);
+      }
+
+
+
+      // Start typewriter animation with looping messages
+      function startTypewriterAnimation() {
+        const typewriterEl = document.getElementById("typewriter-text");
+        if (!typewriterEl) return;
+        typewriterEl.classList.add("active");
+        currentMessageIndex = 0;
+
+        const typeMessage = (message) => {
+          return new Promise((resolve) => {
+            let charIndex = 0;
+            typewriterEl.textContent = "";
+
+            const typeChar = () => {
+              if (charIndex < message.length) {
+                typewriterEl.textContent += message[charIndex];
+                charIndex++;
+                setTimeout(typeChar, 50); // 50ms between each character
+              } else {
+                resolve();
+              }
+            };
+
+            typeChar();
+          });
+        };
+
+        const cycleMessages = async () => {
+          while (typewriterInterval !== null) {
+            const currentMessage = typewriterMessages[currentMessageIndex];
+            await typeMessage(currentMessage);
+
+            // Wait before moving to next message (2 seconds)
+            await new Promise((resolve) => {
+              const timeoutId = setTimeout(resolve, 2000);
+              // Store timeout ID so we can clear it if animation stops
+              if (!typewriterInterval) clearTimeout(timeoutId);
+            });
+
+            currentMessageIndex =
+              (currentMessageIndex + 1) % typewriterMessages.length;
+          }
+        };
+
+        typewriterInterval = true; // Set as flag
+        cycleMessages();
+      }
+
+      // Stop typewriter animation
+      function stopTypewriterAnimation() {
+        typewriterInterval = null;
+        const typewriterEl = document.getElementById("typewriter-text");
+        if (typewriterEl) {
+          typewriterEl.classList.remove("active");
+          typewriterEl.textContent = "";
+        }
+      }
+
+      // Add message to chat
+      function addChatMessage(text, sender, isAnalysis = false) {
+        console.log("🔍 addChatMessage called - sender:", sender, "isAnalysis:", isAnalysis, "text length:", text ? text.length : 0);
+        const chatMessages = document.getElementById("chat-messages");
+        console.log("🔍 chatMessages element found:", !!chatMessages);
+        if (!chatMessages) {
+          console.error("❌ ERROR: chat-messages element not found in DOM!");
+          return;
+        }
+        
+        const wrapper = document.createElement("div");
+        wrapper.className = `flex w-full ${
+          sender === "user" ? "justify-end flex-col items-end" : "justify-start"
+        }`;
+
+        const messageDiv = document.createElement("div");
+        const messageBubble = document.createElement("div");
+
+        if (isAnalysis) {
+          // Create analysis bubble
+          messageBubble.className = "analysis-bubble";
+          // make bubble position relative so we can absolutely position the button
+          messageBubble.style.position = "relative";
+
+          const contentDiv = document.createElement("div");
+          contentDiv.className = "analysis-content";
+          contentDiv.innerHTML = text;
+          messageBubble.appendChild(contentDiv);
+
+          // Only show Optimize on the first analysis response for a given thread
+          const threadIdForButton = currentThreadId || sessionStorage.getItem("thread_id");
+          messageDiv.appendChild(messageBubble);
+
+          if (threadIdForButton && !optimizeButtonShownForThread[threadIdForButton]) {
+            // mark shown immediately to avoid duplicates
+            optimizeButtonShownForThread[threadIdForButton] = true;
+
+            const optimizeBtn = document.createElement("button");
+            optimizeBtn.type = "button";
+            optimizeBtn.title = "Optimize";
+            optimizeBtn.innerText = "Optimize";
+            optimizeBtn.style.cssText = `
+              position: absolute;
+              top: 8px;
+              right: 8px;
+              background: #4dd2ff;
+              color: #000;
+              border: none;
+              padding: 6px 10px;
+              border-radius: 6px;
+              cursor: pointer;
+              font-weight: 600;
+              font-size: 12px;
+            `;
+            optimizeBtn.onclick = function(e) {
+              e.stopPropagation();
+              optimizeCurrentThread();
+            };
+
+            // append the button into the bubble so absolute positioning is relative to the bubble
+            messageBubble.appendChild(optimizeBtn);
+            console.log("🔍 Creating analysis bubble with HTML and Optimize button (first for thread)");
+          } else {
+            console.log("🔍 Analysis bubble created without Optimize button");
+          }
+        } else {
+          messageBubble.className = `px-4 py-2 rounded-lg ${
+            sender === "user"
+              ? "bg-[#4dd2ff] text-black"
+              : "bg-[#2b2b2b] text-[#4dd2ff]"
+          }`;
+          messageBubble.style.maxWidth = "90%";
+          messageBubble.style.wordBreak = "break-word";
+          messageBubble.style.overflowWrap = "break-word";
+          messageBubble.textContent = text;
+        }
+
+        if (!isAnalysis) {
+          messageDiv.appendChild(messageBubble);
+        }
+        
+        // Add save button for user messages with text content
+        if (sender === "user" && text && !isAnalysis) {
+          const saveBtn = document.createElement("button");
+          saveBtn.style.cssText = `
+            background: none;
+            border: none;
+            color: #4dd2ff;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.3s;
+            font-size: 16px;
+            margin-top: 4px;
+          `;
+          saveBtn.title = "Save this message as template";
+          saveBtn.innerHTML = "💾";
+          saveBtn.onmouseover = function() { this.style.background = "rgba(77, 210, 255, 0.2)"; };
+          saveBtn.onmouseout = function() { this.style.background = "none"; };
+          saveBtn.onclick = function(e) {
+            e.stopPropagation();
+            currentMessageToSave = text;
+            openSaveTemplateModal();
+          };
+          messageDiv.appendChild(saveBtn);
+        }
+        
+        wrapper.appendChild(messageDiv);
+        chatMessages.appendChild(wrapper);
+
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        console.log("🔍 Message added to chat successfully");
+      }
+
+      // Call optimize API for current thread and display response
+      async function optimizeCurrentThread() {
+        const threadId = currentThreadId || sessionStorage.getItem("thread_id");
+        if (!threadId) {
+          addChatMessage("Unable to optimize: no thread id found.", "bot");
+          return;
+        }
+
+        // Add user message 'optimise'
+        // addChatMessage("Optimise", "user");
+
+        // show loader overlay if present
+        const loader = document.getElementById("loader_overlay");
+        if (loader) loader.classList.add("active");
+
+        try {
+          const token = localStorage.getItem("jwtsettle");
+          const resp = await fetch(`${API_BASE_URL}/Settlement_Predictor/optimize`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": token ? `Bearer ${token}` : "",
+            },
+            body: JSON.stringify({ thread_id: threadId }),
+          });
+
+          if (!resp.ok) {
+            const txt = await resp.text();
+            addChatMessage(`Error: ${txt}`, "bot");
+            return;
+          }
+
+          const contentType = resp.headers.get("content-type") || "";
+          let data;
+          if (contentType.includes("application/json")) {
+            data = await resp.json();
+          } else {
+            data = await resp.text();
+          }
+
+          // Display response (prefer optimized_analysis if present)
+          if (typeof data === "object") {
+            if (data.optimized_analysis) {
+              const html = markdownToHtml(data.optimized_analysis);
+              addChatMessage(html, "bot", true);
+            } else if (data.analysis) {
+              const html = markdownToHtml(data.analysis);
+              addChatMessage(html, "bot", true);
+            } else if (data.result) {
+              const html = markdownToHtml(String(data.result));
+              addChatMessage(html, "bot", true);
+            } else {
+              const pretty = escapeHtml(JSON.stringify(data, null, 2));
+              addChatMessage(`<pre style=\"white-space:pre-wrap;color:#d1d5db;\">${pretty}</pre>`, "bot", true);
+            }
+          } else {
+            const html = markdownToHtml(String(data));
+            addChatMessage(html, "bot", true);
+          }
+        } catch (err) {
+          addChatMessage("Error: " + err.message, "bot");
+        } finally {
+          if (loader) loader.classList.remove("active");
+        }
+      }
+
+      // Initial Chat Functions
+      function addInitialChatMessage(text, sender) {
+        const chatMessages = document.getElementById("initial-chat-messages");
+        if (!chatMessages) return;
+        
+        const wrapper = document.createElement("div");
+        wrapper.className = `flex w-full ${
+          sender === "user" ? "justify-end flex-col items-end" : "justify-start"
+        }`;
+
+        const messageDiv = document.createElement("div");
+        const messageBubble = document.createElement("div");
+        messageBubble.className = `px-4 py-2 rounded-lg ${
+          sender === "user"
+            ? "bg-[#4dd2ff] text-black"
+            : "bg-[#2b2b2b] text-[#4dd2ff]"
+        }`;
+        messageBubble.style.maxWidth = "90%";
+        messageBubble.style.wordBreak = "break-word";
+        messageBubble.style.overflowWrap = "break-word";
+        messageBubble.textContent = text;
+
+        messageDiv.appendChild(messageBubble);
+        
+        // Add save button for user messages with text content
+        if (sender === "user" && text) {
+          const saveBtn = document.createElement("button");
+          saveBtn.style.cssText = `
+            background: none;
+            border: none;
+            color: #4dd2ff;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.3s;
+            font-size: 16px;
+            margin-top: 4px;
+          `;
+          saveBtn.title = "Save this message as template";
+          saveBtn.innerHTML = "💾";
+          saveBtn.onmouseover = function() { this.style.background = "rgba(77, 210, 255, 0.2)"; };
+          saveBtn.onmouseout = function() { this.style.background = "none"; };
+          saveBtn.onclick = function(e) {
+            e.stopPropagation();
+            currentMessageToSave = text;
+            openSaveTemplateModal();
+          };
+          messageDiv.appendChild(saveBtn);
+        }
+        
+        wrapper.appendChild(messageDiv);
+        chatMessages.appendChild(wrapper);
+
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      // Send initial message (case analysis)
+      async function sendInitialMessage() {
+        const input = document.getElementById("initial-chat-input");
+        const message = input.value.trim();
+
+        if (!message) return;
+
+        // Add user message to initial chat
+        addInitialChatMessage(message, "user");
+        input.value = "";
+        input.style.height = "auto";
+        input.style.height = "50px";
+
+        // Show loader on send button
+        const sendBtn = document.getElementById("initial-chat-send-btn");
+        const originalContent = sendBtn.innerHTML;
+        sendBtn.innerHTML = '<div class="spinner-small"></div>';
+        sendBtn.disabled = true;
+
+        // Show progress bar and animate from 0% to 40%
+        const progressWrapper = document.getElementById("progress-bar-wrapper");
+        const progressFill = document.getElementById("progress-bar-fill");
+        const progressPercentage = document.getElementById(
+          "progress-percentage"
+        );
+        if (progressWrapper) progressWrapper.classList.add("active");
+        if (progressFill) progressFill.classList.remove("complete");
+        if (progressFill) progressFill.style.width = "0%";
+        if (progressPercentage) progressPercentage.textContent = "0%";
+
+        // Animate progress bar from 0% to 40% over 2 seconds
+        const initialDuration = 2000;
+        const initialStartTime = Date.now();
+
+        const animateInitialProgress = () => {
+          const elapsed = Date.now() - initialStartTime;
+          const progress = Math.min(elapsed / initialDuration, 1);
+          const currentPercent = Math.round(progress * 40);
+          progressFill.style.width = currentPercent + "%";
+          progressPercentage.textContent = currentPercent + "%";
+
+          if (progress < 1) {
+            requestAnimationFrame(animateInitialProgress);
+          }
+        };
+
+        animateInitialProgress();
+
+        // Start typewriter animation
+        startTypewriterAnimation();
+
+        try {
+          const token = localStorage.getItem("jwtsettle");
+          const response = await fetch(
+            API_BASE_URL + "/Settlement_Predictor/analyze",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token,
+                "ngrok-skip-browser-warning": "true"
+              },
+              body: JSON.stringify({
+                narrative: message,
+              }),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Analyze API request failed");
+          }
+
+          const data = await response.json();
+
+          // Animate progress bar to 100%
+          if (progressFill) {
+            progressFill.classList.add("complete");
+            progressFill.style.width = "100%";
+          }
+
+          // Animate percentage from 40 to 100
+          const startPercent = 40;
+          const endPercent = 100;
+          const duration = 1000; // 1 second
+          const startTime = Date.now();
+
+          const animatePercentage = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const currentPercent = Math.round(
+              startPercent + (endPercent - startPercent) * progress
+            );
+            if (progressPercentage) progressPercentage.textContent = currentPercent + "%";
+
+            if (progress < 1) {
+              requestAnimationFrame(animatePercentage);
+            }
+          };
+
+          animatePercentage();
+
+          // Wait for progress bar animation to complete (1-2 seconds)
+          await new Promise((resolve) => setTimeout(resolve, 1200));
+
+          // Store thread_id in session storage
+          sessionStorage.setItem("thread_id", data.thread_id);
+          currentThreadId = data.thread_id;
+
+          // Show the start new chat button
+          const startBtn = document.getElementById("start-new-test-btn-top");
+          startBtn.classList.remove("hidden");
+
+          // Clear local storage for fresh chat
+          localStorage.removeItem("chat_messages");
+
+          // Hide initial chat
+          const initialContainer = document.getElementById("initial-chat-container");
+          if (initialContainer) {
+            initialContainer.classList.add("hidden");
+          }
+
+          // Show main chat container
+          const mainContainer = document.getElementById("main-chat-container");
+          console.log("🔍 mainContainer found:", !!mainContainer);
+          if (mainContainer) {
+            mainContainer.classList.remove("hidden");
+            console.log("✅ Main container shown");
+          }
+
+          // Clear main chat messages
+          const chatMessages = document.getElementById("chat-messages");
+          console.log("🔍 chatMessages found:", !!chatMessages);
+          if (chatMessages) {
+            chatMessages.innerHTML = "";
+            console.log("✅ Chat messages cleared");
+          }
+
+          // Add user message to main chat
+          console.log("🔍 Adding user message to chat");
+          addChatMessage(message, "user");
+
+          // Parse and display analysis result
+          const analysisHtml = markdownToHtml(data.analysis);
+          console.log("📊 Analysis HTML created, length:", analysisHtml.length);
+          addChatMessage(analysisHtml, "bot", true);
+
+          // Stop typewriter animation
+          stopTypewriterAnimation();
+        } catch (error) {
+          addInitialChatMessage("Error: " + error.message, "assistant");
+          // Hide progress bar on error
+          if (progressWrapper) progressWrapper.classList.remove("active");
+          // Stop typewriter on error
+          stopTypewriterAnimation();
+        } finally {
+          // Remove loader from send button
+          sendBtn.innerHTML = originalContent;
+          sendBtn.disabled = false;
+        }
+      }
+
+      // Send follow-up message (using /chat API)
+      async function sendChatMessage() {
+        const input = document.getElementById("chat-input");
+        const message = input.value.trim();
+
+        if (!message) return;
+
+        if (!currentThreadId) {
+          addChatMessage(
+            "Error: No thread ID found. Please start a new analysis.",
+            "bot"
+          );
+          return;
+        }
+
+        // Add user message to chat
+        addChatMessage(message, "user");
+        input.value = "";
+        input.style.height = "auto";
+        input.style.height = "50px";
+
+        // Show loader on send button
+        const sendBtn = document.getElementById("chat-send-btn");
+        const originalContent = sendBtn.innerHTML;
+        sendBtn.innerHTML = '<div class="spinner-small"></div>';
+        sendBtn.disabled = true;
+
+        try {
+          const token = localStorage.getItem("jwtsettle");
+          const response = await fetch(
+            API_BASE_URL + "/Settlement_Predictor/chat",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token,
+                "ngrok-skip-browser-warning": "true"
+              },
+              body: JSON.stringify({
+                thread_id: currentThreadId,
+                message: message,
+              }),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Chat API request failed");
+          }
+
+          const data = await response.json();
+
+          // Update thread_id in session storage if it's returned in response
+          if (data.thread_id) {
+            sessionStorage.setItem("thread_id", data.thread_id);
+            currentThreadId = data.thread_id;
+          }
+
+          // Display response
+          const responseHtml = markdownToHtml(
+            data.response || data.answer || "No response"
+          );
+          addChatMessage(responseHtml, "bot", true);
+        } catch (error) {
+          addChatMessage("Error: " + error.message, "bot");
+        } finally {
+          // Remove loader from send button
+          sendBtn.innerHTML = originalContent;
+          sendBtn.disabled = false;
+        }
+      }
+
+      // Convert markdown to HTML
+      function markdownToHtml(markdown) {
+        let html = "";
+
+        if (typeof marked !== "undefined") {
+          if (typeof marked.parse === "function") {
+            html = marked.parse(markdown);
+          } else if (typeof marked === "function") {
+            html = marked(markdown);
+          } else {
+            html = markdown.replace(/\n/g, "<br>");
+          }
+        } else {
+          html = markdown.replace(/\n/g, "<br>");
+        }
+
+        return html;
+      }
+
+      // Auto-height functionality for textareas
+      function autoResizeTextarea(textarea) {
+        textarea.style.height = "auto";
+        textarea.style.height = Math.min(textarea.scrollHeight, 200) + "px";
+      }
+
+      // Toggle expandable scoring legend
+      function toggleScoringLegend(element) {
+        if (element) element.classList.toggle("expanded");
+      }
+    </script>
+
+    <!-- ALPINE.JS SCRIPTS FOR LOGIN -->
+    <script>
+      // Shared state between login and app
+      const appState = {
+        loggedIn: false,
+        email: "",
+      };
+
+      function loginApp() {
+        return {
+          email: "",
+          emailValid: false,
+          emailChecking: false,
+          error: "",
+          loggedIn: false,
+          loggingIn: false,
+
+          init() {
+            // Check if already logged in
+            const token = localStorage.getItem("jwtsettle");
+            const savedEmail = localStorage.getItem("settlementEmail");
+            if (token && savedEmail) {
+              this.loggedIn = true;
+              appState.loggedIn = true;
+              this.email = savedEmail;
+              appState.email = savedEmail;
+            }
+
+            // Listen for logout success event
+            window.addEventListener("logout-success", () => {
+              this.loggedIn = false;
+              this.email = "";
+              this.emailValid = false;
+              this.error = "";
+            });
+          },
+
+          // Backend Email Verification
+          verifyEmail() {
+            if (!this.email.includes("@")) {
+              this.emailValid = false;
+              this.error = "";
+              return;
+            }
+
+            this.emailChecking = true;
+            this.error = "";
+            fetch(`${API_BASE_URL}/Settlement_Predictor/verify-email?email=${encodeURIComponent(this.email)}`, {
+              method: "GET",
+              headers: {
+                "ngrok-skip-browser-warning": "true",
+              },
+            })
+              .then((res) => res.json())
+              .then((json) => {
+                this.emailValid = json.valid;
+                this.emailChecking = false;
+                if (!json.valid) {
+                  this.error =
+                    "Access denied: Your email is not on the authorized list.";
+                }
+              })
+              .catch(() => {
+                this.emailValid = false;
+                this.emailChecking = false;
+                this.error =
+                  "Access denied: Your email is not on the authorized list.";
+              });
+          },
+
+          // Login only after email is validated
+          login() {
+            if (!this.emailValid) {
+              this.error = "Email not authorized";
+              return;
+            }
+
+            if (!this.email || !this.email.includes("@")) {
+              this.error = "Please enter a valid email";
+              return;
+            }
+
+            this.loggingIn = true;
+
+            const data = new URLSearchParams();
+            data.append("username", this.email);
+            data.append("password", "not-used-but-required");
+
+            fetch(`${API_BASE_URL}/Settlement_Predictor/login`, {
+              method: "POST",
+              body: data,
+            })
+              .then((res) => {
+                if (!res.ok) throw new Error("Unauthorized email");
+                return res.json();
+              })
+              .then((json) => {
+                localStorage.setItem("jwtsettle", json.access_token);
+                localStorage.setItem("settlementEmail", this.email);
+                this.loggedIn = true;
+                appState.loggedIn = true;
+                appState.email = this.email;
+                this.error = "";
+                this.loggingIn = false;
+
+                // Trigger custom event to notify main app
+                window.dispatchEvent(new CustomEvent("login-success"));
+              })
+              .catch((err) => {
+                this.error = err.message;
+                this.loggingIn = false;
+              });
+          },
+
+          logout() {
+            localStorage.removeItem("jwtsettle");
+            localStorage.removeItem("settlementEmail");
+            this.loggedIn = false;
+            appState.loggedIn = false;
+            this.email = "";
+            appState.email = "";
+            this.emailValid = false;
+            window.dispatchEvent(new Event("logout-success"));
+          },
+        };
+      }
+
+      function settlementApp() {
+        return {
+          isLoggedIn: false,
+          userEmail: "",
+
+          init() {
+            // Load login state
+            const token = localStorage.getItem("jwtsettle");
+            const email = localStorage.getItem("settlementEmail");
+            if (token && email) {
+              this.isLoggedIn = true;
+              this.userEmail = email;
+            }
+
+            // Listen for login success
+            window.addEventListener("login-success", () => {
+              this.isLoggedIn = true;
+              this.userEmail = localStorage.getItem("settlementEmail");
+            });
+          },
+
+          logout() {
+            localStorage.removeItem("jwtsettle");
+            localStorage.removeItem("settlementEmail");
+            window.dispatchEvent(new Event("logout-success"));
+          },
+        };
+      }
+    </script>
+
+    <script>
+      // Check token on page load and toggle main app visibility
+      function checkAuthToken() {
+        const token = localStorage.getItem("jwtsettle");
+        const mainAppWrapper = document.getElementById("main-app-wrapper");
+
+        if (token) {
+          // User is logged in - show main app
+          if (mainAppWrapper) mainAppWrapper.style.display = "flex";
+        } else {
+          // User is not logged in - hide main app
+          if (mainAppWrapper) mainAppWrapper.style.display = "none";
+        }
+      }
+
+      // Check on page load
+      document.addEventListener("DOMContentLoaded", checkAuthToken);
+
+      // Re-check when logout-success event fires
+      window.addEventListener("logout-success", () => {
+        
+        // Clear all chat data from DOM
+        const initialChatMessages = document.getElementById("initial-chat-messages");
+        if (initialChatMessages) {
+          initialChatMessages.innerHTML = `
+          <!-- Initial Case Details Message -->
+          <div class="flex justify-start w-full">
+            <div class="px-4 py-2 rounded-lg bg-[#2b2b2b] text-[#4dd2ff]" style="max-width: 90%; word-break: break-word; overflow-wrap: break-word;">
+              Example Description: My client is a 42-year-old female (Likability: 9/10). She was T-boned by a 2023 Ford F-150 (Commercial Tier) while driving her 2018 Toyota Camry. The at-fault driver is insured by Liberty Mutual with $100k limits. Her car was totaled. Airbags deployed.
+              <br/><br/>
+              Medical: $45k in past bills including injections and PT. No treatment gaps. Social: She is employed but stressed about Low credit score below 600. No opioid history. Firm: Demand package was Top Tier (5/5). My Confidence Score is 4/5.
+            </div>
+          </div>
+
+          <!-- Expandable Scoring Legend Message -->
+          <div class="flex justify-start w-full">
+            <div class="expandable-message" style="max-width: 90%;" onclick="toggleScoringLegend(this)">
+              <div class="expandable-message-header">
+                <span>SCORING LEGEND & REQUIRED FIELDS Guide</span>
+                <div class="expandable-message-icon">▼</div>
+              </div>
+              <div class="expandable-message-content">                
+                <div class="scoring-item">
+                  <div class="scoring-item-title">Likability Scale (1–10)</div>
+                  <div class="scoring-item-content">Rate the client's potential performance as a witness in front of a jury.</div>
+                  <div class="scoring-item-level"><strong>1 – 3 (Poor):</strong> Argumentative, inconsistent, untrustworthy, or bad demeanor. (Model applies negative multiplier).</div>
+                  <div class="scoring-item-level"><strong>4 – 7 (Neutral):</strong> Average witness. Clearly states facts but lacks "spark." (Standard baseline).</div>
+                  <div class="scoring-item-level"><strong>8 – 10 (Star):</strong> Charismatic, sympathetic, articulate, and trustworthy. "Jury Gold." (Model applies bonus multiplier).</div>
+                </div>
+                
+                <div class="scoring-item">
+                  <div class="scoring-item-title">Attorney Confidence Score (1–5)</div>
+                  <div class="scoring-item-content">Your professional "gut check" on the winnability of the case.</div>
+                  <div class="scoring-item-level"><strong>1 (High Risk):</strong> Significant liability disputes or causation issues.</div>
+                  <div class="scoring-item-level"><strong>3 (Standard):</strong> Clear liability, typical defenses expected.</div>
+                  <div class="scoring-item-level"><strong>5 (Slam Dunk):</strong> Aggravated liability (DUI), clear damages, zero defenses.</div>
+                </div>
+                
+                <div class="scoring-item">
+                  <div class="scoring-item-title">Vehicle Descriptions (Crucial)</div>
+                  <div class="scoring-item-content">Always include: Year, Make, and Model (e.g., "2024 Mercedes S-Class" vs. "2005 Honda Civic").</div>
+                  <div class="scoring-item-content" style="margin-top: 8px;"><strong>Why?</strong> The model uses this to infer the defendant's asset tier and insurance policy limits.</div>
+                </div>
+              </div>
+            </div>
+          </div>`;
+        }
+        
+        const chatMessages = document.getElementById("chat-messages");
+        if (chatMessages) {
+          chatMessages.innerHTML = "";
+        }
+        
+        const initialInput = document.getElementById("initial-chat-input");
+        if (initialInput) {
+          initialInput.value = "";
+        }
+        
+        const chatInput = document.getElementById("chat-input");
+        if (chatInput) {
+          chatInput.value = "";
+        }
+        
+        setTimeout(checkAuthToken, 100);
+      });
+
+      // Also check after login
+      window.addEventListener("login-success", () => {
+        
+        // Clear all chat data from DOM and storage on login
+        sessionStorage.removeItem("thread_id");
+        localStorage.removeItem("settlement_analysis");
+        localStorage.removeItem("settlement_chat_history");
+        
+        // Reset DOM
+        const initialChatMessages = document.getElementById("initial-chat-messages");
+        if (initialChatMessages) {
+          initialChatMessages.innerHTML = `
+          <!-- Initial Case Details Message -->
+          <div class="flex justify-start w-full">
+            <div class="px-4 py-2 rounded-lg bg-[#2b2b2b] text-[#4dd2ff]" style="max-width: 90%; word-break: break-word; overflow-wrap: break-word;">
+              Example Description: My client is a 42-year-old female (Likability: 9/10). She was T-boned by a 2023 Ford F-150 (Commercial Tier) while driving her 2018 Toyota Camry. The at-fault driver is insured by Liberty Mutual with $100k limits. Her car was totaled. Airbags deployed.
+              <br/><br/>
+              Medical: $45k in past bills including injections and PT. No treatment gaps. Social: She is employed but stressed about Low credit score below 600. No opioid history. Firm: Demand package was Top Tier (5/5). My Confidence Score is 4/5.
+            </div>
+          </div>
+
+          <!-- Expandable Scoring Legend Message -->
+          <div class="flex justify-start w-full">
+            <div class="expandable-message" style="max-width: 90%;" onclick="toggleScoringLegend(this)">
+              <div class="expandable-message-header">
+                <span>SCORING LEGEND & REQUIRED FIELDS Guide</span>
+                <div class="expandable-message-icon">▼</div>
+              </div>
+              <div class="expandable-message-content">                
+                <div class="scoring-item">
+                  <div class="scoring-item-title">Likability Scale (1–10)</div>
+                  <div class="scoring-item-content">Rate the client's potential performance as a witness in front of a jury.</div>
+                  <div class="scoring-item-level"><strong>1 – 3 (Poor):</strong> Argumentative, inconsistent, untrustworthy, or bad demeanor. (Model applies negative multiplier).</div>
+                  <div class="scoring-item-level"><strong>4 – 7 (Neutral):</strong> Average witness. Clearly states facts but lacks "spark." (Standard baseline).</div>
+                  <div class="scoring-item-level"><strong>8 – 10 (Star):</strong> Charismatic, sympathetic, articulate, and trustworthy. "Jury Gold." (Model applies bonus multiplier).</div>
+                </div>
+                
+                <div class="scoring-item">
+                  <div class="scoring-item-title">Attorney Confidence Score (1–5)</div>
+                  <div class="scoring-item-content">Your professional "gut check" on the winnability of the case.</div>
+                  <div class="scoring-item-level"><strong>1 (High Risk):</strong> Significant liability disputes or causation issues.</div>
+                  <div class="scoring-item-level"><strong>3 (Standard):</strong> Clear liability, typical defenses expected.</div>
+                  <div class="scoring-item-level"><strong>5 (Slam Dunk):</strong> Aggravated liability (DUI), clear damages, zero defenses.</div>
+                </div>
+                
+                <div class="scoring-item">
+                  <div class="scoring-item-title">Vehicle Descriptions (Crucial)</div>
+                  <div class="scoring-item-content">Always include: Year, Make, and Model (e.g., "2024 Mercedes S-Class" vs. "2005 Honda Civic").</div>
+                  <div class="scoring-item-content" style="margin-top: 8px;"><strong>Why?</strong> The model uses this to infer the defendant's asset tier and insurance policy limits.</div>
+                </div>
+              </div>
+            </div>
+          </div>`;
+        }
+        
+        const chatMessages = document.getElementById("chat-messages");
+        if (chatMessages) {
+          chatMessages.innerHTML = "";
+        }
+        
+        const initialInput = document.getElementById("initial-chat-input");
+        if (initialInput) {
+          initialInput.value = "";
+        }
+        
+        const chatInput = document.getElementById("chat-input");
+        if (chatInput) {
+          chatInput.value = "";
+        }
+        
+        setTimeout(checkAuthToken, 100);
+      });
+
+      // ============ FEATURE 1: ACTIVE USERS COUNT ============
+      async function loadActiveUsers() {
+        try {
+          const token = localStorage.getItem("jwtsettle");
+          if (!token) return;
+
+          const response = await fetch(
+            `${API_BASE_URL}/Settlement_Predictor/active-today`,
+            {
+              method: "GET",
+              headers: {
+                "Authorization": `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true"
+              }
+            }
+          );
+
+          const data = await response.json();
+          
+          if (Array.isArray(data)) {
+            // Update active users count
+            const count = data.length;
+            const countElement = document.getElementById("active-count");
+            if (countElement) {
+              countElement.textContent = count;
+            }
+
+            // Populate active users list
+            const usersList = document.getElementById("active-users-list");
+            if (usersList) {
+              if (count === 0) {
+                usersList.innerHTML = '<div style="padding: 8px 0; color: #666;">No active users</div>';
+              } else {
+                usersList.innerHTML = data.map(user => `
+                  <div style="
+                    padding: 10px 8px;
+                    border-bottom: 1px solid rgba(77, 210, 255, 0.2);
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 16px;
+                  ">
+                    <span style="color: #4dd2ff; font-weight: 500; flex: 1;">${user.email}</span>
+                    <span style="color: #aaa; font-size: 12px; white-space: nowrap; flex-shrink: 0;">${formatLastActive(user.last_active)}</span>
+                  </div>
+                `).join("");
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Failed to load active users:", error);
+        }
+      }
+
+      function formatLastActive(dateStr) {
+        try {
+          const date = new Date(dateStr);
+          const now = new Date();
+          const diffMs = now - date;
+          const diffMins = Math.floor(diffMs / 60000);
+          const diffHours = Math.floor(diffMs / 3600000);
+          const diffDays = Math.floor(diffMs / 86400000);
+
+          if (diffMins < 1) return "just now";
+          if (diffMins < 60) return `${diffMins}m ago`;
+          if (diffHours < 24) return `${diffHours}h ago`;
+          if (diffDays < 7) return `${diffDays}d ago`;
+          
+          return date.toLocaleDateString();
+        } catch (e) {
+          return dateStr;
+        }
+      }
+
+      // function toggleActiveUsersPopover() {
+      //   const popover = document.getElementById("active-users-popover");
+      //   if (popover.style.display === "none" || popover.style.display === "") {
+      //     popover.style.display = "block";
+
+      //     loadActiveUsers();
+      //   } else {
+      //     popover.style.display = "none";
+      //   }
+      // }
+
+
+
+          document.getElementById("active-users-btn").addEventListener("click", () => {
+            const popover = document.getElementById("active-users-popover");
+            const isOpening = !popover.classList.contains("open");
+            popover.classList.toggle("open");
+            if (isOpening) {
+              loadActiveUsers();
+            }
+          });
+
+
+
+
+
+      // Close active users popover when clicking outside
+      document.addEventListener("click", function(event) {
+        const popover = document.getElementById("active-users-popover");
+        const btn = document.getElementById("active-users-btn");
+        if (!btn.contains(event.target) && !popover.contains(event.target)) {
+          popover.style.display = "none";
+        }
+      });
+
+      // ============ FEATURE 2: SAVE MESSAGE AS TEMPLATE ============
+      function openSaveTemplateModal() {
+        const modal = document.getElementById("save-template-modal");
+        const nameInput = document.getElementById("template-name-input");
+        const descInput = document.getElementById("template-description-input");
+        const messageDiv = document.getElementById("template-modal-message");
+        const saveBtn = document.getElementById("save-template-btn");
+        
+        modal.style.display = "flex";
+        nameInput.value = "";
+        descInput.value = "";
+        messageDiv.style.display = "none";
+        messageDiv.textContent = "";
+        
+        // Reset button state
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save Template";
+        
+        nameInput.focus();
+      }
+
+      function closeSaveTemplateModal() {
+        const modal = document.getElementById("save-template-modal");
+        modal.style.display = "none";
+        currentMessageToSave = "";
+        
+        // If templates popover is open, reload the templates list
+        const popover = document.getElementById("templates-popover");
+        if (popover && popover.style.display === "block") {
+          const templatesList = document.getElementById("templates-list");
+          templatesList.innerHTML = '<div style="padding: 8px 0; color: #666;">Loading...</div>';
+          loadTemplates();
+        }
+      }
+
+      async function saveMsgAsTemplate(event) {
+        event.preventDefault();
+        
+        const nameInput = document.getElementById("template-name-input");
+        const descInput = document.getElementById("template-description-input");
+        const saveBtn = document.getElementById("save-template-btn");
+        const messageDiv = document.getElementById("template-modal-message");
+
+        const templateName = nameInput.value.trim();
+        const templateDesc = descInput.value.trim();
+        const templateText = currentMessageToSave;
+
+        if (!templateName || !templateDesc) {
+          messageDiv.style.display = "block";
+          messageDiv.style.color = "#e74c3c";
+          messageDiv.textContent = "Please fill in all fields";
+          return;
+        }
+
+        try {
+          saveBtn.disabled = true;
+          saveBtn.textContent = "Saving...";
+          messageDiv.style.display = "block";
+          messageDiv.style.color = "#4dd2ff";
+          messageDiv.textContent = "Saving...";
+
+          const token = localStorage.getItem("jwtsettle");
+          const payload = new URLSearchParams();
+          payload.append("template_name", templateName);
+          payload.append("description", templateDesc);
+          payload.append("tags", "settlement-prediction");
+          payload.append("template_text", templateText);
+
+          const response = await fetch(
+            `${API_BASE_URL}/Settlement_Predictor/templates`,
+            {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true"
+              },
+              body: payload
+            }
+          );
+
+          if (response.ok) {
+            messageDiv.style.color = "#2ecc71";
+            messageDiv.textContent = "✓ Template saved successfully";
+            setTimeout(() => {
+              closeSaveTemplateModal();
+            }, 1500);
+          } else {
+            const errorData = await response.json();
+            messageDiv.style.color = "#e74c3c";
+            messageDiv.textContent = `Error: ${errorData.detail || "Failed to save template"}`;
+            saveBtn.disabled = false;
+            saveBtn.textContent = "Save Template";
+          }
+        } catch (error) {
+          messageDiv.style.color = "#e74c3c";
+          messageDiv.textContent = `Error: ${error.message}`;
+          saveBtn.disabled = false;
+          saveBtn.textContent = "Save Template";
+        }
+      }
+
+      // Global array to store templates
+      let cachedTemplates = [];
+
+      // ============ FEATURE 3: LOAD TEMPLATES ============
+      async function loadTemplates() {
+        try {
+          const token = localStorage.getItem("jwtsettle");
+          if (!token) return;
+
+          const response = await fetch(
+            `${API_BASE_URL}/Settlement_Predictor/templates`,
+            {
+              method: "GET",
+              headers: {
+                "Authorization": `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true"
+              }
+            }
+          );
+
+          const templates = await response.json();
+          cachedTemplates = templates; // Store templates globally
+          
+          const templatesList = document.getElementById("templates-list");
+          if (!Array.isArray(templates) || templates.length === 0) {
+            templatesList.innerHTML = '<div style="padding: 8px 0; color: #666;">No templates yet</div>';
+            return;
+          }
+
+          templatesList.innerHTML = templates.map((template, index) => `
+            <div
+              style="
+                padding: 12px 8px;
+                border-bottom: 1px solid rgba(77, 210, 255, 0.2);
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 12px;
+                transition: all 0.2s;
+                border-radius: 4px;
+              "
+              onmouseover="this.style.background='rgba(77, 210, 255, 0.1)'"
+              onmouseout="this.style.background='transparent'"
+            >
+              <div
+                onclick="selectTemplate(${index})"
+                style="
+                  flex: 1;
+                  cursor: pointer;
+                "
+              >
+                <div style="color: #4dd2ff; font-weight: 600; font-size: 13px;">${escapeHtml(template.template_name || template.name)}</div>
+                <div style="color: #888; font-size: 12px; margin-top: 4px;">${escapeHtml(template.description)}</div>
+              </div>
+              <button
+                onclick="deleteTemplate(${template.template_id || template.id}, event)"
+                style="
+                  background: none;
+                  border: none;
+                  color: #e74c3c;
+                  cursor: pointer;
+                  padding: 4px 8px;
+                  border-radius: 4px;
+                  transition: all 0.2s;
+                  font-size: 18px;
+                  flex-shrink: 0;
+                "
+                title="Delete template"
+                onmouseover="this.style.background='rgba(231, 76, 60, 0.2)'"
+                onmouseout="this.style.background='none'"
+              >🗑️</button>
+            </div>
+          `).join("");
+        } catch (error) {
+          console.error("Failed to load templates:", error);
+          const templatesList = document.getElementById("templates-list");
+          templatesList.innerHTML = '<div style="padding: 8px 0; color: #e74c3c;">Failed to load templates</div>';
+        }
+      }
+
+      function toggleTemplatesPopover(event) {
+        event.stopPropagation();
+        const popover = document.getElementById("templates-popover");
+        const btnInitial = document.getElementById("templates-btn-initial");
+        const btnMain = document.getElementById("templates-btn");
+        const btn = (btnInitial && btnInitial.offsetParent !== null) ? btnInitial : btnMain;
+        
+        if (popover.style.display === "none" || popover.style.display === "") {
+          popover.style.display = "block";
+          // Show loading and fetch templates
+          const templatesList = document.getElementById("templates-list");
+          templatesList.innerHTML = '<div style="padding: 8px 0; color: #666;">Loading...</div>';
+          loadTemplates();
+          
+          // Change button to show loader
+          btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 0.8s linear infinite;"><circle cx="12" cy="12" r="10"></circle></svg>';
+        } else {
+          popover.style.display = "none";
+          const svgIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>';
+          btn.innerHTML = svgIcon;
+        }
+      }
+
+      function selectTemplate(templateIndex) {
+        // Determine which input to use based on which is visible
+        let input = document.getElementById("chat-input");
+        if (!input || input.offsetParent === null) {
+          // chat-input is hidden, use initial input
+          input = document.getElementById("initial-chat-input");
+        }
+        
+        // Get template from cached array
+        const template = cachedTemplates[templateIndex];
+        if (!template) {
+          console.error('Template not found at index:', templateIndex);
+          return;
+        }
+        
+        // Extract text from template - supports old API format
+        const textContent = template['Full Text'] || template.template_text || '';
+        input.value = textContent;
+        
+        // Close popover
+        const popover = document.getElementById("templates-popover");
+        const btnInitial = document.getElementById("templates-btn-initial");
+        const btnMain = document.getElementById("templates-btn");
+        
+        popover.style.display = "none";
+        const svgIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>';
+        
+        if (btnInitial && btnInitial.offsetParent !== null) {
+          btnInitial.innerHTML = svgIcon;
+        }
+        if (btnMain && btnMain.offsetParent !== null) {
+          btnMain.innerHTML = svgIcon;
+        }
+        
+        // Focus on input
+        input.focus();
+      }
+
+      async function deleteTemplate(templateId, event) {
+        event.stopPropagation();
+        
+        // Store template ID in global variable for confirmation
+        window.templateToDelete = templateId;
+        openDeleteTemplateModal();
+      }
+
+      function openDeleteTemplateModal() {
+        const modal = document.getElementById("delete-template-modal");
+        const messageDiv = document.getElementById("delete-template-message");
+        const deleteBtn = document.getElementById("confirm-delete-btn");
+        
+        modal.style.display = "flex";
+        messageDiv.style.display = "none";
+        messageDiv.textContent = "";
+        deleteBtn.disabled = false;
+        deleteBtn.textContent = "Delete";
+      }
+
+      function closeDeleteTemplateModal() {
+        const modal = document.getElementById("delete-template-modal");
+        modal.style.display = "none";
+        window.templateToDelete = null;
+      }
+
+      async function confirmDeleteTemplate() {
+        const templateId = window.templateToDelete;
+        if (!templateId) return;
+
+        const deleteBtn = document.getElementById("confirm-delete-btn");
+        const messageDiv = document.getElementById("delete-template-message");
+
+        try {
+          deleteBtn.disabled = true;
+          deleteBtn.textContent = "Deleting...";
+          messageDiv.style.display = "block";
+          messageDiv.style.color = "#4dd2ff";
+          messageDiv.textContent = "Deleting...";
+
+          const token = localStorage.getItem("jwtsettle");
+          if (!token) return;
+
+          const response = await fetch(
+            `${API_BASE_URL}/Settlement_Predictor/templates/${templateId}`,
+            {
+              method: "DELETE",
+              headers: {
+                "Authorization": `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true"
+              }
+            }
+          );
+
+          if (response.ok) {
+            messageDiv.style.color = "#2ecc71";
+            messageDiv.textContent = "✓ Template deleted successfully";
+            setTimeout(() => {
+              closeDeleteTemplateModal();
+              loadTemplates();
+            }, 1500);
+          } else {
+            messageDiv.style.color = "#e74c3c";
+            messageDiv.textContent = "Failed to delete template";
+            deleteBtn.disabled = false;
+            deleteBtn.textContent = "Delete";
+          }
+        } catch (error) {
+          console.error("Failed to delete template:", error);
+          messageDiv.style.color = "#e74c3c";
+          messageDiv.textContent = "Error: " + error.message;
+          deleteBtn.disabled = false;
+          deleteBtn.textContent = "Delete";
+        }
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // Close templates popover when clicking outside
+      document.addEventListener("click", function(event) {
+        const popover = document.getElementById("templates-popover");
+        const btn = document.getElementById("templates-btn");
+        
+        // Don't close if clicking on the button or popover itself
+        if (btn && btn.contains(event.target)) return;
+        if (popover && popover.contains(event.target)) return;
+        
+        if (popover && popover.style.display === "block") {
+          popover.style.display = "none";
+          if (btn) {
+            btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>';
+          }
+        }
+      });
+
+      // Initialize active users on page load when logged in
+      function initializeFeatures() {
+        const token = localStorage.getItem("jwtsettle");
+        if (token) {
+          loadActiveUsers();
+        }
+      }
+
+      // Check authentication and initialize features
+      document.addEventListener("DOMContentLoaded", initializeFeatures);
+      window.addEventListener("login-success", initializeFeatures);
+    </script>
+    </div>
+    <!-- END MAIN APPLICATION CONTAINER -->
+  </body>
+</html>

@@ -1,0 +1,933 @@
+/**
+ * Zane & West hub design system — shared by static/index.html and panel apps.
+ * Legacy tokens (--lx-sky-rgb, --lx-sky, …) map to gold so existing panel CSS keeps working.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap");
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --cyan: #0d6efd;
+  --cyan-light: #0d6efd;
+  --cyan-dim: rgba(13, 110, 253, 0.15);
+  --cyan-border: rgba(13, 110, 253, 0.3);
+  --bg: #f8f9fa;
+  --bg2: #ffffff;
+  --text: #0d6efd;
+  --text-dim: rgba(17, 17, 17, 0.85);
+  --radius: 4px;
+
+  /* Legacy panel tokens (formerly “sky”) — now hub gold */
+  --lx-font-body: "Montserrat", sans-serif;
+  --lx-font-heading: "Cormorant Garamond", serif;
+  --lx-sky: var(--cyan);
+  --lx-sky-rgb: 77, 210, 255;
+  --lx-sky-soft: rgba(13, 110, 253, 0.35);
+  --lx-white: #ffffff;
+  --lx-text: var(--text);
+  --lx-text-muted: rgba(17, 17, 17, 0.85);
+  --lx-btn-bg: var(--cyan);
+  --lx-btn-text: var(--bg);
+  --lx-btn-bg-hover: var(--cyan-light);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Montserrat", sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+html.hub-custom-cursor body,
+html.hub-panel-cursor body {
+  cursor: none;
+}
+
+/* ── Custom cursor (dot + ring; grows on interactive hover) ── */
+#cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  width: 10px;
+  height: 10px;
+  background: var(--cyan);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.08s, width 0.2s, height 0.2s, background 0.2s;
+}
+#cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9998;
+  pointer-events: none;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--cyan-border);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.18s ease, width 0.25s, height 0.25s;
+}
+body:has(a:hover) #cursor,
+body:has(button:hover) #cursor,
+body:has([role="button"]:hover) #cursor,
+body:has(input:hover) #cursor,
+body:has(select:hover) #cursor,
+body:has(textarea:hover) #cursor,
+body:has(label:hover) #cursor,
+body:has(.admin-btn:hover) #cursor {
+  width: 16px;
+  height: 16px;
+  background: var(--cyan-light);
+}
+body:has(a:hover) #cursor-ring,
+body:has(button:hover) #cursor-ring,
+body:has([role="button"]:hover) #cursor-ring,
+body:has(input:hover) #cursor-ring,
+body:has(select:hover) #cursor-ring,
+body:has(textarea:hover) #cursor-ring,
+body:has(label:hover) #cursor-ring,
+body:has(.admin-btn:hover) #cursor-ring {
+  width: 52px;
+  height: 52px;
+  border-color: var(--cyan);
+}
+
+/* ── Animated background ── */
+.bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.bg-canvas::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 20%, rgba(13, 110, 253, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 80% 80%, rgba(13, 110, 253, 0.03) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(248, 249, 250, 0.8) 0%, transparent 100%);
+  animation: bgPulse 12s ease-in-out infinite alternate;
+}
+@keyframes bgPulse {
+  0% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.grid-lines {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(13, 110, 253, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13, 110, 253, 0.03) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+
+.noise {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 128px;
+}
+
+/* Hide legacy full-screen image/video layers when hub backdrop is present */
+body:has(.bg-canvas) .video-background,
+body:has(.bg-canvas) .overlay {
+  display: none;
+}
+
+/* ── Layout wrapper (hub landing) ── */
+.wrapper {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 24px 80px;
+}
+
+/* ── Top bar ── */
+.topbar {
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28px 0 0;
+  opacity: 0;
+  animation: fadeDown 0.8s 0.1s forwards;
+}
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.topbar-logo img {
+  width: 38px;
+  filter: drop-shadow(0 0 8px rgba(13, 110, 253, 0.5));
+}
+.topbar-logo span {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+  color: var(--cyan);
+  font-weight: 400;
+  text-transform: uppercase;
+}
+.admin-btn {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--cyan);
+  border: 1px solid var(--cyan-border);
+  padding: 9px 22px;
+  border-radius: 2px;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.admin-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--cyan-dim);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s;
+}
+.admin-btn:hover::before {
+  transform: scaleX(1);
+}
+.admin-btn:hover {
+  border-color: var(--cyan);
+}
+.admin-btn span {
+  position: relative;
+}
+
+/* ── Hero ── */
+.hero {
+  text-align: center;
+  padding: 80px 0 60px;
+  max-width: 800px;
+}
+
+.eyebrow {
+  font-size: 0.7rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--cyan);
+  font-weight: 500;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  opacity: 0;
+  animation: fadeUp 0.7s 0.3s forwards;
+}
+.eyebrow::before,
+.eyebrow::after {
+  content: "";
+  height: 1px;
+  width: 40px;
+  background: var(--cyan-border);
+}
+
+.hero h1 {
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  margin-bottom: 6px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.45s forwards;
+}
+.hero h1 em {
+  font-style: italic;
+  color: var(--cyan);
+  text-shadow: none;
+}
+
+.divider-line {
+  width: 60px;
+  height: 1px;
+  background: var(--cyan);
+  margin: 28px auto;
+  opacity: 0;
+  animation: scaleIn 0.6s 0.7s forwards;
+}
+
+.hero p {
+  font-size: 0.92rem;
+  line-height: 1.85;
+  color: var(--text-dim);
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  opacity: 0;
+  animation: fadeUp 0.7s 0.85s forwards;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* ── Tools grid ── */
+.section-label {
+  font-size: 0.65rem;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--cyan);
+  font-weight: 500;
+  margin-bottom: 40px;
+  opacity: 0;
+  animation: fadeUp 0.6s 1s forwards;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.section-label::after {
+  content: "";
+  flex: 1;
+  max-width: 200px;
+  height: 1px;
+  background: var(--cyan-border);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  width: 100%;
+  max-width: 1000px;
+  opacity: 0;
+  animation: fadeUp 0.8s 1.1s forwards;
+}
+
+/* Hub tool cards only inside landing .grid to avoid clobbering panel components */
+.grid > a.card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.018);
+  border: 1px solid rgba(13, 110, 253, 0.12);
+  border-radius: 3px;
+  padding: 32px 28px 28px;
+  text-decoration: none;
+  color: var(--text);
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  backdrop-filter: blur(4px);
+}
+.grid > a.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  transform: scaleX(0);
+  transition: transform 0.4s;
+}
+.grid > a.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(13, 110, 253, 0.07) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.grid > a.card:hover {
+  border-color: rgba(13, 110, 253, 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(255, 255, 255, 0.5), 0 0 30px rgba(13, 110, 253, 0.06);
+}
+.grid > a.card:hover::before {
+  transform: scaleX(1);
+}
+.grid > a.card:hover::after {
+  opacity: 1;
+}
+.grid > a.card:hover .card-icon {
+  color: var(--cyan-light);
+}
+.grid > a.card:hover .card-arrow {
+  opacity: 1;
+  transform: translate(3px, -3px);
+}
+
+.card-number {
+  font-size: 0.6rem;
+  letter-spacing: 3px;
+  color: var(--cyan);
+  font-weight: 500;
+  opacity: 0.6;
+}
+.card-icon {
+  font-size: 1.6rem;
+  margin: 4px 0;
+  color: var(--cyan);
+  transition: color 0.3s;
+}
+.card-title {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text);
+}
+.card-desc {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+  font-weight: 400;
+  letter-spacing: 0.2px;
+  flex: 1;
+}
+.card-arrow {
+  font-size: 0.75rem;
+  color: var(--cyan);
+  letter-spacing: 2px;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+.grid > a.card:last-child:nth-child(3n + 1) {
+  grid-column: 2;
+}
+
+/* ── Stats strip ── */
+.stats {
+  display: flex;
+  gap: 60px;
+  justify-content: center;
+  align-items: center;
+  margin: 70px 0 0;
+  padding: 40px 60px;
+  border: 1px solid var(--cyan-border);
+  border-radius: 3px;
+  background: rgba(13, 110, 253, 0.02);
+  backdrop-filter: blur(8px);
+  width: 100%;
+  max-width: 780px;
+  opacity: 0;
+  animation: fadeUp 0.7s 1.4s forwards;
+}
+.stat {
+  text-align: center;
+}
+.stat-num {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 2.6rem;
+  font-weight: 400;
+  color: var(--cyan);
+  line-height: 1;
+  display: block;
+}
+.stat-label {
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-top: 6px;
+  display: block;
+}
+.stat-sep {
+  width: 1px;
+  height: 40px;
+  background: var(--cyan-border);
+}
+
+/* ── Footer ── */
+footer {
+  margin-top: 70px;
+  text-align: center;
+  font-size: 0.68rem;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  opacity: 0;
+  animation: fadeUp 0.6s 1.6s forwards;
+}
+footer span {
+  color: var(--cyan);
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s, transform 0.7s;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .grid > a.card:last-child:nth-child(3n + 1) {
+    grid-column: auto;
+  }
+  .stats {
+    gap: 40px;
+    padding: 30px 40px;
+  }
+}
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .stats {
+    flex-direction: column;
+    gap: 28px;
+    padding: 28px 28px;
+  }
+  .stat-sep {
+    width: 40px;
+    height: 1px;
+  }
+  .hero h1 {
+    font-size: 2.4rem;
+  }
+  .topbar-logo span {
+    display: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Panel app shell (MedCert / VICP / Vehicle-style templates)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.app-container {
+  position: relative;
+  z-index: 2;
+}
+
+.app-header {
+  background: rgba(14, 14, 14, 0.98);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--cyan-border);
+  box-shadow: 0 4px 20px rgba(13, 110, 253, 0.08);
+  position: relative;
+  z-index: 50;
+}
+
+.header-title h1 {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--cyan);
+  letter-spacing: 0.04em;
+  text-shadow: none;
+}
+
+.header-title p {
+  font-size: 0.8125rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+.logo {
+  filter: drop-shadow(0 0 8px rgba(13, 110, 253, 0.35));
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Panel surfaces — golden glass cards (matches landing .grid > a.card language)
+   Higher specificity than single-class panel rules; does not override inline layout.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+body:has(.app-container) .glass-panel,
+body:has(.login-page-wrapper) .login-form-card {
+  background: rgba(255, 255, 255, 0.018) !important;
+  border: 1px solid rgba(13, 110, 253, 0.12) !important;
+  border-radius: 3px !important;
+  box-shadow:
+    0 20px 60px rgba(255, 255, 255, 0.45),
+    0 0 28px rgba(13, 110, 253, 0.06) !important;
+  backdrop-filter: blur(14px) !important;
+}
+
+body:has(.app-container) .item-card,
+body:has(.app-container) button.item-card {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(13, 110, 253, 0.12) !important;
+  border-radius: 3px !important;
+  backdrop-filter: blur(6px) !important;
+  transition:
+    border-color 0.3s,
+    transform 0.3s,
+    box-shadow 0.3s;
+}
+
+body:has(.app-container) .item-card::before,
+body:has(.app-container) button.item-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.4s;
+  pointer-events: none;
+}
+
+body:has(.app-container) .item-card:hover,
+body:has(.app-container) button.item-card:hover {
+  border-color: rgba(13, 110, 253, 0.45) !important;
+  box-shadow:
+    0 16px 48px rgba(255, 255, 255, 0.4),
+    0 0 24px rgba(13, 110, 253, 0.08) !important;
+}
+
+body:has(.app-container) .item-card:hover::before,
+body:has(.app-container) button.item-card:hover::before {
+  transform: scaleX(1);
+}
+
+/* MVA dashboard sections */
+body:has(.dashboard-panels) .panel-section {
+  position: relative;
+  background: rgba(255, 255, 255, 0.018) !important;
+  border: 1px solid rgba(13, 110, 253, 0.12) !important;
+  border-radius: 3px !important;
+  box-shadow:
+    0 12px 40px rgba(255, 255, 255, 0.35),
+    0 0 20px rgba(13, 110, 253, 0.05) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+/* CaseValue estimator */
+body.min-h-screen .dark-theme-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.018) !important;
+  border: 1px solid rgba(13, 110, 253, 0.12) !important;
+  box-shadow:
+    0 16px 48px rgba(255, 255, 255, 0.4),
+    0 0 24px rgba(13, 110, 253, 0.06) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Hub buttons — outline (admin-style) + primary CTAs
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+body:has(.app-container) button.new-chat-btn {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--cyan) !important;
+  background: transparent !important;
+  border: 1px solid var(--cyan-border) !important;
+  border-radius: 2px !important;
+  box-shadow: none !important;
+  transition:
+    border-color 0.25s,
+    background 0.25s,
+    transform 0.25s,
+    box-shadow 0.25s;
+}
+
+body:has(.app-container) button.new-chat-btn:hover {
+  background: var(--cyan-dim) !important;
+  border-color: var(--cyan) !important;
+  color: var(--cyan-light) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.35) !important;
+}
+
+body:has(.app-container) .send-btn {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--bg) !important;
+  background: linear-gradient(145deg, var(--cyan-light) 0%, var(--cyan) 45%, #0d6efd 100%) !important;
+  border: 1px solid var(--cyan-border) !important;
+  border-radius: 3px !important;
+  box-shadow: 0 6px 22px rgba(13, 110, 253, 0.35) !important;
+}
+
+body:has(.app-container) .send-btn:hover {
+  background: linear-gradient(145deg, var(--cyan) 0%, var(--cyan-light) 55%, var(--cyan) 100%) !important;
+  box-shadow: 0 10px 32px rgba(13, 110, 253, 0.45) !important;
+}
+
+body:has(.login-page-wrapper) .login-btn,
+body:has(.app-container) .login-btn {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--bg) !important;
+  background: linear-gradient(145deg, var(--cyan-light) 0%, var(--cyan) 50%, #0d6efd 100%) !important;
+  border: 1px solid var(--cyan-border) !important;
+  border-radius: 3px !important;
+  box-shadow: 0 6px 22px rgba(13, 110, 253, 0.28) !important;
+}
+
+body:has(.login-page-wrapper) .login-btn:hover:not(:disabled),
+body:has(.app-container) .login-btn:hover:not(:disabled) {
+  background: linear-gradient(145deg, var(--cyan) 0%, var(--cyan-light) 100%) !important;
+  box-shadow: 0 8px 28px rgba(13, 110, 253, 0.4) !important;
+}
+
+body:has(.login-page-wrapper) .login-btn:disabled,
+body:has(.app-container) .login-btn:disabled {
+  background: rgba(80, 80, 80, 0.6) !important;
+  color: rgba(240, 235, 224, 0.45) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: none !important;
+}
+
+/* CaseValue primary actions */
+body.min-h-screen .dark-theme-btn-primary {
+  font-family: "Montserrat", sans-serif !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  border-radius: 3px !important;
+  border: 1px solid var(--cyan-border) !important;
+  background: linear-gradient(145deg, var(--cyan-light) 0%, var(--cyan) 50%, #0d6efd 100%) !important;
+  color: var(--bg) !important;
+  box-shadow: 0 6px 20px rgba(13, 110, 253, 0.3) !important;
+}
+
+body.min-h-screen .dark-theme-btn-primary:hover:not(:disabled) {
+  background: linear-gradient(145deg, var(--cyan) 0%, var(--cyan-light) 100%) !important;
+}
+
+/* VerdictIQ / similar — study list + detail surfaces */
+body:has(.app-container) .detail-panel {
+  background: rgba(255, 255, 255, 0.018) !important;
+  border: 1px solid rgba(13, 110, 253, 0.12) !important;
+  border-radius: 3px !important;
+  box-shadow: 0 12px 40px rgba(255, 255, 255, 0.35), 0 0 20px rgba(13, 110, 253, 0.05) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+body:has(.app-container) .study-item {
+  border: 1px solid rgba(13, 110, 253, 0.1) !important;
+  border-radius: 3px !important;
+  transition:
+    border-color 0.25s,
+    box-shadow 0.25s,
+    background 0.25s;
+}
+
+body:has(.app-container) .study-item:hover {
+  border-color: rgba(13, 110, 253, 0.35) !important;
+  box-shadow: 0 0 16px rgba(13, 110, 253, 0.08);
+}
+
+body:has(.app-container) .study-item.active {
+  border-color: rgba(13, 110, 253, 0.45) !important;
+  background: rgba(13, 110, 253, 0.06) !important;
+}
+
+
+/* Global Font & Color Overrides */
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap");
+
+body, html, p, span, div, li, td, th {
+    font-family: "Montserrat", sans-serif !important;
+    color: #111111;
+}
+
+input, textarea, select, .form-control, input[type="text"], input[type="email"], input[type="file"] {
+    background-color: #ffffff !important;
+    color: #111111 !important;
+    border: 1px solid #dee2e6 !important;
+    font-family: "Montserrat", sans-serif !important;
+}
+
+input::placeholder, textarea::placeholder {
+    color: #6c757d !important;
+}
+
+label, .billing-label {
+    font-family: "Montserrat", sans-serif !important;
+    color: #111111 !important;
+    font-weight: 600;
+}
+
+h1, h2, h3, h4, h5, h6, .card-title, .header-title h1, .topbar-logo span {
+    font-family: "Cormorant Garamond", serif !important;
+    color: #0d6efd !important;
+}
+
+button, .btn, .btn-primary, .dark-theme-btn-primary, .login-btn, .send-btn {
+    font-family: "Montserrat", sans-serif !important;
+    background: linear-gradient(135deg, #0d6efd, #0b5ed7) !important;
+    color: #ffffff !important;
+    border: 2px solid rgba(13, 110, 253, 0.6) !important;
+    border-radius: 6px !important;
+    font-weight: bold !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 0 18px rgba(13, 110, 253, 0.6) !important;
+    transition: 0.25s ease-in-out !important;
+}
+
+button:hover:not(:disabled), .btn:hover:not(:disabled), .btn-primary:hover:not(:disabled), .dark-theme-btn-primary:hover:not(:disabled), .login-btn:hover:not(:disabled), .send-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #0b5ed7, #0a58ca) !important;
+    box-shadow: 0 0 28px rgba(13, 110, 253, 0.9) !important;
+    transform: translateY(-2px) !important;
+}
+
+button:disabled, .btn:disabled, .btn-primary:disabled {
+    background: #cccccc !important;
+    color: #666666 !important;
+    border-color: #bbbbbb !important;
+    box-shadow: none !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+a {
+    color: #0d6efd !important;
+    font-family: "Montserrat", sans-serif;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #0b5ed7 !important;
+}
+
+.card, .glass-panel, .dark-theme-card, .login-form-card, .item-card {
+    background: #ffffff !important;
+    border: 1px solid #dee2e6 !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05) !important;
+    color: #111111 !important;
+}
+
+
+/* Card Design Overrides - Flat, clean border */
+.card,
+.dark-theme-card,
+.glass-panel,
+.login-form-card,
+.item-card,
+.selected-files-card,
+[class*="card"] {
+    border-radius: 3px !important;
+    border: 1px solid #dee2e6 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+    background: #ffffff !important;
+}
+
+.card-header,
+.dark-theme-card .card-header,
+.chat-window-header {
+    border-radius: 3px 3px 0 0 !important;
+    border-bottom: 1px solid #dee2e6 !important;
+    background: #f8f9fa !important;
+}
+
+.menu-popover,
+.active_user_popover_style,
+.active_user {
+    border-radius: 3px !important;
+    border: 1px solid #dee2e6 !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+    background: #ffffff !important;
+}
+
+/* Inputs: clean borders, readable text */
+input[type="text"],
+input[type="email"],
+input[type="file"],
+input[type="password"],
+textarea,
+select,
+.form-control {
+    border-radius: 3px !important;
+    border: 1px solid #dee2e6 !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    font-family: "Montserrat", sans-serif !important;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+textarea:focus,
+select:focus,
+.form-control:focus {
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15) !important;
+    outline: none !important;
+}

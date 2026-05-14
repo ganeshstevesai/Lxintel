@@ -1,0 +1,2157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zane & west Law and Firms - Medical Document Processing</title>
+    <link rel="icon" type="image/webp" href="/Designer.png" />
+    <link rel="stylesheet" href="index.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  </head>
+
+  <body>
+    <div class="video-background"></div>
+    <div class="overlay"></div>
+
+    <!-- Login Page -->
+    <div id="login-page">
+      <div class="container">
+        <div class="header-text">
+          <img src="/Designer.png" alt="Zane & west Law and Firms" />
+          <h1>Zane & west Law and Firms</h1>
+          <p style="color: #aaa">Secure Access for Authorized Users</p>
+        </div>
+
+        <div class="login-card mx-auto" style="max-width: 500px">
+          <h3>Login</h3>
+          <form id="login-form" action="/dashboard" method="get">
+            <label for="email">Email:</label>
+            <input
+              type="email"
+              id="login-email"
+              name="email"
+              class="form-control"
+              required
+              autocomplete="email"
+            />
+
+            <div class="email-status" id="login-email-status">
+              <span class="status-icon"></span>
+              <span class="status-text"></span>
+            </div>
+
+            <div class="error-message" id="login-error">
+              Access denied: Your email is not on the authorized list.
+            </div>
+            <button type="submit" id="login-button" class="btn btn-login w-100">
+              Login
+            </button>
+          </form>
+
+          <hr style="border-color: #333; margin: 2rem 0" />
+
+          <h3>Register New User</h3>
+          <form id="register-form" action="/register" method="post">
+            <label for="name">Full Name:</label>
+            <input
+              type="text"
+              name="name"
+              id="register-name"
+              class="form-control"
+              required
+            />
+
+            <label for="email">Email:</label>
+            <input
+              type="email"
+              id="register-email"
+              name="email"
+              class="form-control"
+              required
+              autocomplete="email"
+            />
+
+            <div class="email-status" id="register-email-status">
+              <span class="status-icon"></span>
+              <span class="status-text"></span>
+            </div>
+
+            <div class="error-message" id="register-error">
+              Registration denied: Your email is not on the authorized list.
+            </div>
+            <div class="success-message" id="register-success">
+              Registration request submitted successfully!
+            </div>
+
+            <button
+              type="submit"
+              id="register-button"
+              class="btn btn-login w-100"
+            >
+              Register
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="main-app">
+      <!-- Processing overlay -->
+      <div id="processing-overlay">
+        <h2>Processing Document</h2>
+        <div
+          class="loading-spinner"
+          style="width: 50px; height: 50px; border-width: 5px"
+        ></div>
+        <p id="processing-message" style="color: #fff; margin-top: 20px">
+          This may take a minute or two...
+        </p>
+      </div>
+
+      <div class="header-bar">
+        <div
+          class="container d-flex justify-content-between align-items-center"
+        >
+          <div class="d-flex align-items-center">
+            <img
+              src="/Designer.png"
+              alt="Zane & west Law and Firms"
+              class="header-logo"
+            />
+            <h2 class="mb-0" style="font-size: 20px; font-weight: 600">
+              Zane & west Law and Firms
+            </h2>
+            <!-- Active Users Count -->
+            <button
+              id="active-users-btn"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 4px 10px;
+                border-radius: 6px;
+                transition: all 0.3s;
+                color: #4dd2ff;
+                font-size: 12px;
+                font-weight: 600;
+              "
+              onclick="toggleActiveUsersPopover()"
+              title="Active users on this tool"
+            >
+              <span
+                style="
+                  display: inline-block;
+                  width: 8px;
+                  height: 8px;
+                  background: #2ecc71;
+                  border-radius: 50%;
+                  box-shadow: 0 0 8px #2ecc71;
+                "
+              ></span>
+              <span id="active-count">0</span>
+              <span style="margin-left: 4px">Users</span>
+            </button>
+            <!-- Refresh Button -->
+            <button
+              onclick="refreshActiveUsers()"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                background: none;
+                border: 1px solid #4dd2ff;
+                cursor: pointer;
+                padding: 4px 10px;
+                border-radius: 6px;
+                transition: all 0.3s;
+                color: #4dd2ff;
+                font-size: 14px;
+              "
+              title="Refresh active users"
+            >
+              ⟲
+            </button>
+          </div>
+
+          <!-- Right side: Email, Logged in text, and Logout button -->
+          <div
+            style="display: flex; align-items: center; gap: 20px"
+            class="top_header_space_oth"
+          >
+            <div style="text-align: right; font-size: 0.9rem; color: #aaa">
+              <span
+                style="display: block; color: #4dd2ff; font-weight: 600"
+                id="user-email"
+              ></span>
+              <span style="font-size: 0.85rem">Logged in</span>
+            </div>
+            <button
+              onclick="logout()"
+              class="btn btn-secondary"
+              style="
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+                cursor: pointer;
+                border-radius: 6px;
+                background-color: #ffffff;
+                color: #000000;
+                border: 1px solid #000000;
+              "
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="container my-4">
+        <div class="row">
+          <!-- Left Column: Upload and Settings -->
+          <div class="col-md-5">
+            <div class="card">
+              <div class="card-header">Upload & Process Medical Documents</div>
+              <div class="card-body">
+                <form id="upload-form" enctype="multipart/form-data">
+                  <div class="mb-3">
+                    <label for="file" class="form-label"
+                      >Select Medical Records (PDF)</label
+                    >
+                    <input
+                      type="file"
+                      class="form-control"
+                      id="file"
+                      name="file"
+                      accept=".pdf"
+                      required
+                    />
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="prompt" class="form-label"
+                      >Select Summary Template</label
+                    >
+                    <select
+                      class="form-control"
+                      id="prompt"
+                      name="prompt"
+                      onchange="updatePromptPreview()"
+                      required
+                    >
+                      <option value="Enhanced Medical Records Summary">
+                        Enhanced Medical Records Summary
+                      </option>
+                      <option value="Billing Overview">Billing Overview</option>
+                      <option value="Insurance Claims Summary">
+                        Insurance Claims Summary
+                      </option>
+                      <option value="Court Document Summary">
+                        Court Document Summary
+                      </option>
+                      <option value="Exhibit Breakdown">
+                        Exhibit Breakdown
+                      </option>
+                      <option value="Demand Quality Assurance">
+                        Demand Quality Assurance
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">Custom Prompt</label>
+                    <div
+                      id="custom-prompts-list-container"
+                      style="
+                        border: 1px solid #444;
+                        border-radius: 6px;
+                        padding: 12px;
+                        background-color: #000;
+                        max-height: 400px;
+                        overflow-y: auto;
+                      "
+                    >
+                      <div
+                        style="text-align: center; padding: 20px; color: #aaa"
+                      >
+                        <p>Loading custom prompts...</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <div
+                      class="form-check form-switch d-flex justify-content-between"
+                    >
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="use-manual"
+                        name="use_manual"
+                        value="true"
+                      />
+                      <label class="form-check-label mt-0" for="use-manual">
+                        <div class="d-flex align-items-center">
+                          <span>Manual Terms Redaction</span>
+                          <span
+                            class="ms-2 badge bg-warning text-dark"
+                            style="cursor: help"
+                            title="Enter specific names, SSNs, or other sensitive terms to redact only those items."
+                          >
+                            ⓘ
+                          </span>
+                        </div>
+                      </label>
+                    </div>
+                    <div
+                      id="manual-warning"
+                      class="alert alert-warning mt-3 d-none position-relative"
+                      role="alert"
+                      style="border-left: 4px solid #856404"
+                    >
+                      <button
+                        type="button"
+                        class="btn-close position-absolute top-0 end-0 m-2"
+                        aria-label="Close"
+                        id="close-manual-warning"
+                      ></button>
+                      <strong>Warning:</strong>
+                      You have selected <b>Manual Redaction only</b>. This
+                      increases the risk of inadvertently sharing
+                      <b>Protected Health Information (PHI)</b> if sensitive
+                      values are missed.
+                    </div>
+                  </div>
+
+                  <!-- Manual input fields (hidden by default) -->
+                  <div class="mb-3" id="manual-input" style="display: none">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="redaction-terms"
+                      name="redaction_terms"
+                      placeholder="Enter terms to redact (separated by semicolons)"
+                    />
+                    <div class="form-text text-muted mt-1">
+                      Example: John Smith; 123-45-6789; Memorial Hospital
+                    </div>
+                  </div>
+
+                  <!-- CHANGED: Updated Prompt Preview Section -->
+                  <div class="mb-3 prompt-wrapper">
+                    <div class="prompt-label-container">
+                      <label class="form-label">Prompt Preview</label>
+                      <button
+                        type="button"
+                        class="prompt-edit-btn"
+                        id="edit-prompt-btn"
+                        onclick="togglePromptEdit()"
+                      >
+                        Edit
+                      </button>
+                    </div>
+                    <div id="prompt-preview" class="prompt-preview">
+                      Loading prompt...
+                    </div>
+                    <!-- CHANGED: Hidden textarea for editing -->
+                    <textarea
+                      id="prompt-textarea"
+                      class="prompt-textarea"
+                      style="display: none"
+                    ></textarea>
+                    <!-- CHANGED: Control buttons for edit mode -->
+                    <div
+                      id="prompt-controls"
+                      class="prompt-controls"
+                      style="display: none"
+                    >
+                      <button
+                        type="button"
+                        class="prompt-save-btn"
+                        onclick="savePromptEdit()"
+                      >
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        class="prompt-cancel-btn"
+                        onclick="cancelPromptEdit()"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    id="process-button"
+                    class="btn btn-primary w-100"
+                    data-regenerate="false"
+                  >
+                    Process Document
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Document List -->
+          <div class="col-md-7">
+            <div class="card uploaded-card">
+              <div
+                class="card-header d-flex justify-content-between align-items-center"
+              >
+                <span>Uploaded Documents</span>
+                <input
+                  type="text"
+                  id="search-files"
+                  class="form-control"
+                  placeholder="Search documents..."
+                  style="max-width: 250px"
+                />
+              </div>
+              <div class="card-body p-0">
+                <div class="file-list">
+                  <div class="p-3 text-center text-muted">
+                    <p>No documents uploaded yet.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">Instructions</div>
+              <div class="card-body">
+                <ol class="text-muted" style="margin-bottom: 0">
+                  <li>Upload a text file containing medical documentation</li>
+                  <li>Select the appropriate summary type</li>
+                  <li>
+                    Review the prompt preview to understand what will be
+                    generated
+                  </li>
+                  <li>Click "Process Document" to generate a summary</li>
+                  <li>
+                    Use the chat feature in the summary to ask questions about
+                    the document
+                  </li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          id="summary-container"
+          style="
+            display: none;
+            margin-top: 30px;
+            color: white;
+            pointer-events: auto;
+          "
+        >
+          <!-- Summary HTML will be rendered here directly -->
+        </div>
+      </div>
+
+      <!-- Active Users Popover -->
+      <div
+        id="active-users-popover"
+        style="
+          position: fixed;
+          top: 60px;
+          left: 260px;
+          background-color: #1a1a1a;
+          border: 1px solid rgba(77, 210, 255, 0.4);
+          border-radius: 8px;
+          padding: 12px;
+          min-width: 260px;
+          max-height: 360px;
+          display: none;
+          z-index: 2000;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+          overflow-y: auto;
+        "
+      >
+        <div
+          style="
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(77, 210, 255, 0.3);
+            color: #4dd2ff;
+            font-size: 12px;
+            font-weight: 600;
+          "
+        >
+          Active Users
+        </div>
+
+        <div id="active-users-list" style="color: #aaa; font-size: 13px">
+          <div style="padding: 8px 0; color: #666">Loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ========================================
+      // API Configuration
+      // ========================================
+      const APP_BASE_URL = "https://slimy-leonia-kyphotic.ngrok-free.dev";
+
+      // ========================================
+      // Prompt Edit Functionality (NEW)
+      // ========================================
+      let originalPromptContent = ""; // Store original prompt for cancel operation
+      let isPromptModified = false; // Track if prompt has been modified
+
+      function togglePromptEdit() {
+        const preview = document.getElementById("prompt-preview");
+        const textarea = document.getElementById("prompt-textarea");
+        const controls = document.getElementById("prompt-controls");
+        const editBtn = document.getElementById("edit-prompt-btn");
+
+        if (preview.style.display !== "none") {
+          // Switch to edit mode
+          originalPromptContent = preview.textContent; // Store original content
+          textarea.value = originalPromptContent;
+          textarea.style.display = "block";
+          controls.style.display = "flex";
+          preview.style.display = "none";
+          editBtn.style.display = "none";
+          isPromptModified = false;
+        }
+      }
+
+      function savePromptEdit() {
+        const textarea = document.getElementById("prompt-textarea");
+        const preview = document.getElementById("prompt-preview");
+        const controls = document.getElementById("prompt-controls");
+        const editBtn = document.getElementById("edit-prompt-btn");
+
+        const newContent = textarea.value;
+
+        // Check if content has actually changed
+        if (newContent !== originalPromptContent) {
+          isPromptModified = true;
+        } else {
+          isPromptModified = false;
+        }
+
+        // Update preview to show the edited content
+        preview.textContent = newContent;
+
+        // Switch back to preview mode
+        textarea.style.display = "none";
+        controls.style.display = "none";
+        preview.style.display = "block";
+        editBtn.style.display = "block";
+
+        console.log("Prompt saved. Modified:", isPromptModified);
+      }
+
+      function cancelPromptEdit() {
+        const textarea = document.getElementById("prompt-textarea");
+        const preview = document.getElementById("prompt-preview");
+        const controls = document.getElementById("prompt-controls");
+        const editBtn = document.getElementById("edit-prompt-btn");
+
+        // Restore preview to original content
+        preview.textContent = originalPromptContent;
+
+        // Switch back to preview mode
+        textarea.style.display = "none";
+        controls.style.display = "none";
+        preview.style.display = "block";
+        editBtn.style.display = "block";
+
+        isPromptModified = false;
+
+        console.log("Prompt edit cancelled");
+      }
+
+      // ========================================
+      // Page Load & Authentication
+      // ========================================
+      window.onload = function () {
+        checkAuthAndShowPage();
+      };
+
+      function checkAuthAndShowPage() {
+        const token = localStorage.getItem("access_token");
+
+        if (!token) {
+          // No token, show login page
+          showLoginPage();
+        } else {
+          // Token exists, show main app immediately and verify in background
+          showMainApp();
+          verifyTokenInBackground();
+        }
+      }
+
+      async function verifyTokenInBackground() {
+        const token = localStorage.getItem("access_token");
+
+        try {
+          const response = await fetch(`${APP_BASE_URL}/dashboard`, {
+            headers: {
+              Authorization: "Bearer " + token,
+              "ngrok-skip-browser-warning": "true",
+            },
+          });
+
+          if (!response.ok) {
+            // Token invalid, clear and show login
+            console.warn("Token verification failed");
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("user_email");
+            showLoginPage();
+          }
+        } catch (error) {
+          console.error("Error verifying token in background:", error);
+          // Don't logout on network error - just continue
+        }
+      }
+
+      function showLoginPage() {
+        document.getElementById("login-page").style.display = "block";
+        document.getElementById("main-app").style.display = "none";
+      }
+
+      function showMainApp() {
+        const email = localStorage.getItem("user_email");
+        document.getElementById("user-email").textContent = email || "";
+
+        document.getElementById("login-page").style.display = "none";
+        document.getElementById("main-app").style.display = "block";
+
+        // Initialize app
+        updatePromptPreview();
+        updateUploadedDocumentsUI();
+        loadActiveUsers();
+        // Load custom prompts now that user_email/access_token should be available
+        try {
+          fetchCustomPrompts();
+        } catch (e) {
+          console.warn("fetchCustomPrompts failed on showMainApp", e);
+        }
+      }
+
+      function logout() {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("user_email");
+        sessionStorage.clear();
+        showLoginPage();
+      }
+      // ========================================
+      // Login and Registration Handler
+      // ========================================
+
+      // Debounce function to limit API calls
+      function debounce(func, wait) {
+        let timeout;
+        return function (...args) {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+      }
+
+      async function verifyEmail(email, elementId) {
+        if (!email || !email.includes("@")) return;
+
+        const statusElement = document.getElementById(elementId);
+        const statusIcon = statusElement.querySelector(".status-icon");
+        const statusText = statusElement.querySelector(".status-text");
+
+        statusElement.classList.add("visible");
+        statusIcon.className = "status-icon checking";
+        statusText.textContent = "Checking email...";
+
+        try {
+          const response = await fetch(
+            `${APP_BASE_URL}/verify-email?email=${encodeURIComponent(email)}`,
+            {
+              method: "GET",
+              headers: {
+                "ngrok-skip-browser-warning": "true",
+              },
+            },
+          );
+          const data = await response.json();
+
+          if (data.authorized) {
+            statusIcon.className = "status-icon valid";
+            statusText.textContent = "Email authorized";
+            return true;
+          } else {
+            statusIcon.className = "status-icon invalid";
+            statusText.textContent = "Email not authorized";
+            return false;
+          }
+        } catch (error) {
+          console.error("Error verifying email:", error);
+          statusIcon.className = "status-icon invalid";
+          statusText.textContent = "Error checking email";
+          return false;
+        }
+      }
+
+      const loginEmail = document.getElementById("login-email");
+      const loginButton = document.getElementById("login-button");
+      const loginError = document.getElementById("login-error");
+      const loginEmailStatus = document.getElementById("login-email-status");
+
+      const debouncedLoginCheck = debounce(async (email) => {
+        const isValid = await verifyEmail(email, "login-email-status");
+        loginButton.disabled = !isValid;
+        loginError.style.display = isValid ? "none" : "block";
+      }, 500);
+
+      loginEmail.addEventListener("input", function () {
+        loginError.style.display = "none";
+        debouncedLoginCheck(this.value);
+      });
+
+      document
+        .getElementById("login-form")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const email = document.getElementById("login-email").value;
+
+          const response = await fetch(
+            `${APP_BASE_URL}/verify-email?email=${encodeURIComponent(email)}`,
+            {
+              method: "GET",
+              headers: {
+                "ngrok-skip-browser-warning": "true",
+              },
+            },
+          );
+          const data = await response.json();
+
+          if (data.authorized && data.access_token) {
+            localStorage.setItem("access_token", data.access_token);
+            localStorage.setItem("user_email", email);
+            showMainApp();
+          } else {
+            alert("Email not authorized");
+          }
+        });
+
+      // Register form
+      const registerEmail = document.getElementById("register-email");
+      const registerButton = document.getElementById("register-button");
+      const registerError = document.getElementById("register-error");
+      const registerSuccess = document.getElementById("register-success");
+      const registerEmailStatus = document.getElementById(
+        "register-email-status",
+      );
+
+      const debouncedRegisterCheck = debounce(async (email) => {
+        const isValid = await verifyEmail(email, "register-email-status");
+        registerButton.disabled = !isValid;
+        registerError.style.display = isValid ? "none" : "block";
+        registerSuccess.style.display = "none";
+      }, 500);
+
+      registerEmail.addEventListener("input", function () {
+        registerError.style.display = "none";
+        registerSuccess.style.display = "none";
+        debouncedRegisterCheck(this.value);
+      });
+
+      document
+        .getElementById("register-form")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const email = registerEmail.value;
+          const isValid = await verifyEmail(email, "register-email-status");
+
+          if (isValid) {
+            registerError.style.display = "none";
+            registerSuccess.style.display = "block";
+            document.getElementById("register-form").reset();
+            registerEmailStatus.classList.remove("visible");
+          } else {
+            registerError.style.display = "block";
+            registerSuccess.style.display = "none";
+          }
+        });
+
+      // ========================================
+      // Main App Functionality
+      // ========================================
+      window.downloadSummary = function (event, fileId) {
+        if (!event) {
+          console.error("Missing event");
+          return;
+        }
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+          alert("Please login to download summaries");
+          showLoginPage();
+          return;
+        }
+
+        const btn =
+          event.target.closest("button") || event.currentTarget || null;
+        const originalText = btn ? btn.innerHTML : "Download";
+
+        if (btn) {
+          btn.innerHTML = '<div class="loading-spinner"></div> Downloading...';
+          btn.disabled = true;
+        }
+
+        fetch(
+          `${APP_BASE_URL}/download-summary/${encodeURIComponent(fileId)}`,
+          {
+            headers: {
+              Authorization: "Bearer " + token,
+              "ngrok-skip-browser-warning": "true",
+            },
+          },
+        )
+          .then((response) => {
+            console.log("Download response status:", response.status);
+
+            if (!response.ok) {
+              throw new Error(
+                "Download failed with status: " + response.status,
+              );
+            }
+
+            const contentType = response.headers.get("content-type");
+
+            // If content-type is text/plain, it's the summary text - convert to PDF
+            if (contentType && contentType.includes("text/plain")) {
+              return response.text().then((textContent) => {
+                console.log("API returned text content, converting to PDF");
+
+                // Generate filename
+                let filename = fileId;
+                if (!filename.endsWith(".pdf")) {
+                  filename = filename + ".pdf";
+                }
+
+                // Use jsPDF for simple text PDF
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({
+                  orientation: "portrait",
+                  unit: "mm",
+                  format: "a4",
+                });
+
+                // Set font
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(10);
+
+                // Calculate dimensions
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const margin = 10;
+                const maxWidth = pageWidth - 2 * margin;
+
+                // Split text into lines that fit page width
+                const lines = doc.splitTextToSize(textContent, maxWidth);
+
+                // Add text to PDF with page breaks
+                let yPosition = margin;
+                const lineHeight = 7;
+
+                lines.forEach((line, index) => {
+                  if (yPosition + lineHeight > pageHeight - margin) {
+                    doc.addPage();
+                    yPosition = margin;
+                  }
+                  doc.text(line, margin, yPosition);
+                  yPosition += lineHeight;
+                });
+
+                // Save PDF
+                doc.save(filename);
+
+                if (btn) {
+                  btn.innerHTML = originalText;
+                  btn.disabled = false;
+                }
+              });
+            }
+
+            // Otherwise try to download as blob (actual PDF from API)
+            return response.blob().then((blob) => {
+              console.log("Blob received, size:", blob.size, "bytes");
+
+              if (blob.size === 0) {
+                throw new Error(
+                  "Response body is empty - file may not be available",
+                );
+              }
+
+              let filename = fileId;
+              if (!filename.endsWith(".pdf")) {
+                filename = filename + ".pdf";
+              }
+
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = filename;
+              document.body.appendChild(a);
+              a.click();
+              window.URL.revokeObjectURL(url);
+              a.remove();
+
+              if (btn) {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+              }
+            });
+          })
+          .catch((error) => {
+            console.error("Download error:", error);
+            alert("Failed to download summary: " + error.message);
+            if (btn) {
+              btn.innerHTML = originalText;
+              btn.disabled = false;
+            }
+          });
+      };
+
+      let shouldRegenerateOnNext = false;
+      const SESSION_FILES_KEY = "processed_medical_files";
+
+      function getProcessedFiles() {
+        const stored = sessionStorage.getItem(SESSION_FILES_KEY);
+        return stored ? JSON.parse(stored) : {};
+      }
+
+      function saveFileToSession(file) {
+        const now = new Date();
+        const timestamp = now.toLocaleString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        });
+
+        const files = getProcessedFiles();
+        files[file.name] = {
+          name: file.name,
+          timestamp: timestamp,
+        };
+        sessionStorage.setItem(SESSION_FILES_KEY, JSON.stringify(files));
+        console.log("File saved to session storage:", file.name, timestamp);
+        updateUploadedDocumentsUI();
+      }
+
+      function updateUploadedDocumentsUI() {
+        const files = getProcessedFiles();
+        const fileList = document.querySelector(".file-list");
+
+        if (!fileList) return;
+
+        if (Object.keys(files).length === 0) {
+          fileList.innerHTML =
+            '<div class="p-3 text-center text-muted"><p>No documents uploaded yet.</p></div>';
+        } else {
+          fileList.innerHTML = Object.values(files)
+            .map(
+              (file) => `
+                    <div class="file-item" onclick="loadFileFromSession(${JSON.stringify(file).replace(/"/g, "&quot;")})">
+                        <strong>${file.name}</strong><br>
+                        <small class="text-muted">Uploaded: ${file.timestamp}</small>
+                    </div>
+                `,
+            )
+            .join("");
+
+          document.querySelector(".uploaded-card").style.display = "block";
+        }
+      }
+
+      function updatePromptPreview() {
+        const promptSelect = document.getElementById("prompt");
+        const previewDiv = document.getElementById("prompt-preview");
+
+        if (!promptSelect || !previewDiv) return;
+
+        const selectedPrompt = promptSelect.value;
+
+        if (!selectedPrompt) {
+          previewDiv.textContent = "Select a prompt to see preview...";
+          return;
+        }
+
+        previewDiv.textContent = "Loading prompt...";
+        const token = localStorage.getItem("access_token");
+
+        if (!token) {
+          previewDiv.textContent = "Please login first";
+          return;
+        }
+
+        fetch(
+          `${APP_BASE_URL}/get-prompt/${encodeURIComponent(selectedPrompt)}`,
+          {
+            headers: {
+              Authorization: "Bearer " + token,
+              "ngrok-skip-browser-warning": "true",
+            },
+          },
+        )
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error(`Failed to load prompt (${res.status})`);
+            }
+            return res.json();
+          })
+          .then((data) => {
+            if (data.prompt) {
+              previewDiv.textContent = data.prompt;
+              originalPromptContent = data.prompt; // Store original content when loaded
+              isPromptModified = false;
+            } else if (data.data) {
+              previewDiv.textContent = data.data;
+              originalPromptContent = data.data;
+              isPromptModified = false;
+            } else {
+              previewDiv.textContent = "Unable to load prompt preview";
+            }
+          })
+          .catch((err) => {
+            console.error("Prompt load error:", err);
+            previewDiv.textContent = `Error: ${err.message}`;
+          });
+      }
+
+      function loadFileFromSession(fileInfo) {
+        const fileInput = document.getElementById("file");
+        const files = getProcessedFiles();
+
+        if (files[fileInfo.name]) {
+          document.querySelectorAll(".file-item").forEach((item) => {
+            item.classList.remove("active");
+          });
+          event.currentTarget.classList.add("active");
+
+          alert(`Selected: ${fileInfo.name}\nUploaded: ${fileInfo.timestamp}`);
+        }
+      }
+
+      document
+        .getElementById("upload-form")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const token = localStorage.getItem("access_token");
+          if (!token) {
+            alert("Please login first");
+            showLoginPage();
+            return;
+          }
+
+          const processButton = document.getElementById("process-button");
+          const isRegenerate =
+            processButton.getAttribute("data-regenerate") === "true";
+
+          const fileInput = document.getElementById("file");
+          const file = fileInput.files[0];
+
+          // File is required for new upload, but for regenerate we use existing file
+          if (!isRegenerate && !file) {
+            alert("Please select a file");
+            return;
+          }
+
+          const promptSelect = document.getElementById("prompt");
+          const prompt = promptSelect.value;
+
+          // CHANGED: Get the edited prompt if it was modified
+          const editedPromptText =
+            document.getElementById("prompt-preview").textContent;
+          const updatedPrompt = isPromptModified ? editedPromptText : null;
+
+          const useManualCheckbox = document.getElementById("use-manual");
+          const useManual = useManualCheckbox.checked;
+
+          const redactionTermsInput =
+            document.getElementById("redaction-terms");
+          const redactionTerms = useManual
+            ? redactionTermsInput.value || ""
+            : "";
+
+          // Validation: if manual redaction is ON, terms are required
+          if (useManual && !redactionTerms.trim()) {
+            alert(
+              "Please enter redaction terms or turn off Manual Terms Redaction",
+            );
+            return;
+          }
+
+          // Show processing overlay
+          document.getElementById("processing-overlay").style.display = "flex";
+          const processingMessage =
+            document.getElementById("processing-message");
+
+          let fileId = localStorage.getItem("current_file_id");
+
+          try {
+            // Step 1: Upload (ALWAYS happens, but with regenerate flag if needed)
+            // Clear any existing file_id from localStorage before processing new file
+            if (!isRegenerate) {
+              localStorage.removeItem("current_file_id");
+              console.log("Cleared existing file_id from localStorage");
+            }
+
+            processingMessage.textContent = "Step 1/7: Uploading document...";
+            const uploadFormData = new FormData();
+
+            if (isRegenerate) {
+              // For regenerate, get file from file input element
+              const currentFile = fileInput.files[0];
+              if (!currentFile) {
+                throw new Error("No file selected for regeneration");
+              }
+              uploadFormData.append("file", currentFile);
+              uploadFormData.append("prompt", prompt);
+              console.log(
+                "⟳ Regenerating - sending file (binary) with regenerate=true param",
+              );
+            } else {
+              // For new upload, send file
+              uploadFormData.append("file", file);
+              uploadFormData.append("prompt", prompt);
+              console.log("📤 New upload - sending file to upload API");
+            }
+
+            let uploadUrl = `${APP_BASE_URL}/upload`;
+            if (isRegenerate) {
+              uploadUrl += "?regenerate=true";
+            }
+
+            const uploadResponse = await fetch(uploadUrl, {
+              method: "POST",
+              headers: {
+                Authorization: "Bearer " + token,
+                "ngrok-skip-browser-warning": "true",
+              },
+              body: uploadFormData,
+            });
+
+            if (!uploadResponse.ok) {
+              throw new Error("Upload failed");
+            }
+
+            const contentType = uploadResponse.headers.get("content-type");
+
+            // Check if response is HTML (already processed file)
+            if (contentType && contentType.includes("text/html")) {
+              const htmlContent = await uploadResponse.text();
+              console.log("✓ Upload returned HTML - file already processed");
+
+              // Store filename as file_id if new upload, otherwise keep existing
+              if (!isRegenerate && file) {
+                const fileName = file.name;
+                localStorage.setItem("current_file_id", fileName);
+                fileId = fileName;
+                console.log("Stored filename as file_id:", fileName);
+              }
+
+              // Hide processing overlay
+              document.getElementById("processing-overlay").style.display =
+                "none";
+
+              // Render the HTML summary (without chat UI since this is just upload HTML)
+              renderSummary(htmlContent, false);
+
+              // Change button to "Regenerate"
+              processButton.textContent = "Regenerate";
+              processButton.setAttribute("data-regenerate", "true");
+
+              // Save file to session (if new upload)
+              if (!isRegenerate && file) {
+                saveFileToSession(file);
+              }
+
+              return; // Stop here
+            }
+
+            // Response is JSON - continue with processing
+            const uploadData = await uploadResponse.json();
+            if (!uploadData.ok || !uploadData.file_id) {
+              throw new Error("Upload failed: No file ID received");
+            }
+
+            fileId = uploadData.file_id;
+            localStorage.setItem("current_file_id", fileId);
+            console.log("✓ Upload successful, file_id:", fileId);
+
+            // Step 2: Read
+            processingMessage.textContent = "Step 2/7: Reading document...";
+            const readFormData = new FormData();
+            readFormData.append("file_id", fileId);
+
+            const readResponse = await fetch(`${APP_BASE_URL}/read`, {
+              method: "POST",
+              headers: {
+                Authorization: "Bearer " + token,
+                "ngrok-skip-browser-warning": "true",
+              },
+              body: readFormData,
+            });
+
+            if (!readResponse.ok) {
+              throw new Error("Read failed");
+            }
+
+            const readData = await readResponse.json();
+            if (!readData.ok) {
+              throw new Error(
+                "Read failed: " + (readData.error || "Unknown error"),
+              );
+            }
+            console.log("✓ Read successful, chars:", readData.chars);
+
+            // Step 3: Redact
+            processingMessage.textContent = "Step 3/7: Applying redaction...";
+            const redactFormData = new FormData();
+            redactFormData.append("file_id", fileId);
+
+            // Only add redaction fields if manual toggle is ON
+            if (useManual && redactionTerms.trim()) {
+              redactFormData.append("redaction_terms", redactionTerms);
+              redactFormData.append("use_manual", "true");
+            }
+
+            const redactResponse = await fetch(`${APP_BASE_URL}/redact`, {
+              method: "POST",
+              headers: {
+                Authorization: "Bearer " + token,
+                "ngrok-skip-browser-warning": "true",
+              },
+              body: redactFormData,
+            });
+
+            if (!redactResponse.ok) {
+              throw new Error("Redaction failed");
+            }
+
+            const redactData = await redactResponse.json();
+            if (!redactData.ok) {
+              throw new Error(
+                "Redaction failed: " + (redactData.error || "Unknown error"),
+              );
+            }
+            console.log(
+              "✓ Redaction successful, mode:",
+              redactData.redaction_mode,
+            );
+
+            // Step 4: Vectors Upsert
+            processingMessage.textContent =
+              "Step 4/7: Creating vector embeddings...";
+            const upsertFormData = new FormData();
+            upsertFormData.append("file_id", fileId);
+
+            const upsertResponse = await fetch(
+              `${APP_BASE_URL}/vectors/upsert`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: "Bearer " + token,
+                  "ngrok-skip-browser-warning": "true",
+                },
+                body: upsertFormData,
+              },
+            );
+
+            if (!upsertResponse.ok) {
+              throw new Error("Vector upsert failed");
+            }
+
+            const upsertData = await upsertResponse.json();
+            if (!upsertData.ok) {
+              throw new Error(
+                "Vector upsert failed: " +
+                  (upsertData.error || "Unknown error"),
+              );
+            }
+            console.log(
+              "✓ Vector upsert successful, chunks:",
+              upsertData.chunks,
+            );
+
+            // Step 5: Vectors Retrieve
+            processingMessage.textContent = "Step 5/7: Retrieving context...";
+            const retrieveFormData = new FormData();
+            retrieveFormData.append("file_id", fileId);
+            // CHANGED: Add updated_prompt if prompt was edited
+
+            if (updatedPrompt) {
+              try {
+                // Ensure the placeholder {document_text} is present in the updated prompt.
+                // If it's missing, append it (with a leading space) so the backend always receives it.
+                if (updatedPrompt.indexOf("{document_text}") === -1) {
+                  updatedPromptWithDoc = updatedPrompt + " {document_text}";
+                  console.log("📝 {document_text} appended to updated_prompt");
+                  retrieveFormData.append(
+                    "updated_prompt",
+                    updatedPromptWithDoc,
+                  );
+                } else {
+                  retrieveFormData.append("updated_prompt", updatedPrompt);
+                }
+              } catch (e) {
+                console.error(
+                  "Error ensuring {document_text} in updatedPrompt",
+                  e,
+                );
+              }
+            }
+
+            const retrieveResponse = await fetch(
+              `${APP_BASE_URL}/vectors/retrieve`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: "Bearer " + token,
+                  "ngrok-skip-browser-warning": "true",
+                },
+                body: retrieveFormData,
+              },
+            );
+
+            if (!retrieveResponse.ok) {
+              throw new Error("Vector retrieve failed");
+            }
+
+            const retrieveData = await retrieveResponse.json();
+            if (!retrieveData.ok) {
+              throw new Error(
+                "Vector retrieve failed: " +
+                  (retrieveData.error || "Unknown error"),
+              );
+            }
+            console.log(
+              "✓ Vector retrieve successful, chunks:",
+              retrieveData.retrieved_chunks,
+            );
+
+            // Step 6: Generate Summary (Always returns HTML)
+            processingMessage.textContent =
+              "Step 6/7: Generating summary with AI...";
+            const generateFormData = new FormData();
+            generateFormData.append("file_id", fileId);
+
+            const generateResponse = await fetch(
+              `${APP_BASE_URL}/llm/generate`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: "Bearer " + token,
+                  "ngrok-skip-browser-warning": "true",
+                },
+                body: generateFormData,
+              },
+            );
+
+            if (!generateResponse.ok) {
+              throw new Error("Summary generation failed");
+            }
+
+            // Generate API returns HTML but we don't show it yet
+            const generateHtml = await generateResponse.text();
+            console.log("✓ Summary generation successful");
+
+            // Step 7: Regenerate Summary (Final step)
+            // After generate, always call regenerate to get the final summary
+            processingMessage.textContent = "Step 7/7: Finalizing summary...";
+
+            const regenerateFormData = new FormData();
+            regenerateFormData.append("file_id", fileId);
+
+            const regenerateResponse = await fetch(
+              `${APP_BASE_URL}/llm/regenerate`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: "Bearer " + token,
+                  "ngrok-skip-browser-warning": "true",
+                },
+                body: regenerateFormData,
+              },
+            );
+
+            if (!regenerateResponse.ok) {
+              throw new Error("Summary regeneration failed");
+            }
+
+            // Regenerate API returns HTML - THIS is what we show
+            const summaryHtml = await regenerateResponse.text();
+            console.log("✓ Summary regeneration successful");
+
+            // Hide processing overlay
+            document.getElementById("processing-overlay").style.display =
+              "none";
+
+            // Render the HTML summary from regenerate WITH chat UI
+            renderSummary(summaryHtml, true);
+
+            // Save file to session (if new upload)
+            if (!isRegenerate && file) {
+              saveFileToSession(file);
+            }
+
+            // Reset button back to "Process Document" and regenerate flag
+            processButton.textContent = "Process Document";
+            processButton.setAttribute("data-regenerate", "false");
+          } catch (error) {
+            console.error("Processing error:", error);
+            document.getElementById("processing-overlay").style.display =
+              "none";
+            alert("Error processing document: " + error.message);
+          }
+        });
+
+      // Handle file input change - reset regenerate mode when file is changed
+      document.getElementById("file").addEventListener("change", function () {
+        const processButton = document.getElementById("process-button");
+        const isRegenerate =
+          processButton.getAttribute("data-regenerate") === "true";
+
+        // If regenerate button was showing and user changed the file, reset to "Process Document"
+        if (isRegenerate) {
+          // Clear the current file ID from localStorage
+          localStorage.removeItem("current_file_id");
+
+          // Close WebSocket chat connection if exists
+          if (chatWebSocket) {
+            try {
+              intentionalClose = true;
+              chatWebSocket.close(1000, "File changed");
+            } catch (e) {
+              console.error("Error closing chat WebSocket:", e);
+            }
+            chatWebSocket = null;
+          }
+
+          // Reset button back to "Process Document"
+          processButton.textContent = "Process Document";
+          processButton.setAttribute("data-regenerate", "false");
+
+          // Close the summary and chat if it's showing
+          const summaryContainer = document.getElementById("summary-container");
+          if (summaryContainer) {
+            summaryContainer.style.display = "none";
+            summaryContainer.innerHTML = "";
+          }
+
+          console.log("File changed - reset to Process Document mode");
+        }
+      });
+
+      // ========================================
+      // Summary Display Functions
+      // ========================================
+      function renderSummary(htmlContent, showChat = true) {
+        console.log("DEBUG: renderSummary called, showChat =", showChat);
+        const summaryContainer = document.getElementById("summary-container");
+
+        // If response is a complete HTML document, extract body content only
+        let processedContent = htmlContent;
+
+        if (
+          htmlContent.includes("<!DOCTYPE") ||
+          htmlContent.includes("<html")
+        ) {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(htmlContent, "text/html");
+
+          if (doc.body) {
+            processedContent = doc.body.innerHTML;
+          }
+        }
+
+        // Render HTML directly without any wrapper or formatting
+        summaryContainer.innerHTML = processedContent;
+        summaryContainer.style.display = "block";
+
+        // Ensure header buttons remain interactive
+        const headerBar = document.querySelector(".header-bar");
+        if (headerBar) {
+          headerBar.style.pointerEvents = "auto";
+          headerBar.style.zIndex = "100";
+        }
+
+        console.log("DEBUG: Summary rendered, showChat =", showChat);
+
+        // Add chat container only if showChat is true (after regenerate API, not after upload API)
+        if (showChat) {
+          console.log("DEBUG: showChat is true, setting up chat in 100ms...");
+          setTimeout(() => {
+            console.log("DEBUG: setTimeout callback executing...");
+            const chatContainerExists =
+              document.getElementById("chat-container");
+            console.log(
+              "DEBUG: chatContainerExists =",
+              chatContainerExists ? "YES" : "NO",
+            );
+
+            if (!chatContainerExists) {
+              console.log("DEBUG: Creating chat HTML...");
+              const chatHTML = `
+                            <div id="chat-container">
+                                <div class="chat-header">
+                                    <h5>Ask about your document</h5>
+                                    <div class="chat-controls">
+                                        <span class="chat-status" id="chat-status">Connecting...</span>
+                                        <button id="clear-chat-btn" onclick="clearChat()">Clear</button>
+                                    </div>
+                                </div>
+                                <div id="chat-messages"></div>
+                                <div class="chat-input-area">
+                                    <input type="text" id="chat-input" placeholder="Ask a question about the document..." />
+                                    <button id="send-chat-btn" onclick="sendChatMessage()">Send</button>
+                                </div>
+                            </div>
+                        `;
+              summaryContainer.innerHTML += chatHTML;
+              console.log("DEBUG: Chat HTML added to summary container");
+            }
+
+            // Always initialize chat if showChat is true, regardless of whether container existed
+            const fileId = localStorage.getItem("current_file_id");
+            console.log("DEBUG: fileId from localStorage =", fileId);
+            if (fileId) {
+              console.log("DEBUG: Calling initializeChat with fileId:", fileId);
+              initializeChat(fileId);
+            } else {
+              console.log("DEBUG: ERROR - No fileId found in localStorage!");
+            }
+          }, 100);
+        }
+
+        // Scroll to summary
+        summaryContainer.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function closeSummary() {
+        const summaryContainer = document.getElementById("summary-container");
+        summaryContainer.style.display = "none";
+        summaryContainer.innerHTML = "";
+      }
+
+      const useManual = document.getElementById("use-manual");
+      const manualInput = document.getElementById("manual-input");
+      const manualWarning = document.getElementById("manual-warning");
+      const closeWarningBtn = document.getElementById("close-manual-warning");
+
+      useManual.addEventListener("change", () => {
+        if (useManual.checked) {
+          manualInput.style.display = "block";
+          manualWarning.classList.remove("d-none");
+        } else {
+          manualInput.style.display = "none";
+          manualWarning.classList.add("d-none");
+        }
+      });
+
+      if (closeWarningBtn) {
+        closeWarningBtn.addEventListener("click", () => {
+          manualWarning.classList.add("d-none");
+        });
+      }
+
+      // ========================================
+      // Active Users Functionality
+      // ========================================
+      async function loadActiveUsers() {
+        try {
+          const token = localStorage.getItem("access_token");
+          if (!token) return;
+
+          const res = await fetch(`${APP_BASE_URL}/active-today`, {
+            headers: {
+              Authorization: "Bearer " + token,
+              "ngrok-skip-browser-warning": "true",
+            },
+          });
+
+          if (!res.ok) {
+            console.error("Failed to load active users:", res.status);
+            return;
+          }
+
+          const data = await res.json();
+
+          const countEl = document.getElementById("active-count");
+          const listEl = document.getElementById("active-users-list");
+
+          if (!countEl || !listEl) return;
+
+          countEl.textContent = data.length;
+
+          if (data.length === 0) {
+            listEl.innerHTML =
+              '<div style="padding: 8px 0; color: #666;">No active users</div>';
+            return;
+          }
+
+          listEl.innerHTML = data
+            .map(
+              (user) => `
+                    <div style="
+                        padding: 10px 8px;
+                        border-bottom: 1px solid rgba(77, 210, 255, 0.2);
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        gap: 12px;
+                    ">
+                        <span style="color: #4dd2ff; font-weight: 500;">
+                            ${user.email}
+                        </span>
+                        <span style="color: #aaa; font-size: 12px; white-space: nowrap;">
+                            ${formatLastActive(user.last_active)}
+                        </span>
+                    </div>
+                `,
+            )
+            .join("");
+        } catch (err) {
+          console.error("Active users load failed:", err);
+        }
+      }
+
+      function formatLastActive(dateStr) {
+        try {
+          const date = new Date(dateStr);
+          const now = new Date();
+          const diffMs = now - date;
+          const diffMins = Math.floor(diffMs / 60000);
+
+          if (diffMins < 1) return "Just now";
+          if (diffMins < 60) return `${diffMins}m ago`;
+
+          const diffHours = Math.floor(diffMins / 60);
+          if (diffHours < 24) return `${diffHours}h ago`;
+
+          return date.toLocaleDateString();
+        } catch {
+          return dateStr;
+        }
+      }
+
+      function toggleActiveUsersPopover() {
+        const popover = document.getElementById("active-users-popover");
+        if (!popover) return;
+
+        if (popover.style.display === "none" || popover.style.display === "") {
+          popover.style.display = "block";
+          loadActiveUsers();
+        } else {
+          popover.style.display = "none";
+        }
+      }
+
+      function refreshActiveUsers() {
+        loadActiveUsers();
+      }
+
+      document.addEventListener("click", function (e) {
+        const popover = document.getElementById("active-users-popover");
+        const btn = document.getElementById("active-users-btn");
+
+        if (!popover || !btn) return;
+
+        if (!btn.contains(e.target) && !popover.contains(e.target)) {
+          popover.style.display = "none";
+        }
+      });
+
+      // ========================================
+      // Chat WebSocket Functionality
+      // ========================================
+      let chatWebSocket = null;
+      let currentChatFileId = null;
+      let reconnectAttempts = 0;
+      let maxReconnectAttempts = 5;
+      let reconnectTimeout = null;
+      let intentionalClose = false;
+
+      function getBaseDocumentName(fileId) {
+        if (!fileId) return null;
+        const parts = fileId.split("_");
+        if (parts.length >= 3) {
+          const timeStr = parts[parts.length - 1];
+          const dateStr = parts[parts.length - 2];
+          if (
+            dateStr &&
+            dateStr.length === 8 &&
+            timeStr &&
+            timeStr.length === 6
+          ) {
+            return parts.slice(0, -2).join("_");
+          }
+        }
+        return fileId;
+      }
+
+      function connectChatWebSocket(fileId) {
+        console.log(
+          `[WebSocket] Connecting to chat: ${fileId} (attempt ${reconnectAttempts + 1})`,
+        );
+        console.log("DEBUG: connectChatWebSocket called with fileId:", fileId);
+
+        if (reconnectTimeout) {
+          clearTimeout(reconnectTimeout);
+          reconnectTimeout = null;
+        }
+
+        if (chatWebSocket) {
+          try {
+            intentionalClose = true;
+            chatWebSocket.close(1000, "Switching session");
+          } catch (e) {
+            console.error("Error closing existing websocket:", e);
+          }
+          chatWebSocket = null;
+        }
+
+        // Build WebSocket URL - replace https:// with wss:// or http:// with ws://
+        const wsProtocol =
+          window.location.protocol === "https:" ? "wss:" : "ws:";
+        const wsUrl = `${wsProtocol}//${window.location.host}/chat/${fileId}`;
+
+        console.log("DEBUG: WebSocket URL:", wsUrl);
+
+        try {
+          console.log("DEBUG: Creating WebSocket...");
+          chatWebSocket = new WebSocket(wsUrl);
+          console.log(
+            "DEBUG: WebSocket created, readyState:",
+            chatWebSocket.readyState,
+          );
+          chatWebSocket.fileId = fileId;
+          intentionalClose = false;
+
+          // ===== ONOPEN =====
+          chatWebSocket.onopen = function (event) {
+            console.log("✅ WebSocket connected:", fileId);
+            reconnectAttempts = 0;
+
+            const statusEl = document.getElementById("chat-status");
+            if (statusEl) {
+              statusEl.textContent = "Connected";
+              statusEl.className = "badge bg-success connected";
+            }
+
+            const chatInput = document.getElementById("chat-input");
+            const sendBtn = document.getElementById("send-chat-btn");
+            if (chatInput) chatInput.disabled = false;
+            if (sendBtn) sendBtn.disabled = false;
+          };
+
+          // ===== ONCLOSE =====
+          chatWebSocket.onclose = function (event) {
+            console.log(
+              `🔌 WebSocket closed: ${fileId} (code: ${event.code}, reason: ${event.reason || "none"})`,
+            );
+
+            const statusEl = document.getElementById("chat-status");
+            if (statusEl) {
+              statusEl.textContent = "Disconnected";
+              statusEl.className = "badge bg-danger disconnected";
+            }
+
+            const chatInput = document.getElementById("chat-input");
+            const sendBtn = document.getElementById("send-chat-btn");
+            if (chatInput) chatInput.disabled = true;
+            if (sendBtn) sendBtn.disabled = true;
+
+            const shouldReconnect =
+              !intentionalClose &&
+              document.getElementById("chat-container") &&
+              currentChatFileId === fileId &&
+              reconnectAttempts < maxReconnectAttempts &&
+              event.code !== 1000;
+
+            if (shouldReconnect) {
+              reconnectAttempts++;
+              const delay = Math.min(
+                1000 * Math.pow(2, reconnectAttempts - 1),
+                30000,
+              );
+              console.log(
+                `⏳ Reconnecting in ${delay}ms (attempt ${reconnectAttempts}/${maxReconnectAttempts})...`,
+              );
+
+              if (statusEl) {
+                statusEl.textContent = `Reconnecting (${reconnectAttempts}/${maxReconnectAttempts})...`;
+                statusEl.className = "badge bg-warning";
+              }
+
+              reconnectTimeout = setTimeout(() => {
+                console.log("Attempting reconnection...");
+                connectChatWebSocket(fileId);
+              }, delay);
+            } else if (reconnectAttempts >= maxReconnectAttempts) {
+              console.error("❌ Max reconnection attempts reached");
+              if (statusEl) {
+                statusEl.textContent = "Connection Failed";
+                statusEl.className = "badge bg-danger";
+              }
+              addChatMessage(
+                "system",
+                "⚠️ Unable to connect to chat. Please refresh the page.",
+              );
+            } else if (event.code === 1000) {
+              console.log("✓ Connection closed normally");
+            } else if (intentionalClose) {
+              console.log("✓ Intentional close");
+              intentionalClose = false;
+            }
+          };
+
+          // ===== ONERROR =====
+          chatWebSocket.onerror = function (error) {
+            console.error("❌ WebSocket error:", error);
+            const statusEl = document.getElementById("chat-status");
+            if (statusEl) {
+              statusEl.textContent = "Error";
+              statusEl.className = "badge bg-danger disconnected";
+            }
+          };
+
+          // ===== ONMESSAGE =====
+          chatWebSocket.onmessage = function (event) {
+            try {
+              const data = JSON.parse(event.data);
+
+              if (data.type === "history") {
+                const messages = document.getElementById("chat-messages");
+                if (!messages) return;
+                messages.innerHTML = "";
+                data.history.forEach((msg) => {
+                  addChatMessage(msg.role, msg.content);
+                });
+                messages.scrollTop = messages.scrollHeight;
+              } else if (data.type === "response") {
+                addChatMessage("assistant", data.message);
+                enableChatInput();
+              } else if (data.type === "system") {
+                addChatMessage("system", data.message);
+              } else if (data.type === "error") {
+                console.error("Server error:", data.message);
+                addChatMessage("system", `⚠️ Error: ${data.message}`);
+                enableChatInput();
+              } else if (data.type === "pong") {
+                // Pong received, connection is alive
+              }
+            } catch (error) {
+              console.error("Error processing message:", error);
+            }
+          };
+
+          // ===== CLIENT-SIDE PING =====
+          const pingInterval = setInterval(() => {
+            if (chatWebSocket && chatWebSocket.readyState === WebSocket.OPEN) {
+              try {
+                chatWebSocket.send(JSON.stringify({ type: "ping" }));
+              } catch (error) {
+                console.error("Error sending ping:", error);
+                clearInterval(pingInterval);
+              }
+            } else {
+              clearInterval(pingInterval);
+            }
+          }, 30000);
+        } catch (error) {
+          console.error("Error creating WebSocket:", error);
+          disableChatInput();
+        }
+      }
+
+      function sendChatMessage() {
+        const chatInput = document.getElementById("chat-input");
+        if (!chatInput) return;
+
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        if (!chatWebSocket || chatWebSocket.readyState !== WebSocket.OPEN) {
+          addChatMessage(
+            "system",
+            "⚠️ Not connected. Attempting to reconnect...",
+          );
+          if (currentChatFileId && reconnectAttempts < maxReconnectAttempts) {
+            connectChatWebSocket(currentChatFileId);
+          } else {
+            addChatMessage(
+              "system",
+              "⚠️ Please refresh the page to reconnect.",
+            );
+          }
+          return;
+        }
+
+        addChatMessage("user", message);
+        chatInput.value = "";
+        disableChatInput();
+
+        try {
+          chatWebSocket.send(
+            JSON.stringify({
+              type: "message",
+              message: message,
+            }),
+          );
+        } catch (error) {
+          console.error("Send error:", error);
+          addChatMessage("system", "⚠️ Failed to send message");
+          enableChatInput();
+        }
+      }
+
+      function initializeChat(fileId) {
+        console.log("🔌 Initializing chat for:", fileId);
+        console.log("DEBUG: initializeChat called, fileId from param:", fileId);
+        console.log(
+          "DEBUG: current localStorage current_file_id:",
+          localStorage.getItem("current_file_id"),
+        );
+
+        reconnectAttempts = 0;
+        intentionalClose = false;
+        if (reconnectTimeout) {
+          clearTimeout(reconnectTimeout);
+          reconnectTimeout = null;
+        }
+
+        const chatContainer = document.getElementById("chat-container");
+        if (chatContainer) {
+          console.log("DEBUG: Chat container found, setting display to flex");
+          chatContainer.style.display = "flex";
+
+          const messagesDiv = document.getElementById("chat-messages");
+          if (messagesDiv && messagesDiv.children.length === 0) {
+            addChatMessage(
+              "assistant",
+              "Hello, Ask a Question about your document!",
+            );
+          }
+        } else {
+          console.log("DEBUG: Chat container NOT found!");
+        }
+
+        currentChatFileId = fileId;
+        console.log("DEBUG: About to call connectChatWebSocket...");
+        connectChatWebSocket(fileId);
+      }
+
+      function addChatMessage(role, content) {
+        const messagesDiv = document.getElementById("chat-messages");
+        if (!messagesDiv) return;
+
+        const messageEl = document.createElement("div");
+        messageEl.className = `message-bubble ${role}-message`;
+        messageEl.textContent = content;
+        messagesDiv.appendChild(messageEl);
+
+        // Auto-scroll to latest message
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      }
+
+      function updateChatStatus(status, type = "info") {
+        const statusEl = document.getElementById("chat-status");
+        if (statusEl) {
+          statusEl.textContent = status;
+          statusEl.className = `chat-status status-${type}`;
+        }
+      }
+
+      function enableChatInput() {
+        const input = document.getElementById("chat-input");
+        const button = document.getElementById("send-chat-btn");
+        if (input) input.disabled = false;
+        if (button) button.disabled = false;
+      }
+
+      function disableChatInput() {
+        const input = document.getElementById("chat-input");
+        const button = document.getElementById("send-chat-btn");
+        if (input) input.disabled = true;
+        if (button) button.disabled = true;
+      }
+
+      function clearChat() {
+        const messagesDiv = document.getElementById("chat-messages");
+        if (messagesDiv) {
+          messagesDiv.innerHTML = "";
+        }
+      }
+
+      // Allow sending messages with Enter key
+      document.addEventListener("keypress", (e) => {
+        if (e.key === "Enter" && e.target.id === "chat-input") {
+          e.preventDefault();
+          sendChatMessage();
+        }
+      });
+
+      // Custom Prompt Functions
+      async function fetchCustomPrompts() {
+        try {
+          // Use the logged-in user's email and token if available
+          const rawEmail = localStorage.getItem("user_email");
+          const email = encodeURIComponent(rawEmail);
+          const token =
+            localStorage.getItem("access_token") ||
+            localStorage.getItem("authToken");
+          const response = await fetch(
+            `${APP_BASE_URL}/prompts/medical-summary?email=${email}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true",
+              },
+            },
+          );
+
+          if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+          }
+
+          const data = await response.json();
+          displayCustomPrompts(data.prompts || []);
+        } catch (error) {
+          const container = document.getElementById(
+            "custom-prompts-list-container",
+          );
+          if (container) {
+            container.innerHTML = `<div style="text-align: center; padding: 20px; color: #e74c3c;"><p>Error loading custom prompts: ${error.message}</p></div>`;
+          }
+        }
+      }
+
+      function displayCustomPrompts(prompts) {
+        const container = document.getElementById(
+          "custom-prompts-list-container",
+        );
+
+        if (!prompts || prompts.length === 0) {
+          container.innerHTML =
+            '<div style="text-align: center; padding: 20px; color: #aaa;"><p>No custom prompts available</p></div>';
+          return;
+        }
+
+        // Store prompts in a safe global map
+        window._customPromptsCache = {};
+
+        let html = "";
+        prompts.forEach((prompt, index) => {
+          const truncatedPrompt = prompt.substring(0, 100);
+          const isLong = prompt.length > 100;
+          const promptId = "custom-prompt-" + index;
+
+          // Store full prompt in cache
+          window._customPromptsCache[index] = prompt;
+
+          html += `
+            <div class="custom-prompt-item" style="background: rgba(17, 17, 17, 0.6); padding: 12px; border-radius: 6px; margin-bottom: 12px; border: 1px solid rgba(77, 210, 255, 0.2);">
+              <div class="prompt-text-wrapper" style="color: #e0e0e0; font-size: 13px; line-height: 1.6; margin-bottom: 10px;">
+                <span class="short-prompt-text" id="${promptId}-short">${escapeHtml(truncatedPrompt)}${isLong ? "..." : ""}</span>
+                ${isLong ? `<span class="full-prompt-text" id="${promptId}-full" style="display:none;">${escapeHtml(prompt)}</span>` : ""}
+                ${isLong ? `<button type="button" class="toggle-custom-prompt-btn" onclick="toggleCustomPromptView('${promptId}')" style="background: rgba(77, 210, 255, 0.15); color: #4dd2ff; border: 1px solid rgba(77, 210, 255, 0.3); padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; margin-top: 6px; display: block; width: 100%; text-align: center; font-family: 'Montserrat', sans-serif; transition: all 0.2s ease;">View more</button>` : ""}
+              </div>
+              <button type="button" class="apply-custom-prompt-btn" onclick="applyCustomPrompt(${index})" style="background: #4dd2ff; color: #000; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 600; width: 100%; font-family: 'Montserrat', sans-serif; transition: all 0.2s ease;">
+                Apply Prompt
+              </button>
+            </div>
+          `;
+        });
+
+        container.innerHTML = html;
+      }
+
+      function toggleCustomPromptView(promptId) {
+        try {
+          const shortEl = document.getElementById(promptId + "-short");
+          const fullEl = document.getElementById(promptId + "-full");
+          const btn = event.target;
+
+          if (!shortEl || !fullEl) return;
+
+          const isHidden = shortEl.style.display === "none";
+          if (isHidden) {
+            // Show short
+            shortEl.style.display = "";
+            fullEl.style.display = "none";
+            btn.textContent = "View more";
+          } else {
+            // Show full
+            shortEl.style.display = "none";
+            fullEl.style.display = "";
+            btn.textContent = "View less";
+          }
+        } catch (e) {
+          console.error("toggleCustomPromptView error", e);
+        }
+      }
+
+      function applyCustomPrompt(promptIndex) {
+        try {
+          // Get prompt from cache using index only (never breaks)
+          const promptText =
+            window._customPromptsCache &&
+            window._customPromptsCache[promptIndex];
+          if (!promptText) {
+            console.error("Prompt not found at index:", promptIndex);
+            return;
+          }
+
+          // Update the prompt preview
+          const preview = document.getElementById("prompt-preview");
+          if (preview) {
+            preview.textContent = promptText;
+            originalPromptContent = promptText;
+            // Mark as modified so the updated prompt will be sent with processing
+            isPromptModified = true;
+            console.log("✓ Custom prompt applied to preview");
+          }
+        } catch (e) {
+          console.error("applyCustomPrompt error:", e);
+        }
+      }
+
+      function escapeHtml(str) {
+        if (typeof str !== "string") return str;
+        return str
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+      // custom prompts are loaded after login in showMainApp()
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

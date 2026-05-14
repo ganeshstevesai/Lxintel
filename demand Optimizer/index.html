@@ -1,0 +1,1256 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demand Optimizer - Legal Document Processing</title>
+    <link rel="icon" type="image/webp" href="/Designer.png" />
+    <link rel="stylesheet" href="index.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script
+      defer
+      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+  </head>
+  <body>
+    <div class="video-background"></div>
+    <div class="overlay"></div>
+
+    <!-- LOGIN PAGE -->
+    <div
+      id="login-page-wrapper"
+      class="login-page-wrapper"
+      x-data="loginApp()"
+      x-init="init()"
+    >
+      <div class="login-page-content">
+        <!-- LOGO AND TITLE -->
+        <div class="login-logo-section">
+          <img src="/Designer.png" alt="" />
+          <h1>Demand optimizer</h1>
+          <p>Secure Access for Authorized Users</p>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <div class="login-form-card">
+          <h2>Login</h2>
+
+          <!-- Email Input -->
+          <div class="login-form-group">
+            <label for="login-email">Email</label>
+            <input
+              id="login-email"
+              type="email"
+              placeholder="Enter your email"
+              x-model="email"
+              @input.debounce.500="verifyEmail()"
+              @keydown.enter="emailValid && login()"
+            />
+
+            <!-- Email Status -->
+            <div
+              class="login-email-status"
+              :class="email && email.includes('@') ? 'visible' : ''"
+              x-show="email && email.includes('@')"
+            >
+              <span
+                class="status-icon"
+                :class="emailChecking ? 'checking' : emailValid ? 'valid' : 'invalid'"
+              ></span>
+              <span
+                class="status-text"
+                x-text="emailChecking ? 'Checking email...' : emailValid ? 'Email authorized' : 'Email not authorized'"
+              ></span>
+            </div>
+          </div>
+
+          <!-- Error Message -->
+          <div x-show="error" x-text="error" class="login-error-message"></div>
+
+          <!-- Login Button -->
+          <button
+            @click="login()"
+            :disabled="!emailValid || !email"
+            class="login-btn"
+          >
+            <span x-show="!loggingIn">Login</span>
+            <span x-show="loggingIn" class="login-btn-spinner">
+              <span
+                class="spinner"
+                style="
+                  width: 14px;
+                  height: 14px;
+                  border-width: 2px;
+                  margin-left: 0;
+                "
+              ></span>
+              Logging in...
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN APPLICATION CONTAINER -->
+    <div
+      id="main-app-wrapper"
+      class="w-full max-w-[60rem] relative z-10 mt-24"
+      x-data="demandApp()"
+      x-init="init()"
+      style="display: none; margin: 0 auto; padding: 0 1rem"
+    >
+      <!-- Processing overlay -->
+      <div id="processing-overlay">
+        <h2>Processing Document</h2>
+        <div
+          class="loading-spinner"
+          style="width: 50px; height: 50px; border-width: 5px"
+        ></div>
+        <p id="processing-message" style="color: #fff; margin-top: 20px">
+          This may take a minute or two...
+        </p>
+      </div>
+
+      <div class="header-bar">
+        <div
+          class="container d-flex justify-content-between align-items-center header_bar_top2"
+        >
+          <div class="d-flex align-items-center header_bar_top1">
+            <img
+              src="/Designer.png"
+              alt="Demand Optimizer"
+              class="header-logo"
+            />
+            <h2 class="mb-0">Demand Optimizer</h2>
+            <!-- Active Users Button -->
+            <div
+              style="
+                position: relative;
+                display: inline-block;
+                margin-right: 10px;
+                margin-left: 10px;
+              "
+            >
+              <div style="display: flex; align-items: center; gap: 8px">
+                <button
+                  onclick="toggleActiveUsers()"
+                  style="
+                    background: #05101a;
+                    color: #4dd2ff;
+                    border: 1px solid #4dd2ff;
+                    padding: 6px 10px;
+                    font-size: 13px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                  "
+                >
+                  <span style="color: #2ecc71">●</span>
+                  <span id="active-user-count">0</span> Active Users
+                </button>
+                <button
+                  onclick="refreshActiveUsers()"
+                  title="Refresh active users"
+                  style="
+                    background: #05101a;
+                    color: #4dd2ff;
+                    border: 1px solid #4dd2ff;
+                    padding: 6px 10px;
+                    font-size: 13px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                  "
+                >
+                  ↻
+                </button>
+              </div>
+            </div>
+          </div>
+          <div
+            style="display: flex; align-items: center; gap: 20px"
+            class="top_header_space_oth"
+          >
+            <div style="text-align: right; font-size: 0.9rem; color: #aaa">
+              <span
+                style="display: block; color: #4dd2ff; font-weight: 600"
+                x-text="userEmail"
+              ></span>
+              <span style="font-size: 0.85rem">Logged in</span>
+            </div>
+            <button
+              @click="logout()"
+              class="dark-theme-btn-primary"
+              style="
+                padding: 0.5rem 1rem;
+                background: linear-gradient(135deg, #4dd2ff, #1ab2ff);
+                color: #000;
+                border: 1px solid rgba(77, 210, 255, 0.6);
+                box-shadow: 0 0 18px rgba(77, 210, 255, 0.4);
+                border-radius: 8px;
+                font-size: 0.9rem;
+                cursor: pointer;
+                border-radius: 6px;
+              "
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="container my-4">
+        <!-- Upload New Files Button (Hidden by default, shown after processing) -->
+        <div
+          id="upload-new-files-container"
+          style="display: none; text-align: center; margin-bottom: 30px"
+        >
+          <button type="button" id="upload-new-files-btn">
+            Upload New Files
+          </button>
+        </div>
+
+        <!-- File Upload Form -->
+        <div class="row">
+          <!-- Left Column: Upload Form -->
+          <div class="col-md-5">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Upload Document</h5>
+              </div>
+              <div class="card-body">
+                <form id="upload-form" enctype="multipart/form-data">
+                  <div class="mb-3">
+                    <label for="file" class="form-label"
+                      >Select Medical Document</label
+                    >
+                    <input
+                      type="file"
+                      class="form-control"
+                      id="file"
+                      name="file"
+                      accept=".pdf, .doc, .docx, .txt"
+                      required
+                    />
+                  </div>
+
+                  <button
+                    type="button"
+                    id="process-btn"
+                    class="btn btn-primary w-100"
+                  >
+                    Process Document
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Instructions -->
+          <div class="col-md-7">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">Instructions</h5>
+              </div>
+              <div class="card-body">
+                <ol style="color: #ddd">
+                  <li>Select a medical document (PDF, DOC, DOCX, TXT)</li>
+                  <li>
+                    Click "Process Document" to upload and generate a report
+                  </li>
+                  <li>View the formatted report below</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="summary-container" class="mt-4"></div>
+      </div>
+
+      <!-- Chat Floating Icon -->
+      <button
+        id="chat-floating-icon"
+        title="Chat Support"
+        style="display: none"
+      >
+        💬
+      </button>
+
+      <!-- Chat Window -->
+      <div id="chat-window">
+        <div class="chat-window-header">
+          <h3 class="chat-window-title">Chat Support</h3>
+          <div class="chat-window-buttons">
+            <button
+              class="chat-window-btn"
+              id="chat-load-history-btn"
+              title="Load History"
+            >
+              Load History
+            </button>
+            <button
+              class="chat-window-btn"
+              id="chat-maximize-btn"
+              title="Maximize"
+            >
+              🔲
+            </button>
+            <button class="chat-window-btn" id="chat-close-btn" title="Close">
+              ✕
+            </button>
+          </div>
+        </div>
+        <div class="chat-messages-container" id="chat-messages"></div>
+        <div class="chat-input-area">
+          <input
+            type="text"
+            id="chat-message-input"
+            placeholder="Ask a question..."
+          />
+          <button id="chat-send-btn">Send</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      // Shared state between login and upload
+      const appState = {
+        loggedIn: false,
+        email: "",
+      };
+
+      function loginApp() {
+        return {
+          email: "",
+          emailValid: false,
+          emailChecking: false,
+          error: "",
+          loggedIn: false,
+          loggingIn: false,
+
+          init() {
+            // Check if already logged in
+            const token = localStorage.getItem("jwtdemand");
+            const savedEmail = localStorage.getItem("demandEmail");
+            if (token && savedEmail) {
+              this.loggedIn = true;
+              appState.loggedIn = true;
+              this.email = savedEmail;
+              appState.email = savedEmail;
+            }
+
+            // Listen for logout success event
+            window.addEventListener("logout-success", () => {
+              this.loggedIn = false;
+              this.email = "";
+              this.emailValid = false;
+              this.error = "";
+            });
+          },
+
+          // Backend Email Verification
+          verifyEmail() {
+            if (!this.email.includes("@")) {
+              this.emailValid = false;
+              this.error = "";
+              return;
+            }
+
+            this.emailChecking = true;
+            this.error = "";
+            fetch(
+              `${API_BASE_URL}/Demand_optimizer/verify-email?email=${encodeURIComponent(this.email)}`,
+              {
+                method: "GET",
+                headers: {
+                  "ngrok-skip-browser-warning": "true",
+                },
+              },
+            )
+              .then((res) => res.json())
+              .then((json) => {
+                this.emailValid = json.valid;
+                this.emailChecking = false;
+                if (!json.valid) {
+                  this.error =
+                    "Access denied: Your email is not on the authorized list.";
+                }
+              })
+              .catch(() => {
+                this.emailValid = false;
+                this.emailChecking = false;
+                this.error =
+                  "Access denied: Your email is not on the authorized list.";
+              });
+          },
+
+          // Login only after email is validated
+          login() {
+            if (!this.emailValid) {
+              this.error = "Email not authorized";
+              return;
+            }
+
+            if (!this.email || !this.email.includes("@")) {
+              this.error = "Please enter a valid email";
+              return;
+            }
+
+            this.loggingIn = true;
+
+            const data = new URLSearchParams();
+            data.append("username", this.email);
+            data.append("password", "not-used-but-required"); // password ignored by backend
+
+            fetch(`${API_BASE_URL}/Demand_optimizer/login`, {
+              method: "POST",
+              body: data,
+              headers: {
+                "ngrok-skip-browser-warning": "true",
+              },
+            })
+              .then((res) => {
+                if (!res.ok) throw new Error("Unauthorized email");
+                return res.json();
+              })
+              .then((json) => {
+                localStorage.setItem("jwtdemand", json.access_token);
+                localStorage.setItem("demandEmail", this.email);
+                this.loggedIn = true;
+                appState.loggedIn = true;
+                appState.email = this.email;
+                this.error = "";
+                this.loggingIn = false;
+
+                // Trigger custom event to notify upload component
+                window.dispatchEvent(new CustomEvent("login-success"));
+              })
+              .catch((err) => {
+                this.error = err.message;
+                this.loggingIn = false;
+              });
+          },
+
+          logout() {
+            localStorage.removeItem("jwtdemand");
+            localStorage.removeItem("demandEmail");
+            this.loggedIn = false;
+            appState.loggedIn = false;
+            this.email = "";
+            appState.email = "";
+            this.emailValid = false;
+            window.dispatchEvent(new Event("logout-success"));
+          },
+        };
+      }
+
+      function demandApp() {
+        return {
+          isLoggedIn: false,
+          userEmail: "",
+
+          init() {
+            // Load login state
+            const token = localStorage.getItem("jwtdemand");
+            const email = localStorage.getItem("demandEmail");
+            if (token && email) {
+              this.isLoggedIn = true;
+              this.userEmail = email;
+            }
+
+            // Listen for login success
+            window.addEventListener("login-success", () => {
+              this.isLoggedIn = true;
+              this.userEmail = localStorage.getItem("demandEmail");
+            });
+          },
+
+          logout() {
+            // Only remove items used in this file
+            localStorage.removeItem("jwtdemand");
+            localStorage.removeItem("demandEmail");
+            localStorage.removeItem("session_id");
+            localStorage.removeItem("document_processed");
+            location.reload();
+          },
+        };
+      }
+    </script>
+
+    <script>
+      // API Configuration
+      const API_BASE_URL =
+        " https://unpossessable-marylee-unsnobbish.ngrok-free.dev";
+
+      // Global array to store all selected files
+      let allSelectedFiles = [];
+      let isFilesUploaded = false;
+
+      // Helper function to update chat icon visibility based on document processing status
+      function updateChatIconVisibility() {
+        const isProcessed =
+          localStorage.getItem("document_processed") === "true";
+        const chatIcon = document.getElementById("chat-floating-icon");
+        if (chatIcon) {
+          chatIcon.style.display = isProcessed ? "block" : "none";
+        }
+      }
+
+      // Function to update the selected files display
+      function updateSelectedFilesDisplay() {
+        const uploadBtn = document.getElementById("upload-btn");
+        const processBtn = document.getElementById("process-btn");
+        const selectedFilesContainer = document.getElementById(
+          "selected-files-container",
+        );
+        const selectedFilesList = document.getElementById(
+          "selected-files-list",
+        );
+
+        if (allSelectedFiles.length > 0) {
+          uploadBtn.style.display = "block";
+          processBtn.style.display = "none";
+          selectedFilesContainer.style.display = "block";
+          selectedFilesList.innerHTML = "";
+
+          allSelectedFiles.forEach((fileObj, index) => {
+            const fileItem = document.createElement("div");
+            fileItem.className = "selected-file-item";
+            const removeButtonHTML = isFilesUploaded
+              ? ""
+              : `<button type="button" class="selected-file-remove" onclick="removeFileByIndex(${index})">Remove</button>`;
+            fileItem.innerHTML = `
+                        <div class="selected-file-name">
+                            <span class="filename">${fileObj.file.name}</span>
+                            <span class="file-time">${fileObj.timestamp}</span>
+                        </div>
+                        ${removeButtonHTML}
+                    `;
+            selectedFilesList.appendChild(fileItem);
+          });
+        } else {
+          uploadBtn.style.display = "none";
+          processBtn.style.display = "none";
+          selectedFilesContainer.style.display = "none";
+        }
+      }
+
+      // Function to remove a file by index
+      function removeFileByIndex(index) {
+        allSelectedFiles.splice(index, 1);
+        updateSelectedFilesDisplay();
+      }
+
+      // Function to remove a file from selection (old function for compatibility)
+      function removeFile(index) {
+        removeFileByIndex(index);
+      }
+
+      // Upload New Files button click handler
+      document
+        .getElementById("upload-new-files-btn")
+        .addEventListener("click", function () {
+          // Reset all session data
+          const oldSessionId = localStorage.getItem("session_id");
+          localStorage.removeItem("session_id");
+          localStorage.removeItem("document_processed");
+
+          // Reset flags
+          isFilesUploaded = false;
+
+          // Reset UI
+          allSelectedFiles = [];
+          document.getElementById("file").value = "";
+
+          // Hide everything
+          document.getElementById("selected-files-container").style.display =
+            "none";
+          document.getElementById("upload-new-files-container").style.display =
+            "none";
+          document.getElementById("process-btn-container").style.display =
+            "none";
+          document.getElementById("summary-container").innerHTML = "";
+
+          // Clear chat messages and show welcome message for new session
+          const chatMessages = document.getElementById("chat-messages");
+          if (chatMessages) {
+            chatMessages.innerHTML = "";
+            showWelcomeMessage();
+          }
+
+          // Show upload/instructions
+          document.querySelector(".row").style.display = "flex";
+          document.getElementById("file").style.display = "block";
+
+          // Reset chat icon
+          updateChatIconVisibility();
+        });
+
+      // NOTE: Deduplicated process handler — use the single merged handler below
+
+      // Merged upload + process handler
+      document
+        .getElementById("process-btn")
+        .addEventListener("click", async function () {
+          const fileInput = document.getElementById("file");
+          const files = fileInput.files;
+
+          if (!files || files.length === 0) {
+            alert("Please select a file");
+            return;
+          }
+
+          const file = files[0];
+          const token = localStorage.getItem("jwtdemand");
+
+          if (!token) {
+            alert("Not authenticated. Please log in again.");
+            return;
+          }
+
+          // Show processing overlay
+          document.getElementById("processing-overlay").style.display = "flex";
+          document.getElementById("processing-message").textContent =
+            "Uploading and processing document...";
+
+          try {
+            // Step 1: Upload
+            const uploadFormData = new FormData();
+            uploadFormData.append("files", file);
+
+            const uploadResponse = await fetch(
+              API_BASE_URL + "/Demand_optimizer/upload",
+              {
+                method: "POST",
+                headers: {
+                  Authorization: "Bearer " + token,
+                  "ngrok-skip-browser-warning": "true",
+                },
+                body: uploadFormData,
+              },
+            );
+
+            if (!uploadResponse.ok) {
+              throw new Error("Upload failed");
+            }
+
+            const uploadData = await uploadResponse.json();
+            const sessionId = uploadData.session_id;
+            localStorage.setItem("session_id", sessionId);
+
+            // Step 2: Process immediately
+            document.getElementById("processing-message").textContent =
+              "Processing document...";
+            const processFormData = new FormData();
+            processFormData.append("session_id", sessionId);
+
+            const processResponse = await fetch(
+              API_BASE_URL + "/Demand_optimizer/process",
+              {
+                method: "POST",
+                headers: {
+                  Authorization: "Bearer " + token,
+                  "ngrok-skip-browser-warning": "true",
+                },
+                body: processFormData,
+              },
+            );
+
+            if (!processResponse.ok) {
+              throw new Error("Process failed");
+            }
+
+            const processData = await processResponse.json();
+
+            // Hide processing overlay
+            document.getElementById("processing-overlay").style.display =
+              "none";
+
+            // Display results
+            const summaryContainer =
+              document.getElementById("summary-container");
+            if (processData.status === "success" && processData.report) {
+              const htmlReport = marked.parse(processData.report);
+              summaryContainer.innerHTML = `
+              <div class="card" style="background-color: #05101a; border: 1px solid #1ab2ff; color: #ddd;">
+                <div class="card-header" style="background-color: #05101a; border-bottom: 1px solid #1ab2ff; color: #4dd2ff;">
+                  <h5 class="mb-0">Generated Report</h5>
+                </div>
+                <div class="card-body p-4" style="color: #ddd;">
+                  <div class="report-content" style="max-height: 800px; overflow-y: auto; line-height: 1.6;">
+                    ${htmlReport}
+                  </div>
+                </div>
+              </div>
+            `;
+              summaryContainer.style.display = "block";
+
+              // Scroll the report into view
+              setTimeout(() => {
+                summaryContainer.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                });
+              }, 100);
+
+              console.log(
+                "Report displayed successfully",
+                processData.report.substring(0, 100),
+              );
+              localStorage.setItem("document_processed", "true");
+              updateChatIconVisibility();
+
+              // Clear file input after successful processing
+              fileInput.value = "";
+            } else {
+              alert("No report in response");
+            }
+          } catch (error) {
+            console.error("Error:", error);
+            document.getElementById("processing-overlay").style.display =
+              "none";
+            alert("Error: " + error.message);
+          }
+        });
+
+      // Helper function to escape HTML
+      function escapeHtml(text) {
+        const map = {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;",
+        };
+        return text.replace(/[&<>"']/g, (m) => map[m]);
+      }
+      document.addEventListener("DOMContentLoaded", function () {
+        // Clear session tracking on page load/refresh to ensure fresh sessions
+        localStorage.removeItem("session_id");
+        localStorage.removeItem("document_processed");
+
+        // Initialize chat support
+        initializeChatSupport();
+      });
+
+      // ============ CHAT SUPPORT FEATURE ============
+
+      // Store the previous session ID to detect changes
+      let previousSessionId = localStorage.getItem("session_id");
+
+      // Helper function to clear chat messages
+      function clearChatMessages() {
+        const chatMessagesContainer = document.getElementById("chat-messages");
+        if (chatMessagesContainer) {
+          chatMessagesContainer.innerHTML = "";
+        }
+      }
+
+      // Helper function to show welcome message
+      function showWelcomeMessage() {
+        const chatMessages = document.getElementById("chat-messages");
+        if (!chatMessages) return;
+
+        const welcomeDiv = document.createElement("div");
+        welcomeDiv.className = "chat-message welcome";
+        const bubble = document.createElement("div");
+        bubble.className = "chat-bubble";
+        bubble.textContent =
+          "Welcome! I am Demand Optimizer AI assistant. I am here to answer your follow-up questions.";
+        welcomeDiv.appendChild(bubble);
+        chatMessages.appendChild(welcomeDiv);
+      }
+
+      // Helper function to add message to chat
+      function addChatMessage(role, content) {
+        const chatMessages = document.getElementById("chat-messages");
+        if (!chatMessages) return;
+
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `chat-message ${role}`;
+
+        const bubble = document.createElement("div");
+        bubble.className = "chat-bubble";
+
+        // For markdown content from assistant, parse it
+        if (role === "assistant") {
+          bubble.innerHTML = marked.parse(content);
+        } else {
+          bubble.textContent = content;
+        }
+
+        messageDiv.appendChild(bubble);
+        chatMessages.appendChild(messageDiv);
+
+        // Auto scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      // Monitor localStorage for session ID changes
+      window.addEventListener("storage", function (e) {
+        if (e.key === "session_id") {
+          const newSessionId = e.newValue;
+
+          // If session ID changed (new session), clear chat messages
+          if (newSessionId !== previousSessionId) {
+            clearChatMessages();
+            showWelcomeMessage();
+            previousSessionId = newSessionId;
+          }
+        }
+      });
+
+      function initializeChatSupport() {
+        const chatIcon = document.getElementById("chat-floating-icon");
+        const chatWindow = document.getElementById("chat-window");
+        const chatMaximizeBtn = document.getElementById("chat-maximize-btn");
+        const chatCloseBtn = document.getElementById("chat-close-btn");
+        const chatMessageInput = document.getElementById("chat-message-input");
+        const chatSendBtn = document.getElementById("chat-send-btn");
+        const chatMessages = document.getElementById("chat-messages");
+
+        // Show welcome message
+        showWelcomeMessage();
+
+        // Set up session ID change listener
+        setupSessionChangeListener();
+
+        // Chat icon click - toggle window
+        chatIcon.addEventListener("click", function () {
+          const computedStyle = window.getComputedStyle(chatWindow).display;
+          if (computedStyle === "none") {
+            chatWindow.style.display = "flex";
+            chatMessageInput.focus();
+          } else {
+            chatWindow.style.display = "none";
+          }
+        });
+
+        // Close button
+        chatCloseBtn.addEventListener("click", function () {
+          chatWindow.style.display = "none";
+        });
+
+        // Load history button
+        const chatLoadHistoryBtn = document.getElementById(
+          "chat-load-history-btn",
+        );
+        chatLoadHistoryBtn.addEventListener("click", async function () {
+          const sessionId = localStorage.getItem("session_id");
+
+          if (!sessionId) {
+            addChatMessage(
+              "assistant",
+              "⚠️ No session found. Please upload and process a document first.",
+            );
+            return;
+          }
+
+          // Show loader
+          const originalContent = chatLoadHistoryBtn.innerHTML;
+          chatLoadHistoryBtn.innerHTML = '<span class="chat-loader"></span>';
+          chatLoadHistoryBtn.disabled = true;
+          const token = localStorage.getItem("jwtdemand");
+          if (!token) {
+            throw new Error("Not authenticated. Please log in again.");
+          }
+          try {
+            const response = await fetch(
+              `${API_BASE_URL}/Demand_optimizer/chat/history/${sessionId}`,
+              {
+                method: "GET",
+                headers: {
+                  Authorization: "Bearer " + token,
+                  "ngrok-skip-browser-warning": "true",
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+                },
+              },
+            );
+
+            if (!response.ok) {
+              throw new Error("Failed to load history");
+            }
+
+            const data = await response.json();
+
+            if (data.messages && Array.isArray(data.messages)) {
+              // Clear existing messages
+              chatMessages.innerHTML = "";
+
+              // Display all history messages
+              data.messages.forEach((msg) => {
+                addChatMessage(msg.role, msg.content);
+              });
+
+              addChatMessage("system", "✅ Chat history loaded successfully!");
+            } else {
+              addChatMessage(
+                "assistant",
+                "No history found for this document.",
+              );
+            }
+          } catch (error) {
+            console.error("History load error:", error);
+            addChatMessage(
+              "assistant",
+              "❌ Error loading history: " + error.message,
+            );
+          } finally {
+            chatLoadHistoryBtn.innerHTML = originalContent;
+            chatLoadHistoryBtn.disabled = false;
+          }
+        });
+
+        // Maximize button
+        chatMaximizeBtn.addEventListener("click", function () {
+          chatWindow.classList.toggle("fullscreen");
+          chatMaximizeBtn.textContent = chatWindow.classList.contains(
+            "fullscreen",
+          )
+            ? "🗗"
+            : "🔲";
+        });
+
+        // Send message on button click
+        chatSendBtn.addEventListener("click", sendChatMessage);
+
+        // Send message on Enter key
+        chatMessageInput.addEventListener("keypress", function (e) {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            sendChatMessage();
+          }
+        });
+
+        async function sendChatMessage() {
+          const message = chatMessageInput.value.trim();
+
+          if (!message) {
+            alert("Please enter a message");
+            return;
+          }
+
+          const sessionId = localStorage.getItem("session_id");
+
+          if (!sessionId) {
+            addChatMessage(
+              "assistant",
+              "⚠️ No session found. Please upload and process a document first.",
+            );
+            return;
+          }
+
+          // Add user message to chat
+          addChatMessage("user", message);
+          chatMessageInput.value = "";
+          chatSendBtn.disabled = true;
+          const token = localStorage.getItem("jwtdemand");
+          if (!token) {
+            throw new Error("Not authenticated. Please log in again.");
+          }
+          try {
+            const formData = new FormData();
+            formData.append("session_id", sessionId);
+            formData.append("message", message);
+
+            const response = await fetch(
+              API_BASE_URL + "/Demand_optimizer/chat",
+              {
+                method: "POST",
+                headers: {
+                  Authorization: "Bearer " + token,
+                  "ngrok-skip-browser-warning": "true",
+                },
+                body: formData,
+              },
+            );
+
+            if (!response.ok) {
+              // Handle specific error responses
+              const errorData = await response.json().catch(() => ({}));
+
+              // Check if error is related to session (expired or invalid)
+              if (
+                response.status === 401 ||
+                response.status === 404 ||
+                (errorData.detail &&
+                  (errorData.detail.includes("session") ||
+                    errorData.detail.includes("expired")))
+              ) {
+                // Clear messages for new session
+                clearChatMessages();
+                showWelcomeMessage();
+                addChatMessage(
+                  "assistant",
+                  "⚠️ Session expired or invalid. Please upload and process a new document to continue.",
+                );
+                return;
+              }
+
+              throw new Error(errorData.detail || "Chat request failed");
+            }
+
+            const data = await response.json();
+
+            if (data.status === "success" && data.response) {
+              addChatMessage("assistant", data.response);
+            } else if (
+              data.detail &&
+              (data.detail.includes("session") ||
+                data.detail.includes("expired"))
+            ) {
+              // Session error from API
+              clearChatMessages();
+              showWelcomeMessage();
+              addChatMessage(
+                "assistant",
+                "⚠️ Session expired or invalid. Please upload and process a new document to continue.",
+              );
+            } else {
+              addChatMessage(
+                "assistant",
+                "Sorry, I could not process your request.",
+              );
+            }
+          } catch (error) {
+            console.error("Chat error:", error);
+
+            // Check if error is related to session
+            if (
+              error.message.includes("session") ||
+              error.message.includes("expired")
+            ) {
+              clearChatMessages();
+              showWelcomeMessage();
+              addChatMessage(
+                "assistant",
+                "⚠️ Session expired or invalid. Please upload and process a new document to continue.",
+              );
+            } else {
+              addChatMessage("assistant", "❌ Error: " + error.message);
+            }
+          } finally {
+            chatSendBtn.disabled = false;
+            chatMessageInput.focus();
+          }
+        }
+
+        function setupSessionChangeListener() {
+          // Monitor for local session ID changes (when new file is processed)
+          const checkSessionInterval = setInterval(() => {
+            const currentSessionId = localStorage.getItem("session_id");
+
+            if (currentSessionId && currentSessionId !== previousSessionId) {
+              // Session ID changed - clear messages and show welcome
+              clearChatMessages();
+              showWelcomeMessage();
+              previousSessionId = currentSessionId;
+            }
+          }, 500);
+        }
+      }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Check token on page load and toggle UIs accordingly
+      function checkAuthToken() {
+        const token = localStorage.getItem("jwtdemand");
+        const loginPageWrapper = document.getElementById("login-page-wrapper");
+        const mainAppWrapper = document.getElementById("main-app-wrapper");
+
+        if (token) {
+          // User is logged in
+          loginPageWrapper.style.display = "none";
+          mainAppWrapper.style.display = "block";
+        } else {
+          // User is not logged in
+          loginPageWrapper.style.display = "flex";
+          mainAppWrapper.style.display = "none";
+        }
+      }
+
+      // Check on page load
+      document.addEventListener("DOMContentLoaded", checkAuthToken);
+
+      // Re-check when logout-success event fires
+      window.addEventListener("logout-success", () => {
+        setTimeout(checkAuthToken, 100);
+      });
+
+      // Also check after login
+      window.addEventListener("login-success", () => {
+        setTimeout(checkAuthToken, 100);
+      });
+    </script>
+
+    <script>
+      function toggleActiveUsers() {
+        const popover = document.getElementById("active-users-popover");
+        const btn = event.currentTarget || event.target.closest("button");
+
+        if (popover.style.display === "block") {
+          popover.style.display = "none";
+          return;
+        }
+
+        const rect = btn.getBoundingClientRect();
+
+        popover.style.top = rect.bottom + 8 + "px";
+        popover.style.left = rect.left + "px";
+        popover.style.transform = "none";
+        popover.style.display = "block";
+      }
+
+      function refreshActiveUsers() {
+        loadActiveUsers();
+      }
+
+      async function loadActiveUsers() {
+        try {
+          const token = localStorage.getItem("jwtdemand");
+          if (!token) return;
+
+          const res = await fetch(
+            API_BASE_URL + "/Demand_optimizer/active-today",
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+                "ngrok-skip-browser-warning": "true",
+              },
+            },
+          );
+
+          if (!res.ok) return;
+
+          const users = await res.json();
+
+          document.getElementById("active-user-count").innerText = users.length;
+
+          const list = document.getElementById("active-users-list");
+          list.innerHTML = "";
+
+          if (users.length === 0) {
+            list.innerHTML =
+              "<p style='color:#aaa; font-size:13px'>No active users</p>";
+            return;
+          }
+
+          users.forEach((user) => {
+            const div = document.createElement("div");
+            div.style.padding = "10px 8px";
+            div.style.fontSize = "13px";
+            div.style.borderBottom = "1px solid #1ab2ff";
+            div.style.color = "#ddd";
+            div.style.display = "flex";
+            div.style.justifyContent = "space-between";
+            div.style.alignItems = "center";
+            div.style.gap = "16px";
+
+            const emailSpan = document.createElement("span");
+            emailSpan.style.color = "#4dd2ff";
+            emailSpan.style.fontWeight = "500";
+            emailSpan.style.flex = "1";
+            emailSpan.innerText = user.email || user;
+
+            const timeSpan = document.createElement("span");
+            timeSpan.style.color = "#aaa";
+            timeSpan.style.fontSize = "12px";
+            timeSpan.style.whiteSpace = "nowrap";
+            timeSpan.style.flexShrink = "0";
+            timeSpan.innerText = formatLastActive(user.last_active);
+
+            div.appendChild(emailSpan);
+            div.appendChild(timeSpan);
+            list.appendChild(div);
+          });
+        } catch (err) {
+          console.error("Active users error:", err);
+        }
+      }
+
+      function formatLastActive(dateStr) {
+        try {
+          const date = new Date(dateStr);
+          const now = new Date();
+          const diffMs = now - date;
+          const diffMins = Math.floor(diffMs / 60000);
+          const diffHours = Math.floor(diffMs / 3600000);
+          const diffDays = Math.floor(diffMs / 86400000);
+
+          if (diffMins < 1) return "just now";
+          if (diffMins < 60) return `${diffMins}m ago`;
+          if (diffHours < 24) return `${diffHours}h ago`;
+          return `${diffDays}d ago`;
+        } catch (e) {
+          return "";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        if (localStorage.getItem("jwtdemand")) {
+          loadActiveUsers();
+        }
+      });
+
+      window.addEventListener("login-success", () => {
+        loadActiveUsers();
+      });
+
+      window.addEventListener("logout-success", () => {
+        document.getElementById("active-user-count").innerText = "0";
+        document.getElementById("active-users-popover").style.display = "none";
+      });
+
+      document.addEventListener("click", function (e) {
+        const popover = document.getElementById("active-users-popover");
+        if (!popover) return;
+        if (!popover.contains(e.target) && !e.target.closest("button")) {
+          popover.style.display = "none";
+        }
+      });
+    </script>
+
+    <div
+      id="active-users-popover"
+      style="
+        position: fixed;
+        top: 72px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #1a1a1a;
+        border: 1px solid rgba(241, 196, 15, 0.4);
+        border-radius: 8px;
+        padding: 12px;
+        min-width: 220px;
+        display: none;
+        z-index: 100000;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+      "
+    >
+      <div
+        style="
+          padding-bottom: 8px;
+          margin-bottom: 8px;
+          border-bottom: 1px solid rgba(241, 196, 15, 0.3);
+          font-size: 12px;
+          font-weight: 600;
+        "
+      >
+        Active Users
+      </div>
+      <div id="active-users-list"></div>
+    </div>
+  </body>
+</html>

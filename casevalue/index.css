@@ -1,0 +1,894 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap");
+
+
+    body,
+    html {
+      font-family: "Montserrat", sans-serif;
+      background-color: #f8f9fa;
+      color: #0d6efd;
+    }
+
+    .video-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at top, #ffffff, #ffffff 70%);
+      z-index: -2;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(255, 255, 255, 0.75);
+      z-index: -1;
+    }
+
+    .dark-theme-card {
+      background-color: #f8f9fa;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(13, 110, 253, 0.1);
+      border: 1px solid #dee2e6;
+      color: #0d6efd;
+    }
+
+    .dark-theme-input {
+      background-color: #ffffff !important;
+      color: #fff !important;
+      border: 1px solid #ced4da !important;
+      border-radius: 6px !important;
+    }
+
+    .dark-theme-input::placeholder {
+      color: #777 !important;
+      opacity: 0.7;
+    }
+
+    .dark-theme-btn-primary {
+      background-color: #0d6efd !important;
+      color: #ffffff !important;
+      font-weight: bold !important;
+      border: none !important;
+      border-radius: 6px !important;
+    }
+
+    .dark-theme-btn-primary:hover {
+      background-color: #0d6efd !important;
+    }
+
+    .dark-theme-btn-primary:disabled {
+      background-color: #1a6680 !important;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .error-message {
+      color: #e74c3c;
+      background-color: rgba(231, 76, 60, 0.1);
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 10px;
+      transition: opacity 0.3s ease;
+    }
+
+    .error-box {
+      background-color: rgba(231, 76, 60, 0.15);
+      border: 1px solid #e74c3c;
+      border-radius: 12px;
+      padding: 24px;
+      color: #e74c3c;
+    }
+
+    .success-message {
+      color: #2ecc71;
+      background-color: rgba(46, 204, 113, 0.1);
+      border: 1px solid #2ecc71;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+
+    .email-status {
+      display: flex;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .email-status.visible {
+      opacity: 1;
+    }
+
+    .email-status .status-icon {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+
+    .email-status .status-icon.checking {
+      background-color: #0d6efd;
+      animation: pulse 1.5s infinite;
+    }
+
+    .email-status .status-icon.valid {
+      background-color: #2ecc71;
+    }
+
+    .email-status .status-icon.invalid {
+      background-color: #e74c3c;
+    }
+
+    @keyframes pulse {
+      0% {
+        opacity: 0.6;
+      }
+
+      50% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0.6;
+      }
+    }
+
+    .header-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      background-color: rgba(248, 249, 250, 0.95);
+      color: #0d6efd;
+      padding: 15px 20px;
+      border-bottom: 1px solid #dee2e6;
+      z-index: 100;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(13, 110, 253, 0.3);
+      border-radius: 50%;
+      border-top-color: #0d6efd;
+      animation: spin 1s linear infinite;
+      margin-left: 10px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .menu-button {
+      background: none;
+      border: none;
+      color: #0d6efd;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .menu-button:hover {
+      opacity: 0.8;
+    }
+
+    .menu-popover {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      margin-top: 8px;
+      z-index: 200;
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.5);
+    }
+
+    .menu-popover button {
+      display: block;
+      width: 100%;
+      padding: 12px 20px;
+      background: none;
+      border: none;
+      color: #e74c3c;
+      text-align: left;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    }
+
+    .menu-popover button:hover {
+      background-color: rgba(231, 76, 60, 0.1);
+    }
+
+    .menu-popover button:first-child {
+      border-radius: 6px 6px 0 0;
+    }
+
+    .menu-popover button:last-child {
+      border-radius: 0 0 6px 6px;
+    }
+
+    .menu-container {
+      position: relative;
+    }
+
+    .header-text {
+      text-align: center;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .header-text img {
+      width: 50px;
+      height: auto;
+      margin: 0 auto 1rem auto;
+      display: block;
+      filter: drop-shadow(0 0 18px rgba(13, 110, 253, 0.7));
+    }
+
+    .header-text h1 {
+      font-size: 3rem;
+      letter-spacing: 1px;
+      text-shadow: none;
+      color: #0d6efd;
+      margin: 0;
+    }
+
+    .header-text p {
+      color: #6c757d;
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+
+    @media (max-width: 768px) {
+      .top_header_space {
+        gap: 8px !important;
+      }
+
+      .top_logo_area_main {
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+      }
+
+      .top_logo_area_main img {
+        max-height: 35px !important;
+      }
+
+      .top_logo_area_main h2 {
+        font-size: 15px !important;
+      }
+
+      .header-bar .header_bar_top {
+        align-items: flex-start !important;
+      }
+
+      .heading_top_mail {
+        font-size: 14px !important;
+      }
+
+      .header-bar {
+        padding: 15px 15px !important;
+      }
+
+      .heading_billing_report h3 {
+        font-size: 20px;
+        ;
+      }
+
+      .heading_billing_report {
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .heading_billing_report button {
+        font-size: 15px;
+        padding: 10px 10px;
+        color: #ffffff !important;
+        font-weight: 600;
+      }
+
+      .top_header_space .dark-theme-btn-primary {
+        font-size: 12px !important;
+        padding: 5px 10px !important;
+      }
+
+      .dark-theme-card h3 {
+        font-size: 24px !important;
+        line-height: normal !important;
+      }
+
+      .markdown-body h1 {
+        font-size: 20px !important;
+      }
+
+      .markdown-body h2 {
+        font-size: 16px !important;
+      }
+
+      .active_user_popover_style {
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        top: 160px !important;
+        width: 260px !important;
+        max-width: 90% !important;
+        min-width: unset !important;
+      }
+    }
+
+    .active_user_popover_style {
+      position: fixed;
+      top: 85px;
+      left: 260px;
+      background-color: #f1f3f5;
+      border: 1px solid rgba(13, 110, 253, 0.4);
+      border-radius: 8px;
+      padding: 12px;
+      min-width: 220px;
+      z-index: 2000;
+      box-shadow: 0 4px 20px rgba(255, 255, 255, 0.5);
+    }
+
+    .billing-report-preview {
+      background: #e8e8e8;
+      color: #ffffff;
+      max-height: 600px;
+      overflow: auto;
+      padding: 24px;
+    }
+
+    .billing-report-page {
+      background: #fff;
+      color: #ffffff;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px 34px;
+      box-shadow: 0 0 0 1px #cfcfcf;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
+    .billing-logo-wrap {
+      margin-bottom: 10px;
+      padding-bottom: 4px;
+    }
+
+    .billing-logo-wrap img {
+      width: 100%;
+      max-width: none;
+      margin-left: 0;
+      display: block;
+    }
+
+    .billing-meta {
+      margin-top: 8px;
+      margin-bottom: 12px;
+      font-size: 10px;
+      line-height: 1.6;
+      font-weight: 700;
+    }
+
+    .billing-meta div {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .billing-title {
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+      margin: 8px 0 12px;
+      text-decoration: underline;
+    }
+
+    .billing-section {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      text-decoration: underline;
+      margin: 12px 0 4px;
+      line-height: 1.2;
+    }
+
+    /* Table-style header row for RECOVERY section */
+    .billing-header-row {
+      display: flex;
+      font-size: 10px;
+      font-weight: 700;
+      text-decoration: underline;
+      margin-top: 2px;
+      margin-bottom: 2px;
+    }
+
+    .billing-header-row .col-label {
+      flex: 0 0 160px;
+    }
+
+    .billing-header-row .col-desc {
+      flex: 1;
+    }
+
+    .billing-header-row .col-collected {
+      flex: 0 0 120px;
+      text-align: right;
+    }
+
+    .billing-header-row .col-balance {
+      flex: 0 0 120px;
+      text-align: right;
+    }
+
+    /* Data row for RECOVERY entries */
+    .billing-data-row {
+      display: flex;
+      font-size: 10px;
+      margin-top: 1px;
+    }
+
+    .billing-data-row .col-label {
+      flex: 0 0 160px;
+    }
+
+    .billing-data-row .col-desc {
+      flex: 1;
+    }
+
+    .billing-data-row .col-collected {
+      flex: 0 0 120px;
+      text-align: right;
+    }
+
+    .billing-data-row .col-balance {
+      flex: 0 0 120px;
+      text-align: right;
+    }
+
+    /* Attorney fees header row: Fee | Reduced | Billed */
+    .billing-atty-header {
+      display: flex;
+      font-size: 10px;
+      font-weight: 700;
+      text-decoration: underline;
+      margin-top: 2px;
+    }
+
+    .billing-atty-header .col-name {
+      flex: 1;
+    }
+
+    .billing-atty-header .col-fee {
+      flex: 0 0 100px;
+      text-align: right;
+    }
+
+    .billing-atty-header .col-reduced {
+      flex: 0 0 100px;
+      text-align: right;
+    }
+
+    .billing-atty-header .col-billed {
+      flex: 0 0 120px;
+      text-align: right;
+    }
+
+    /* Attorney fees data row */
+    .billing-atty-row {
+      display: flex;
+      font-size: 10px;
+      margin-top: 1px;
+    }
+
+    .billing-atty-row .col-name {
+      flex: 1;
+    }
+
+    .billing-atty-row .col-fee {
+      flex: 0 0 100px;
+      text-align: right;
+    }
+
+    .billing-atty-row .col-reduced {
+      flex: 0 0 100px;
+      text-align: right;
+    }
+
+    .billing-atty-row .col-billed {
+      flex: 0 0 120px;
+      text-align: right;
+    }
+
+    /* Case Expenses header row: Provider;Memo | Date | Due */
+    .billing-expense-header {
+      display: flex;
+      font-size: 10px;
+      font-style: italic;
+      text-decoration: underline;
+      margin-top: 4px;
+      margin-bottom: 2px;
+    }
+
+    .billing-expense-header .col-provider {
+      flex: 1;
+    }
+
+    .billing-expense-header .col-date {
+      flex: 0 0 90px;
+      text-align: right;
+    }
+
+    .billing-expense-header .col-due {
+      flex: 0 0 90px;
+      text-align: right;
+    }
+
+    /* Case Expenses data row */
+    .billing-expense-row {
+      display: flex;
+      font-size: 10px;
+      margin-top: 1px;
+      padding-left: 12px;
+    }
+
+    .billing-expense-row .col-provider {
+      flex: 1;
+    }
+
+    .billing-expense-row .col-date {
+      flex: 0 0 90px;
+      text-align: right;
+    }
+
+    .billing-expense-row .col-due {
+      flex: 0 0 90px;
+      text-align: right;
+    }
+
+    /* Other Debits table */
+    .billing-debits-header {
+      display: flex;
+      font-size: 10px;
+      text-decoration: underline;
+      font-style: italic;
+      margin-top: 4px;
+    }
+
+    .billing-debits-header .col-provider {
+      flex: 1;
+    }
+
+    .billing-debits-header .col-date {
+      flex: 0 0 80px;
+      text-align: right;
+    }
+
+    .billing-debits-header .col-total {
+      flex: 0 0 90px;
+      text-align: right;
+    }
+
+    .billing-debits-header .col-paid {
+      flex: 0 0 70px;
+      text-align: right;
+    }
+
+    .billing-debits-header .col-balance {
+      flex: 0 0 80px;
+      text-align: right;
+    }
+
+    .billing-debits-header .col-reduction {
+      flex: 0 0 80px;
+      text-align: right;
+    }
+
+    .billing-debits-header .col-due {
+      flex: 0 0 70px;
+      text-align: right;
+    }
+
+    .billing-debits-row {
+      display: flex;
+      font-size: 10px;
+      margin-top: 1px;
+    }
+
+    .billing-debits-row .col-provider {
+      flex: 1;
+    }
+
+    .billing-debits-row .col-date {
+      flex: 0 0 80px;
+      text-align: right;
+    }
+
+    .billing-debits-row .col-total {
+      flex: 0 0 90px;
+      text-align: right;
+    }
+
+    .billing-debits-row .col-paid {
+      flex: 0 0 70px;
+      text-align: right;
+    }
+
+    .billing-debits-row .col-balance {
+      flex: 0 0 80px;
+      text-align: right;
+    }
+
+    .billing-debits-row .col-reduction {
+      flex: 0 0 80px;
+      text-align: right;
+    }
+
+    .billing-debits-row .col-due {
+      flex: 0 0 70px;
+      text-align: right;
+    }
+
+    .billing-line,
+    .billing-label,
+    .billing-total,
+    .billing-note,
+    .billing-bullet {
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .billing-label {
+      font-size: 10px;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    .billing-line {
+      font-size: 10px;
+      margin-top: 2px;
+    }
+
+    .billing-total {
+      font-size: 10px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .billing-bullet {
+      font-size: 10px;
+      margin-top: 4px;
+      padding-left: 14px;
+      text-indent: -14px;
+    }
+
+    .billing-note {
+      font-size: 10px;
+      margin-top: 4px;
+      font-style: italic;
+    }
+
+    .billing-spacer {
+      height: 5px;
+    }
+
+    @media (max-width: 768px) {
+      .billing-report-page {
+        padding: 12px;
+        font-size: 10px;
+        overflow-x: auto;
+        width: 100%;
+        display: block;
+      }
+
+      .billing-logo-wrap img {
+        max-width: none;
+      }
+
+      .billing-meta {
+        font-size: 10px;
+      }
+
+      .billing-title,
+      .billing-section {
+        font-size: 14px;
+      }
+
+      /* Fix alignment and ensure consistent layout on mobile */
+      .billing-header-row,
+      .billing-data-row,
+      .billing-atty-header,
+      .billing-atty-row,
+      .billing-expense-header,
+      .billing-expense-row,
+      .billing-debits-header,
+      .billing-debits-row {
+        font-size: 9px;
+        min-width: max-content;
+        width: 100%;
+        display: flex !important;
+      }
+
+      /* Text/Label columns - Fixed width to ensure alignment */
+      .col-label,
+      .col-desc,
+      .col-name,
+      .col-provider {
+        flex: 0 0 140px !important;
+        min-width: 140px !important;
+        text-align: left;
+      }
+
+      /* Numeric columns - Fixed width to ensure alignment */
+      .col-collected,
+      .col-balance,
+      .col-fee,
+      .col-reduced,
+      .col-billed,
+      .col-date,
+      .col-due,
+      .col-total,
+      .col-paid,
+      .col-reduction {
+        flex: 0 0 80px !important;
+        min-width: 80px !important;
+        text-align: right;
+      }
+
+      .billing-label,
+      .billing-total,
+      .billing-line,
+      .billing-note,
+      .billing-bullet {
+        font-size: 9px;
+        min-width: max-content;
+        width: 100%;
+      }
+    }
+
+
+/* Global Font & Color Overrides */
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap");
+
+body, html, p, span, div, li, td, th {
+    font-family: "Montserrat", sans-serif !important;
+    color: #111111;
+}
+
+input, textarea, select, .form-control, input[type="text"], input[type="email"], input[type="file"] {
+    background-color: #ffffff !important;
+    color: #111111 !important;
+    border: 1px solid #dee2e6 !important;
+    font-family: "Montserrat", sans-serif !important;
+}
+
+input::placeholder, textarea::placeholder {
+    color: #6c757d !important;
+}
+
+label, .billing-label {
+    font-family: "Montserrat", sans-serif !important;
+    color: #111111 !important;
+    font-weight: 600;
+}
+
+h1, h2, h3, h4, h5, h6, .card-title, .header-title h1, .topbar-logo span {
+    font-family: "Cormorant Garamond", serif !important;
+    color: #0d6efd !important;
+}
+
+button, .btn, .btn-primary, .dark-theme-btn-primary, .login-btn, .send-btn {
+    font-family: "Montserrat", sans-serif !important;
+    background: linear-gradient(135deg, #0d6efd, #0b5ed7) !important;
+    color: #ffffff !important;
+    border: 2px solid rgba(13, 110, 253, 0.6) !important;
+    border-radius: 6px !important;
+    font-weight: bold !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 0 18px rgba(13, 110, 253, 0.6) !important;
+    transition: 0.25s ease-in-out !important;
+}
+
+button:hover:not(:disabled), .btn:hover:not(:disabled), .btn-primary:hover:not(:disabled), .dark-theme-btn-primary:hover:not(:disabled), .login-btn:hover:not(:disabled), .send-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #0b5ed7, #0a58ca) !important;
+    box-shadow: 0 0 28px rgba(13, 110, 253, 0.9) !important;
+    transform: translateY(-2px) !important;
+}
+
+button:disabled, .btn:disabled, .btn-primary:disabled {
+    background: #cccccc !important;
+    color: #666666 !important;
+    border-color: #bbbbbb !important;
+    box-shadow: none !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+a {
+    color: #0d6efd !important;
+    font-family: "Montserrat", sans-serif;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #0b5ed7 !important;
+}
+
+.card, .glass-panel, .dark-theme-card, .login-form-card, .item-card {
+    background: #ffffff !important;
+    border: 1px solid #dee2e6 !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05) !important;
+    color: #111111 !important;
+}
+
+
+/* Card Design Overrides - Flat, clean border */
+.card,
+.dark-theme-card,
+.glass-panel,
+.login-form-card,
+.item-card,
+.selected-files-card,
+[class*="card"] {
+    border-radius: 3px !important;
+    border: 1px solid #dee2e6 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+    background: #ffffff !important;
+}
+
+.card-header,
+.dark-theme-card .card-header,
+.chat-window-header {
+    border-radius: 3px 3px 0 0 !important;
+    border-bottom: 1px solid #dee2e6 !important;
+    background: #f8f9fa !important;
+}
+
+.menu-popover,
+.active_user_popover_style,
+.active_user {
+    border-radius: 3px !important;
+    border: 1px solid #dee2e6 !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+    background: #ffffff !important;
+}
+
+/* Inputs: clean borders, readable text */
+input[type="text"],
+input[type="email"],
+input[type="file"],
+input[type="password"],
+textarea,
+select,
+.form-control {
+    border-radius: 3px !important;
+    border: 1px solid #dee2e6 !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    font-family: "Montserrat", sans-serif !important;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+textarea:focus,
+select:focus,
+.form-control:focus {
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15) !important;
+    outline: none !important;
+}

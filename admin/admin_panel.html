@@ -1,0 +1,2361 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zane & west Law and Firms Admin Panel</title>
+  <link rel="icon" type="image/webp" href="/Designer.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body,
+    html {
+      font-family: "Montserrat", sans-serif;
+      background-color: #111;
+      color: #4dd2ff;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    .video-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at top, #05101a, #000000 70%);
+      z-index: -2;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.85);
+      z-index: -1;
+    }
+
+    /* LOGIN PAGE STYLES */
+    .login-page-wrapper {
+      min-height: 100vh;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0px;
+      box-sizing: border-box;
+      z-index: 10;
+    }
+
+    .login-page-content {
+      width: 100%;
+      max-width: 600px;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .login-logo-section {
+      margin-bottom: 3rem;
+    }
+
+    .login-logo-section img {
+      width: 140px;
+      height: auto;
+      margin-bottom: 1rem;
+      display: inline-block;
+      filter: drop-shadow(0 0 18px rgba(77, 210, 255, 0.7));
+    }
+
+    .login-page-content h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #4dd2ff;
+      margin: 0 0 1rem 0;
+      letter-spacing: 2px;
+      text-shadow: 0 0 20px rgba(77, 210, 255, 0.4);
+    }
+
+    .login-page-content>p {
+      font-size: 1rem;
+      color: #aaa;
+      margin: 0 0 2rem 0;
+    }
+
+    .login-form-card {
+      background-color: #1a1a1a;
+      border: 1px solid rgba(77, 210, 255, 0.4);
+      border-radius: 12px;
+      padding: 2.5rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .login-form-card h2 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #4dd2ff;
+      margin: 0 0 2rem 0;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .login-form-group {
+      margin-bottom: 2rem;
+      text-align: left;
+    }
+
+    .login-form-group label {
+      display: block;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #4dd2ff;
+      margin-bottom: 0.75rem;
+    }
+
+    .login-form-group input {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      font-size: 0.95rem;
+      background-color: #000;
+      color: #fff;
+      border: 1px solid #444;
+      border-radius: 6px;
+      font-family: "Montserrat", sans-serif;
+      transition: border-color 0.3s ease;
+    }
+
+    /* Password input wrapper to position toggle */
+    .password-wrapper {
+      position: relative;
+    }
+
+    /* provide space for the toggle button inside the input */
+    .password-wrapper input[type="password"],
+    .password-wrapper input[type="text"] {
+      padding-right: 3.5rem;
+    }
+
+    .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: #000;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 6px;
+      transition:
+        background 0.15s ease,
+        color 0.15s ease;
+      padding: 0;
+    }
+
+    .toggle-password:hover {
+      background: rgba(77, 210, 255, 0.08);
+      color: #000;
+    }
+
+    .toggle-password svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+      stroke: #000;
+      fill: none;
+    }
+
+    /* default visibility via classes to avoid overlap flicker */
+    .toggle-password .eye-open {
+      display: block;
+    }
+
+    .toggle-password .eye-closed {
+      display: none;
+    }
+
+    .toggle-password.show-closed .eye-open {
+      display: none;
+    }
+
+    .toggle-password.show-closed .eye-closed {
+      display: block;
+    }
+
+    .login-form-group input:focus {
+      outline: none;
+      border-color: #4dd2ff;
+      box-shadow: 0 0 0 2px rgba(77, 210, 255, 0.1);
+    }
+
+    .login-form-group input::placeholder {
+      color: #666;
+    }
+
+    .login-error-message {
+      color: #e74c3c;
+      background-color: rgba(231, 76, 60, 0.1);
+      border: 1px solid rgba(231, 76, 60, 0.3);
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 0.875rem;
+      font-size: 1rem;
+      font-weight: 700;
+      background-color: #4dd2ff;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .login-btn:hover:not(:disabled) {
+      background-color: #4dd2ff;
+      box-shadow: 0 4px 12px rgba(77, 210, 255, 0.3);
+    }
+
+    .login-btn:disabled {
+      background-color: #666;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .login-btn-spinner {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    .spinner {
+      border: 2px solid rgba(0, 0, 0, 0.3);
+      border-top-color: #000;
+      border-radius: 50%;
+      width: 14px;
+      height: 14px;
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* DASHBOARD STYLES */
+    .dashboard-wrapper {
+      display: none;
+      min-height: 100vh;
+      padding: 40px 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .dashboard-wrapper.active {
+      display: block;
+    }
+
+    .dashboard-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .dashboard-logo {
+      width: 200px;
+      margin-bottom: 20px;
+      filter: drop-shadow(0 0 18px rgba(77, 210, 255, 0.7));
+    }
+
+    .dashboard-header h1 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #4dd2ff;
+      text-shadow: 0 0 20px rgba(77, 210, 255, 0.5);
+    }
+
+    .dashboard-header p {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      opacity: 0.85;
+      color: #fff;
+    }
+
+    .view-prompt-btn {
+      color: #4dd2ff;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+      margin-left: 8px;
+    }
+
+    .logout-btn {
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      padding: 10px 24px;
+      border-radius: 30px;
+      color: #fff;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 0 18px rgba(231, 76, 60, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 10px;
+    }
+
+    .logout-btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0 28px rgba(231, 76, 60, 0.8);
+    }
+
+    .editors-access-container {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 20;
+    }
+
+    .editors-access-btn {
+      background: linear-gradient(135deg, #4dd2ff, #1ab2ff);
+      padding: 10px 24px;
+      border-radius: 30px;
+      color: #000;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 0 18px rgba(77, 210, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 10px;
+    }
+
+    .editors-access-btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0 28px rgba(77, 210, 255, 0.8);
+    }
+
+    .btn-grid {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: repeat(3, 1fr);
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* CHANGED: New wrapper for each button to contain popup */
+    .dashboard-btn-wrapper {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dashboard-btn {
+      background: linear-gradient(135deg, #4dd2ff, #1ab2ff);
+      padding: 20px 30px;
+      border-radius: 12px;
+      color: #000;
+      text-decoration: none;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 20px rgba(77, 210, 255, 0.4);
+      transition: all 0.3s ease;
+      border: 2px solid rgba(77, 210, 255, 0.6);
+      text-align: center;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 80px;
+    }
+
+    .dashboard-btn:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 6px 32px rgba(77, 210, 255, 0.8);
+      background: linear-gradient(135deg, #80dfff, #33ccff);
+    }
+
+    /* CHANGED: Remove old hidden buttons container styles */
+    /* Hidden buttons that appear on hover */
+    /* .hidden-btns-container {
+      position: relative;
+      grid-column: span 3;
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: repeat(3, 1fr);
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, opacity 0.4s ease;
+      opacity: 0;
+    }
+
+    .btn-grid:hover .hidden-btns-container {
+      max-height: 200px;
+      opacity: 1;
+    } */
+
+    /* CHANGED: New popup styles for individual tool popups */
+    .tool-popup {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 0px;
+      background: rgba(17, 17, 17, 0.98);
+      border: 2px solid rgba(77, 210, 255, 0.4);
+      border-radius: 8px;
+      padding: 8px;
+      min-width: 200px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        opacity 0.3s ease,
+        visibility 0.3s ease,
+        transform 0.3s ease;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* CHANGED: Show popup on wrapper hover */
+    .dashboard-btn-wrapper:hover .tool-popup {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* CHANGED: Prevent popup from closing when hovering over it */
+    .tool-popup:hover {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* CHANGED: Styles for popup buttons */
+    .popup-btn {
+      background: rgba(77, 210, 255, 0.15);
+      color: #4dd2ff;
+      border: 1px solid rgba(77, 210, 255, 0.3);
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+      font-family: "Montserrat", sans-serif;
+    }
+
+    .popup-btn:hover {
+      background: rgba(77, 210, 255, 0.3);
+      border-color: rgba(77, 210, 255, 0.6);
+      transform: translateX(4px);
+    }
+
+    /* Modal for displaying API data */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: rgba(17, 17, 17, 0.98);
+      backdrop-filter: blur(20px);
+      border: 2px solid rgba(77, 210, 255, 0.3);
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 100%;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      border-bottom: 2px solid rgba(77, 210, 255, 0.3);
+      padding-bottom: 16px;
+    }
+
+    .modal-header h2 {
+      color: #4dd2ff;
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .modal-close-btn {
+      background: none;
+      border: none;
+      color: #4dd2ff;
+      font-size: 32px;
+      cursor: pointer;
+      transition: all 0.3s;
+      padding: 0;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .modal-close-btn:hover {
+      color: #4dd2ff;
+      transform: scale(1.2);
+    }
+
+    .modal-body {
+      color: #e0e0e0;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .modal-loading {
+      text-align: center;
+      padding: 40px;
+      color: #4dd2ff;
+    }
+
+    .modal-loading .spinner {
+      width: 40px;
+      height: 40px;
+      border-width: 4px;
+      border-color: rgba(77, 210, 255, 0.3);
+      border-top-color: #4dd2ff;
+      margin: 0 auto 20px;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(77, 210, 255, 0.2);
+    }
+
+    .data-table th {
+      background: rgba(77, 210, 255, 0.2);
+      color: #4dd2ff;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    .data-table tr:hover {
+      background: rgba(77, 210, 255, 0.05);
+    }
+
+    .data-item {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(77, 210, 255, 0.2);
+    }
+
+    .data-item strong {
+      color: #4dd2ff;
+      display: inline-block;
+      min-width: 150px;
+    }
+
+    @media (max-width: 991px) {
+      .btn-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      /* CHANGED: Remove old hidden container responsive styles */
+      /* .hidden-btns-container {
+        grid-column: span 2;
+      } */
+
+      .dashboard-header h1 {
+        font-size: 2.5rem;
+      }
+
+      /* CHANGED: Adjust popup positioning for smaller screens */
+      .tool-popup {
+        min-width: 180px;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .editors-access-container {
+        position: static;
+        margin-top: 10px;
+        margin-bottom: 20px;
+      }
+
+      .btn-grid {
+        grid-template-columns: 1fr;
+      }
+
+      /* CHANGED: Remove old hidden container responsive styles */
+      /* .hidden-btns-container {
+        grid-column: span 1;
+      } */
+
+      .dashboard-header h1 {
+        font-size: 2rem;
+      }
+
+      .dashboard-header p {
+        font-size: 1rem;
+      }
+
+      .dashboard-btn {
+        min-height: 60px;
+        font-size: 1rem;
+        padding: 16px 20px;
+      }
+
+      .modal-content {
+        padding: 20px;
+      }
+
+      .modal-header h2 {
+        font-size: 20px;
+      }
+
+      /* CHANGED: Full width popup on mobile */
+      .tool-popup {
+        left: 0;
+        right: 0;
+        transform: none;
+        margin-left: 0;
+        margin-right: 0;
+        min-width: auto;
+      }
+
+      .dashboard-btn-wrapper:hover .tool-popup {
+        transform: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="video-background"></div>
+  <div class="overlay"></div>
+
+  <!-- LOGIN PAGE -->
+  <div class="login-page-wrapper" id="login-page">
+    <div class="login-page-content">
+      <div class="login-logo-section">
+        <img src="/Designer.png" alt="Zane & west Law and Firms Logo" />
+        <h1>Zane & west Law and Firms Admin Panel</h1>
+        <div class="editors-access-container">
+          <button class="editors-access-btn" onclick="window.location.href='/editorpanel'">Editors Access</button>
+        </div>
+        <p>Secure Admin Access</p>
+      </div>
+
+      <div class="login-form-card">
+        <h2>Login</h2>
+
+        <form onsubmit="handleLogin(event)">
+          <!-- Email Input -->
+          <div class="login-form-group">
+            <label for="admin-email">Email</label>
+            <input id="admin-email" type="email" placeholder="Enter your admin email" required />
+          </div>
+
+          <!-- Password Input -->
+          <div class="login-form-group">
+            <label for="admin-password">Password</label>
+            <div class="password-wrapper">
+              <input id="admin-password" type="password" placeholder="Enter your password" required />
+              <button type="button" class="toggle-password" aria-label="Show password" title="Show password">
+                <!-- Eye (open) -->
+                <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+                <!-- Eye (closed) -->
+                <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.86 21.86 0 0 1 5.06-6.06" />
+                  <path d="M1 1l22 22" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Error Message -->
+          <div id="login-error" class="login-error-message" style="display: none"></div>
+
+          <!-- Login Button -->
+          <button type="submit" id="login-btn" class="login-btn">
+            <span id="login-btn-text">Login</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard-wrapper" id="dashboard">
+    <div class="dashboard-header">
+      <img src="/Designer.png" class="dashboard-logo" alt="Zane & west Law and Firms Logo" />
+      <h1>Zane & west Law and Firms Admin Panel</h1>
+      <p id="admin-welcome">Welcome, Admin</p>
+      <button class="logout-btn" onclick="handleLogout()">Logout</button>
+      <div style="width:100%; display:flex; justify-content:center;">
+        <div class="dashboard-btn-wrapper" style="margin-top:16px; display:inline-block;">
+          <button class="dashboard-btn" data-tool="whitelist_files">Whitelist Files</button>
+          <div class="tool-popup">
+            <button class="popup-btn" onclick="showModal('whitelist-view', 'Whitelist')">View</button>
+            <button class="popup-btn" onclick="showModal('whitelist-edit', 'Whitelist')">Edit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-grid">
+      <!-- CHANGED: Each main button now has its own popup with data-tool attribute -->
+      <!-- Main 9 Buttons with individual hover popups -->
+      <div class="dashboard-btn-wrapper">
+        <button class="dashboard-btn" data-tool="casevalue">CaseValue</button>
+        <!-- CHANGED: Individual popup for CaseValue ,This three button below are commented for now -->
+
+        <div class="tool-popup">
+          <button class="popup-btn" onclick="showModal('error-logs', 'casevalue')">
+            Error Logs
+          </button>
+          <button class="popup-btn" onclick="showModal('active-today', 'casevalue')">
+            Active Session
+          </button>
+          <button class="popup-btn" onclick="showModal('prompt-logs', 'casevalue')">
+            Prompt Logs
+          </button>
+        </div>
+      </div>
+
+      <div class="dashboard-btn-wrapper">
+        <button class="dashboard-btn" data-tool="document_summary">
+          Document Summary Generator
+        </button>
+        <!-- CHANGED: Individual popup for Document Summary -->
+        <div class="tool-popup">
+          <button class="popup-btn" onclick="showModal('error-logs', 'Medical_Summary_Generator')">
+            Error Logs
+          </button>
+          <button class="popup-btn" onclick="showModal('active-today', 'Medical_Summary_Generator')">
+            Active Session
+          </button>
+          <button class="popup-btn" onclick="showModal('prompt-logs', 'Medical_Summary_Generator')">
+            Prompt Logs
+          </button>
+        </div>
+      </div>
+
+      <div class="dashboard-btn-wrapper">
+        <button class="dashboard-btn" data-tool="email2ai">
+          Email2Ai
+        </button>
+        <!-- Individual popup for Email 2 Ai -->
+
+        <div class="tool-popup">
+          <button class="popup-btn" onclick="showModal('error-logs', 'email2ai')">
+            Error Logs
+          </button>
+          <button class="popup-btn" onclick="showModal('prompt-logs', 'email2ai')">
+            Prompt Logs
+          </button>
+        </div>
+      </div>
+
+      <div class="dashboard-btn-wrapper">
+        <button class="dashboard-btn" data-tool="vicp_attorney_fees">
+          VICP Attorney Fees
+        </button>
+        <!-- CHANGED: Individual popup for VICP Attorney Fees -->
+        <div class="tool-popup">
+          <button class="popup-btn" onclick="showModal('error-logs', 'VICP_Attorney_Fees')">
+            Error Logs
+          </button>
+          <button class="popup-btn" onclick="showModal('active-today', 'VICP_Attorney_Fees')">
+            Active Session
+          </button>
+          <button class="popup-btn" onclick="showModal('prompt-logs', 'VICP_Attorney_Fees')">
+            Prompt Logs
+          </button>
+        </div>
+      </div>
+
+      <div class="dashboard-btn-wrapper">
+        <button class="dashboard-btn" data-tool="settlement_optimizer">
+          Settlement Optimizer
+        </button>
+        <!-- CHANGED: Individual popup for Settlement Optimizer -->
+        <div class="tool-popup">
+          <button class="popup-btn" onclick="showModal('error-logs', 'Settlement_Predictor')">
+            Error Logs
+          </button>
+
+          <button class="popup-btn" onclick="showModal('active-today', 'Settlement_Predictor')">
+            Active Session
+          </button>
+          <button class="popup-btn" onclick="showModal('prompt-logs', 'Settlement_Predictor')">
+            Prompt Logs
+          </button>
+        </div>
+      </div>
+
+      <div class="dashboard-btn-wrapper">
+        <button class="dashboard-btn" data-tool="injury_intelligence">
+          Injury Intelligence:Vision
+        </button>
+        <!-- CHANGED: Individual popup for Injury Intelligence -->
+        <div class="tool-popup">
+          <button class="popup-btn" onclick="showModal('error-logs', 'Injury_Intelligence')">
+            Error Logs
+          </button>
+
+          <button class="popup-btn" onclick="showModal('active-today', 'Injury_Intelligence')">
+            Active Session
+          </button>
+          <button class="popup-btn" onclick="showModal('prompt-logs', 'Injury_Intelligence')">
+            Prompt Logs
+          </button>
+        </div>
+      </div>
+
+      <div class="dashboard-btn-wrapper">
+        <button class="dashboard-btn" data-tool="demand_optimizer">
+          Demand Optimizer
+        </button>
+        <!-- CHANGED: Individual popup for Demand Optimizer -->
+        <div class="tool-popup">
+          <button class="popup-btn" onclick="showModal('error-logs', 'Demand_optimizer')">
+            Error Logs
+          </button>
+          <button class="popup-btn" onclick="showModal('active-today', 'Demand_optimizer')">
+            Active Session
+          </button>
+          <button class="popup-btn" onclick="showModal('prompt-logs', 'Demand_optimizer')">
+            Prompt Logs
+          </button>
+        </div>
+      </div>
+
+      <div class="dashboard-btn-wrapper">
+        <button class="dashboard-btn" data-tool="demand_quality_assurance">
+          Demand Quality Assurance
+        </button>
+        <!-- CHANGED: Individual popup for Demand Quality Assurance -->
+        <div class="tool-popup">
+          <button class="popup-btn" onclick="showModal('error-logs', 'Demand_Quality_Assurance')">
+            Error Logs
+          </button>
+
+          <button class="popup-btn" onclick="showModal('active-today', 'Demand_Quality_Assurance')">
+            Active Session
+          </button>
+          <button class="popup-btn" onclick="showModal('prompt-logs', 'Demand_Quality_Assurance')">
+            Prompt Logs
+          </button>
+        </div>
+      </div>
+
+      <div class="dashboard-btn-wrapper">
+        <button class="dashboard-btn" data-tool="vehicle_loss_analyzer">
+          Vehicle Loss Analyzer
+        </button>
+        <!-- CHANGED: Individual popup for Vehicle Loss Analyzer -->
+        <div class="tool-popup">
+          <button class="popup-btn" onclick="showModal('error-logs', 'Vehicle_Loss_Analyzer')">
+            Error Logs
+          </button>
+
+          <button class="popup-btn" onclick="showModal('active-today', 'Vehicle_Loss_Analyzer')">
+            Active Session
+          </button>
+          <button class="popup-btn" onclick="showModal('prompt-logs', 'Vehicle_Loss_Analyzer')">
+            Prompt Logs
+          </button>
+        </div>
+      </div>
+
+      <!-- NEW: Playbook Chatbot button with Upload action (placeholder) -->
+      <div class="dashboard-btn-wrapper">
+        <button class="dashboard-btn" data-tool="playbook_chatbot">
+          Playbook Chatbot
+        </button>
+        <!-- Individual popup for Playbook Chatbot -->
+        <div class="tool-popup">
+          <button class="popup-btn" onclick="showModal('error-logs', 'Playbook_Chatbot')">
+            Error Logs
+          </button>
+
+          <button class="popup-btn" onclick="showModal('active-today', 'Playbook_Chatbot')">
+            Active Session
+          </button>
+          <button class="popup-btn" onclick="showModal('prompt-logs', 'Playbook_Chatbot')">
+            Prompt Logs
+          </button>
+          <button class="popup-btn" onclick="showModal('upload-playbook', 'Playbook_Chatbot')">
+            Upload
+          </button>
+          <button class="popup-btn" onclick="showModal('view-editors', 'Playbook_Chatbot')">
+            View Editors
+          </button>
+          <button class="popup-btn" onclick="showModal('edit-editors', 'Playbook_Chatbot')">
+            Edit Editors
+          </button>
+          <button class="popup-btn" onclick="showModal('delete-editors', 'Playbook_Chatbot')">
+            Delete Editors
+          </button>
+        </div>
+      </div>
+
+      <!-- NEW: IntakeOps button with Upload action (placeholder) -->
+      <div class="dashboard-btn-wrapper">
+        <button class="dashboard-btn" data-tool="intakeops">IntakeOps</button>
+        <!-- Individual popup for IntakeOps -->
+        <div class="tool-popup">
+          <button class="popup-btn" onclick="showModal('error-logs', 'intakeops')">
+            Error Logs
+          </button>
+          <button class="popup-btn" onclick="showModal('active-today', 'intakeops')">
+            Active Sessions
+          </button>
+          <button class="popup-btn" onclick="showModal('view-specialists', 'intakeops')">
+            View Specialists
+          </button>
+          <button class="popup-btn" onclick="showModal('add-specialist', 'intakeops')">
+            Add Specialist
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL FOR API DATA -->
+  <div class="modal-overlay" id="data-modal" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2 id="modal-title">Loading...</h2>
+        <button class="modal-close-btn" onclick="closeModal()">
+          &times;
+        </button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <div class="modal-loading">
+          <div class="spinner"></div>
+          <p>Loading data...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE_URL = "https://slimy-leonia-kyphotic.ngrok-free.dev/adminpanel";
+    const API_BASE_URL_DS = "https://medicalsummarytool.Zane & west Law and Firms.net"; // <-- UPDATE THIS WITH THE Document Summary API URL
+
+    // Check if already logged in on page load
+    window.addEventListener("DOMContentLoaded", function () {
+      const token = localStorage.getItem("adminToken");
+      const adminEmail = localStorage.getItem("adminEmail");
+
+      if (token && adminEmail) {
+        showDashboard(adminEmail);
+      }
+    });
+
+    // Handle login form submission
+    async function handleLogin(event) {
+      event.preventDefault();
+
+      const email = document.getElementById("admin-email").value.trim();
+      const password = document.getElementById("admin-password").value;
+      const loginBtn = document.getElementById("login-btn");
+      const loginBtnText = document.getElementById("login-btn-text");
+      const errorDiv = document.getElementById("login-error");
+
+      // Disable button and show loading
+      loginBtn.disabled = true;
+      loginBtnText.innerHTML =
+        '<span class="login-btn-spinner"><span class="spinner"></span>Logging in...</span>';
+      errorDiv.style.display = "none";
+
+      try {
+        // Call your login API - using email and password as per your curl
+        const formData = new URLSearchParams();
+        formData.append("email", email);
+        formData.append("password", password);
+
+        const response = await fetch(`${API_BASE_URL}/admin/login`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "ngrok-skip-browser-warning": "true",
+          },
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(
+            errorData.detail ||
+            errorData.message ||
+            `Login failed with status ${response.status}`,
+          );
+        }
+
+        const data = await response.json();
+
+        if (data.access_token) {
+          // Store token and email
+          localStorage.setItem("adminToken", data.access_token);
+          localStorage.setItem("adminEmail", email);
+
+          // Show dashboard
+          showDashboard(email);
+        } else {
+          throw new Error("No access token received");
+        }
+      } catch (error) {
+        // Show error message
+        errorDiv.textContent =
+          error.message || "Login failed. Please try again.";
+        errorDiv.style.display = "block";
+
+        // Re-enable button
+        loginBtn.disabled = false;
+        loginBtnText.textContent = "Login";
+      }
+    }
+
+    // Show dashboard after successful login
+    function showDashboard(email) {
+      document.getElementById("login-page").style.display = "none";
+      document.getElementById("dashboard").classList.add("active");
+      document.getElementById("admin-welcome").textContent =
+        `Welcome, ${email}`;
+    }
+
+    // Handle logout
+    function handleLogout() {
+      if (confirm("Are you sure you want to logout?")) {
+        localStorage.removeItem("adminToken");
+        localStorage.removeItem("adminEmail");
+        location.reload();
+      }
+    }
+
+    // Get auth headers
+    function getAuthHeaders() {
+      const token = localStorage.getItem("adminToken");
+      return {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
+      };
+    }
+
+    // CHANGED: Show modal and fetch data based on button clicked - now accepts toolName parameter
+    async function showModal(type, toolName) {
+      const modal = document.getElementById("data-modal");
+      const modalTitle = document.getElementById("modal-title");
+      const modalBody = document.getElementById("modal-body");
+
+      // Show modal with loading state
+      modal.classList.add("active");
+      // If this is the playbook upload UI
+      if (type === "upload-playbook" && toolName === "Playbook_Chatbot") {
+        modalTitle.textContent = "Playbook Chatbot - Upload";
+        modalBody.innerHTML = `
+      
+                <div style="background: rgba(17, 17, 17, 0.8); border: 2px solid rgba(77, 210, 255, 0.3); border-radius: 12px; padding: 40px;">
+                  <h2 style="color: #4dd2ff; font-size: 24px; font-weight: 700; margin-bottom: 32px; text-align: center;">Playbook Chatbot</h2>
+                  <div style="margin-bottom: 24px;">
+                    <label for="playbook-file-input" style="display: block; color: #4dd2ff; font-size: 14px; font-weight: 600; margin-bottom: 12px;">Select Document / PDF</label>
+                    <input id="playbook-file-input" type="file" accept=".pdf,.doc,.docx" style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(77, 210, 255, 0.3); border-radius: 6px; color: #fff; font-family: 'Montserrat', sans-serif; cursor: pointer;" />
+                  </div>
+                  <div style="margin-bottom: 32px;">
+                    <label for="playbook-department-input" style="display: block; color: #4dd2ff; font-size: 14px; font-weight: 600; margin-bottom: 12px;">Department (Optional)</label>
+                    <input id="playbook-department-input" type="text" placeholder="e.g., HR, Legal, Finance" style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(77, 210, 255, 0.3); border-radius: 6px; color: #fff; font-family: 'Montserrat', sans-serif; font-size: 14px;" onfocus="this.style.borderColor='rgba(77, 210, 255, 0.6)'" onblur="this.style.borderColor='rgba(77, 210, 255, 0.3)'" />
+                  </div>
+                  <div id="playbook-upload-message" style="margin-bottom: 20px; font-size: 14px; text-align: center; display: none;"></div>
+                  <button id="playbook-upload-btn" type="button" onclick="handlePlaybookUpload()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #4dd2ff, #1ab2ff); color: #000; border: none; border-radius: 6px; font-weight: 700; font-size: 16px; cursor: pointer; transition: all 0.3s; font-family: 'Montserrat', sans-serif;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(77, 210, 255, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">Upload</button>
+                </div>
+              
+            `;
+
+        return; // do not call API for this modal
+      }
+
+      // â”€â”€ VIEW EDITORS â”€â”€
+      if (type === "view-editors" && toolName === "Playbook_Chatbot") {
+        modalTitle.textContent = "Playbook Chatbot - View Editors";
+        modalBody.innerHTML = `
+          <div class="modal-loading">
+            <div class="spinner"></div>
+            <p>Loading editors...</p>
+          </div>`;
+
+        try {
+          const token = localStorage.getItem("adminToken");
+          const resp = await fetch(
+            `${API_BASE_URL}/admin/Playbook_Chatbot/editors`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true",
+              },
+            },
+          );
+
+          const data = await resp.json().catch(() => ({}));
+
+          if (!resp.ok) {
+            modalBody.innerHTML = `<div class="data-item" style="color:#e74c3c;">${escapeHtml(data.detail || "Failed to load editors")}</div>`;
+            return;
+          }
+
+          const members = Array.isArray(data.members) ? data.members : [];
+          if (members.length === 0) {
+            modalBody.innerHTML =
+              '<div class="data-item">No editors found</div>';
+            return;
+          }
+
+          const rows = members
+            .map(
+              (m, i) => `
+            <tr>
+              <td>${i + 1}</td>
+              <td>${escapeHtml(m.name || "N/A")}</td>
+              <td>${escapeHtml(m.email || "N/A")}</td>
+            </tr>`,
+            )
+            .join("");
+
+          modalBody.innerHTML = `
+            <table class="data-table">
+              <thead>
+                <tr><th>#</th><th>Name</th><th>Email</th></tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>`;
+        } catch (err) {
+          modalBody.innerHTML = `<div class="data-item" style="color:#e74c3c;">${escapeHtml(err.message || "Error loading editors")}</div>`;
+        }
+        return;
+      }
+
+      // â”€â”€ EDIT EDITORS â”€â”€
+      if (type === "edit-editors" && toolName === "Playbook_Chatbot") {
+        modalTitle.textContent = "Playbook Chatbot - Edit Editors";
+        modalBody.innerHTML = `
+          <div style="margin-bottom:16px; color:#4dd2ff; font-weight:700; font-size:16px;">Add Editor</div>
+          <div style="margin-bottom:12px;">
+            <label style="display:block; color:#4dd2ff; margin-bottom:6px; font-size:13px;">Name</label>
+            <input id="editors-name-input" type="text" placeholder="Full name"
+              style="width:100%; padding:10px; border-radius:6px; background:rgba(0,0,0,0.6); border:1px solid rgba(241,196,15,0.2); color:#fff; font-family:'Montserrat',sans-serif;" />
+          </div>
+          <div style="margin-bottom:12px;">
+            <label style="display:block; color:#4dd2ff; margin-bottom:6px; font-size:13px;">Email</label>
+            <input id="editors-email-input" type="email" placeholder="email@zanewestlaw.com"
+              style="width:100%; padding:10px; border-radius:6px; background:rgba(0,0,0,0.6); border:1px solid rgba(241,196,15,0.2); color:#fff; font-family:'Montserrat',sans-serif;" />
+          </div>
+          <div id="editors-edit-result" style="margin-bottom:12px;"></div>
+          <button id="editors-submit-btn" type="button"
+            style="width:100%; padding:10px; background:linear-gradient(135deg,#4dd2ff,#1ab2ff); color:#000; border:none; border-radius:6px; font-weight:700; cursor:pointer; font-family:'Montserrat',sans-serif;">
+            Submit
+          </button>`;
+
+        (function () {
+          const submitBtn = document.getElementById("editors-submit-btn");
+          const nameInput = document.getElementById("editors-name-input");
+          const emailInput = document.getElementById("editors-email-input");
+          const resultDiv = document.getElementById("editors-edit-result");
+
+          submitBtn.addEventListener("click", async function () {
+            resultDiv.innerHTML = "";
+            const name = (nameInput.value || "").trim();
+            const email = (emailInput.value || "").trim();
+
+            if (!name) {
+              resultDiv.innerHTML =
+                '<div class="data-item" style="color:#e74c3c;">Name is required</div>';
+              return;
+            }
+            if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+              resultDiv.innerHTML =
+                '<div class="data-item" style="color:#e74c3c;">A valid email is required</div>';
+              return;
+            }
+
+            submitBtn.disabled = true;
+            const prevText = submitBtn.innerHTML;
+            submitBtn.innerHTML =
+              '<span class="spinner"></span> Submitting...';
+
+            try {
+              const token = localStorage.getItem("adminToken");
+              const body = new URLSearchParams();
+              body.append("name", name);
+              body.append("email", email);
+
+              const resp = await fetch(
+                `${API_BASE_URL}/admin/Playbook_Chatbot/editors`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
+                  },
+                  body: body,
+                },
+              );
+
+              const data = await resp.json().catch(() => ({}));
+
+              if (!resp.ok) {
+                throw new Error(
+                  data.detail || data.message || "Failed to add editor",
+                );
+              }
+
+              resultDiv.innerHTML = `<div class="data-item" style="color:#2ecc71;">${escapeHtml(data.message || "Editor added successfully")}</div>`;
+              nameInput.value = "";
+              emailInput.value = "";
+            } catch (err) {
+              resultDiv.innerHTML = `<div class="data-item" style="color:#e74c3c;">${escapeHtml(err.message || "Something went wrong")}</div>`;
+            } finally {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = prevText;
+            }
+          });
+        })();
+        return;
+      }
+
+      // â”€â”€ DELETE EDITORS â”€â”€
+      if (type === "delete-editors" && toolName === "Playbook_Chatbot") {
+        modalTitle.textContent = "Playbook Chatbot - Delete Editor";
+        modalBody.innerHTML = `
+          <div style="margin-bottom:12px;">
+            <label style="display:block; color:#4dd2ff; margin-bottom:6px; font-size:13px;">Email of Editor to Delete</label>
+            <input id="editors-delete-email-input" type="email" placeholder="email@zanewestlaw.com"
+              style="width:100%; padding:10px; border-radius:6px; background:rgba(0,0,0,0.6); border:1px solid rgba(241,196,15,0.2); color:#fff; font-family:'Montserrat',sans-serif;" />
+          </div>
+          <div id="editors-delete-result" style="margin-bottom:12px;"></div>
+          <button id="editors-delete-btn" type="button"
+            style="width:100%; padding:10px; background:linear-gradient(135deg,#e74c3c,#c0392b); color:#fff; border:none; border-radius:6px; font-weight:700; cursor:pointer; font-family:'Montserrat',sans-serif;">
+            Submit
+          </button>`;
+
+        (function () {
+          const deleteBtn = document.getElementById("editors-delete-btn");
+          const emailInput = document.getElementById(
+            "editors-delete-email-input",
+          );
+          const resultDiv = document.getElementById("editors-delete-result");
+
+          deleteBtn.addEventListener("click", async function () {
+            resultDiv.innerHTML = "";
+            const email = (emailInput.value || "").trim();
+
+            if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+              resultDiv.innerHTML =
+                '<div class="data-item" style="color:#e74c3c;">A valid email is required</div>';
+              return;
+            }
+
+            deleteBtn.disabled = true;
+            const prevText = deleteBtn.innerHTML;
+            deleteBtn.innerHTML = '<span class="spinner"></span> Deleting...';
+
+            try {
+              const token = localStorage.getItem("adminToken");
+              const resp = await fetch(
+                `${API_BASE_URL}/admin/Playbook_Chatbot/editors?email=${encodeURIComponent(email)}`,
+                {
+                  method: "DELETE",
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    "ngrok-skip-browser-warning": "true",
+                  },
+                },
+              );
+
+              const data = await resp.json().catch(() => ({}));
+
+              if (!resp.ok) {
+                throw new Error(
+                  data.detail || data.message || "Failed to delete editor",
+                );
+              }
+
+              resultDiv.innerHTML = `<div class="data-item" style="color:#2ecc71;">${escapeHtml(data.message || "Editor deleted successfully")}</div>`;
+              emailInput.value = "";
+            } catch (err) {
+              resultDiv.innerHTML = `<div class="data-item" style="color:#e74c3c;">${escapeHtml(err.message || "Something went wrong")}</div>`;
+            } finally {
+              deleteBtn.disabled = false;
+              deleteBtn.innerHTML = prevText;
+            }
+          });
+        })();
+        return;
+      }
+
+      // â”€â”€ VIEW SPECIALISTS â”€â”€
+      if (type === "view-specialists" && toolName === "intakeops") {
+        modalTitle.textContent = "IntakeOps - View Specialists";
+        modalBody.innerHTML = `
+            <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: flex-end; margin-bottom: 20px;">
+              <div>
+                <label style="display:block; color:#4dd2ff; margin-bottom:6px; font-size:12px; font-weight:600;">Practice Area</label>
+                <input id="filter-practice-area" type="text" placeholder="e.g. MVA (optional)"
+                  onkeydown="if(event.key==='Enter') fetchSpecialists()"
+                  style="width:100%; padding:9px 12px; border-radius:6px; background:rgba(0,0,0,0.6); border:1px solid rgba(241,196,15,0.2); color:#fff; font-family:'Montserrat',sans-serif; font-size:13px;" />
+              </div>
+              <div>
+                <label style="display:block; color:#4dd2ff; margin-bottom:6px; font-size:12px; font-weight:600;">Group</label>
+                <input id="filter-group" type="number" placeholder="e.g. 2 (optional)"
+                  onkeydown="if(event.key==='Enter') fetchSpecialists()"
+                  style="width:100%; padding:9px 12px; border-radius:6px; background:rgba(0,0,0,0.6); border:1px solid rgba(241,196,15,0.2); color:#fff; font-family:'Montserrat',sans-serif; font-size:13px;" />
+              </div>
+              <button onclick="fetchSpecialists()" style="padding:9px 20px; background:linear-gradient(135deg,#4dd2ff,#1ab2ff); color:#000; border:none; border-radius:6px; font-weight:700; cursor:pointer; font-family:'Montserrat',sans-serif; white-space:nowrap;">Search</button>
+            </div>
+            <div id="specialists-results">
+              <div class="modal-loading"><div class="spinner"></div><p>Loading specialists...</p></div>
+            </div>
+          `;
+        // Auto-load all on open
+        fetchSpecialists();
+        return;
+      }
+
+      // â”€â”€ ADD SPECIALIST â”€â”€
+      if (type === "add-specialist" && toolName === "intakeops") {
+        modalTitle.textContent = "IntakeOps - Add Specialist";
+        modalBody.innerHTML = `
+            <div id="specialist-choice-screen" style="text-align: center; padding: 20px;">
+              <p style="color: #4dd2ff; margin-bottom: 24px; font-size: 16px;">Would you like to add a single specialist or multiple specialists (Bulk)?</p>
+              <div style="display: flex; gap: 16px; justify-content: center;">
+                <button onclick="showSpecialistForm('single')" style="padding: 12px 24px; background: linear-gradient(135deg, #4dd2ff, #1ab2ff); color: #000; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; font-family: 'Montserrat', sans-serif;">Single</button>
+                <button onclick="showSpecialistForm('bulk')" style="padding: 12px 24px; background: rgba(77, 210, 255, 0.1); color: #4dd2ff; border: 1px solid #4dd2ff; border-radius: 6px; font-weight: 700; cursor: pointer; font-family: 'Montserrat', sans-serif;">Multiple (Bulk)</button>
+              </div>
+            </div>
+            <div id="specialist-form-container" style="display: none;"></div>
+          `;
+        return;
+      }
+
+      // If this is the whitelist view (show members)
+      if (type === "whitelist-view" && toolName === "Whitelist") {
+        modalTitle.textContent = "Whitelist Members";
+        modalBody.innerHTML = `
+            <div class="modal-loading">
+              <div class="spinner"></div>
+              <p>Loading whitelist...</p>
+            </div>
+          `;
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/admin/whitelist`, {
+            method: "GET",
+            headers: getAuthHeaders(),
+          });
+
+          const data = await response.json().catch(() => ({}));
+
+          if (!response.ok) {
+            modalBody.innerHTML = `<div class="data-item">${data.detail || "Failed to load whitelist"}</div>`;
+            return;
+          }
+
+          const members = Array.isArray(data.members) ? data.members : [];
+          if (members.length === 0) {
+            modalBody.innerHTML =
+              '<div class="data-item">No whitelist members found</div>';
+            return;
+          }
+
+          const rows = members
+            .map(
+              (m) => `
+                <div style="padding:8px 0; border-bottom:1px solid rgba(241,196,15,0.06);">
+                  <strong style="color:#4dd2ff; display:inline-block; width:180px;">${escapeHtml(m.name || "N/A")}</strong>
+                  <span style="color:#ddd;">${escapeHtml(m.email || "N/A")}</span>
+                </div>
+              `,
+            )
+            .join("");
+
+          modalBody.innerHTML = `<div class="data-item">${rows}</div>`;
+        } catch (err) {
+          modalBody.innerHTML = `<div class="data-item">${err.message || "Error loading whitelist"}</div>`;
+          console.error("Whitelist fetch error", err);
+        }
+
+        return; // handled
+      }
+
+      // If this is the whitelist edit view (show form and submit)
+      if (type === "whitelist-edit" && toolName === "Whitelist") {
+        modalTitle.textContent = "Whitelist - Edit";
+        modalBody.innerHTML = `            
+              <div style="margin-bottom:16px; color:#4dd2ff; font-weight:700; font-size:16px;">Add Whitelist Member</div>
+              <div style="margin-bottom:12px;">
+                <label style="display:block; color:#4dd2ff; margin-bottom:6px; font-size:13px;">Name</label>
+                <input id="whitelist-name-input" type="text" placeholder="Full name" style="width:100%; padding:10px; border-radius:6px; background:rgba(0,0,0,0.6); border:1px solid rgba(241,196,15,0.2); color:#fff;" />
+              </div>
+              <div style="margin-bottom:12px;">
+                <label style="display:block; color:#4dd2ff; margin-bottom:6px; font-size:13px;">Email</label>
+                <input id="whitelist-email-input" type="email" placeholder="email@company.com" style="width:100%; padding:10px; border-radius:6px; background:rgba(0,0,0,0.6); border:1px solid rgba(241,196,15,0.2); color:#fff;" />
+              </div>
+              <div id="whitelist-edit-result" style="margin-bottom:12px; display:block;"></div>
+              <button id="whitelist-submit-btn" type="button" style="width:100%; padding:10px; background: linear-gradient(135deg, #4dd2ff, #1ab2ff); color: #000; border: none; border-radius: 6px; font-weight:700; cursor:pointer;">Submit</button>
+          `;
+
+        // Wire up submit handler
+        (function () {
+          const submitBtn = document.getElementById("whitelist-submit-btn");
+          const nameInput = document.getElementById("whitelist-name-input");
+          const emailInput = document.getElementById("whitelist-email-input");
+          const resultDiv = document.getElementById("whitelist-edit-result");
+
+          function validateEmail(email) {
+            return /^\S+@\S+\.\S+$/.test(email);
+          }
+
+          submitBtn.addEventListener("click", async function () {
+            resultDiv.innerHTML = "";
+            const name = (nameInput.value || "").trim();
+            const email = (emailInput.value || "").trim();
+
+            if (!name) {
+              resultDiv.innerHTML =
+                '<div class="data-item" style="color:#e74c3c;">Name is required</div>';
+              return;
+            }
+
+            if (!email || !validateEmail(email)) {
+              resultDiv.innerHTML =
+                '<div class="data-item" style="color:#e74c3c;">A valid email is required</div>';
+              return;
+            }
+
+            submitBtn.disabled = true;
+            const prevText = submitBtn.innerHTML;
+            submitBtn.innerHTML =
+              '<span class="spinner"></span>Submitting...';
+
+            try {
+              const resp = await fetch(`${API_BASE_URL}/admin/whitelist`, {
+                method: "POST",
+                headers: getAuthHeaders(),
+                body: JSON.stringify({ name, email }),
+              });
+
+              const data = await resp.json().catch(() => ({}));
+
+              if (!resp.ok) {
+                throw new Error(
+                  data1.detail || data1.message || "Primary request failed",
+                );
+              }
+
+              resultDiv.innerHTML = `
+                  <div class="data-item" style="color:#2ecc71;">
+                    ${escapeHtml(data.message || "Member added successfully")}
+                  </div>
+                `;
+
+              // Optional: clear inputs
+              nameInput.value = "";
+              emailInput.value = "";
+            } catch (err) {
+              resultDiv.innerHTML = `
+                  <div class="data-item" style="color:#e74c3c;">
+                    ${escapeHtml(err.message || "Something went wrong")}
+                  </div>
+                `;
+            } finally {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = prevText;
+            }
+          });
+        })();
+
+        return; // handled
+      }
+
+      modalTitle.textContent = getModalTitle(type, toolName); // CHANGED: Pass toolName to title
+      modalBody.innerHTML = `
+          <div class="modal-loading">
+            <div class="spinner"></div>
+            <p>Loading data...</p>
+          </div>
+        `;
+
+      try {
+        let endpoint = "";
+
+        // Map tool names to project names for tokens endpoint
+        const projectNameMap = {
+          Medical_Summary_Generator: "Medical_Summary_Generator",
+          Settlement_Predictor: "Settlement_Predictor",
+          VICP_Attorney_Fees: "VICP_Attorney_Fees",
+          Injury_Intelligence: "Injury_Intelligence",
+          Demand_optimizer: "Demand_optimizer",
+          Demand_Quality_Assurance: "Demand_Quality_Assurance",
+          Vehicle_Loss_Analyzer: "Vehicle_Loss_Analyzer",
+          Playbook_Chatbot: "Playbook_Chatbot",
+        };
+
+        // CHANGED: Build dynamic endpoint with toolName prefix
+        switch (type) {
+          case "error-logs":
+            // Special case for email2ai which uses /logs endpoint
+            endpoint =
+              toolName === "email2ai"
+                ? `/admin/${toolName}/logs`
+                : `/admin/${toolName}/error-logs`;
+            break;
+
+          case "active-today":
+            endpoint = `/admin/${toolName}/active-today`;
+            break;
+          case "prompt-logs":
+            endpoint = `/admin/${toolName}/prompt_logs`;
+            break;
+        }
+
+        // Use alternate base URL only for Document Summary Generator popups
+        const baseUrl =
+          toolName === "Medical_Summary_Generator" ||
+            toolName === "document_summary"
+            ? API_BASE_URL_DS
+            : API_BASE_URL;
+        const response = await fetch(`${baseUrl}${endpoint}`, {
+          method: "GET",
+          headers: getAuthHeaders(),
+        });
+
+        const data = await response.json();
+
+        // Check if response has a detail or message field (e.g., {"detail":"No error logs found"})
+        const simpleMsg =
+          data && typeof data === "object" && (data.detail || data.message)
+            ? data.detail || data.message
+            : null;
+
+        if (simpleMsg) {
+          modalBody.innerHTML = '<div class="data-item"></div>';
+          modalBody.querySelector(".data-item").textContent = simpleMsg;
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch data");
+        }
+
+        displayModalData(type, data, toolName);
+      } catch (error) {
+        // CHANGED: Better error message with endpoint info
+        modalBody.innerHTML = `
+          <div style="text-align: center; padding: 40px; color: #e74c3c;">
+            <p style="font-size: 18px; margin-bottom: 12px;">âš ï¸ Error Loading Data</p>
+            <p style="font-size: 14px; opacity: 0.8;">${error.detail.detail}</p>
+            <p style="font-size: 12px; opacity: 0.6; margin-top: 8px;">Endpoint: ${endpoint}</p>
+          </div>
+        `;
+      }
+    }
+
+    // CHANGED: Get modal title based on type and toolName
+    function getModalTitle(type, toolName) {
+      const toolNames = {
+        casevalue: "CaseValue",
+        medical_summary_generator: "Medical Summary Generator",
+        email2ai: "Email2Ai",
+        vicp_attorney_fees: "VICP Attorney Fees",
+        settlement_optimizer: "Settlement Optimizer",
+        injury_intelligence: "Injury Intelligence",
+        demand_optimizer: "Demand Optimizer",
+        demand_quality_assurance: "Demand Quality Assurance",
+        vehicle_loss_analyzer: "Vehicle Loss Analyzer",
+        Playbook_Chatbot: "Playbook Chatbot",
+        intakeops: "IntakeOps",
+      };
+
+      const typeNames = {
+        "error-logs": "Error Logs",
+        "active-today": "Active Today",
+        "prompt-logs": "Prompt Logs",
+        "view-specialists": "View Specialists",
+        "add-specialist": "Add Specialist",
+      };
+
+      const tool = toolNames[toolName] || toolName;
+      const typeName = typeNames[type] || type;
+
+      return `${tool} - ${typeName}`;
+    }
+
+    // Display data in modal based on type
+    function displayModalData(type, data, toolName) {
+      const modalBody = document.getElementById("modal-body");
+
+      if (!data || (Array.isArray(data) && data.length === 0)) {
+        modalBody.innerHTML =
+          '<p style="text-align: center; padding: 40px; color: #aaa;">No data available</p>';
+        return;
+      }
+
+      let html = "";
+
+      switch (type) {
+        case "error-logs":
+          html = formatErrorLogs(data);
+          break;
+
+        case "active-today":
+          html = formatActiveSessions(data);
+          break;
+        case "prompt-logs":
+          html = formatPromptLogs(data, toolName, toolName);
+          break;
+        default:
+          html = "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
+      }
+
+      modalBody.innerHTML = html;
+    }
+
+    // Format error logs
+    function formatErrorLogs(data) {
+      if (!Array.isArray(data)) return "<p>Invalid data format</p>";
+      // {"detail":"No error logs found"} i want to hanle this case in this case i want to show the details like No error logs found instead of showing loading spiner
+      return data
+        .map(
+          (log) => `
+        <div class="data-item">
+          <div><strong>ID:</strong> ${log.id || "N/A"}</div>
+          <div><strong>API Endpoint:</strong> ${log.api || "N/A"}</div>
+          <div><strong>Error Type:</strong> ${log.error_type || "N/A"}</div>
+          <div><strong>Category:</strong> ${log.category || "N/A"}</div>
+          <div><strong>Message:</strong> ${log.message || "N/A"}</div>
+          <div><strong>Status Code:</strong> ${log.status_code || "N/A"}</div>
+          <div><strong>Request ID:</strong> ${log.request_id || "N/A"}</div>
+          <div><strong>Created At:</strong> ${log.created_at ? new Date(log.created_at).toLocaleString() : "N/A"}</div>
+          ${log.stack_trace ? `<div><strong>Stack:</strong> <pre style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 4px; font-size: 12px; overflow-x: auto;">${log.stack_trace}</pre></div>` : ""}
+        </div>
+      `,
+        )
+        .join("");
+    }
+
+    // Format active sessions
+    function formatActiveSessions(data) {
+      if (!Array.isArray(data)) return "<p>Invalid data format</p>";
+
+      return `
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Last Active</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data
+          .map(
+            (session) => `
+              <tr>
+                <td>${session.email || "N/A"}</td>
+                <td>${session.last_active ? new Date(session.last_active).toLocaleString() : "N/A"}</td>
+              </tr>
+            `,
+          )
+          .join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
+    // Format prompt logs
+    function formatPromptLogs(data, toolName) {
+      if (!Array.isArray(data)) {
+        if (
+          typeof data === "object" &&
+          data.data &&
+          Array.isArray(data.data)
+        ) {
+          data = data.data; // Extract the array from the data field
+        } else if (typeof data === "object" && data.detail) {
+          return `<div class="data-item">${data.detail}</div>`;
+        } else {
+          return "<p>Invalid data format</p>";
+        }
+      }
+
+      if (data.length === 0) {
+        return '<p style="text-align: center; padding: 20px; color: #aaa;">No prompt logs available</p>';
+      }
+
+      // Special format for email2ai
+      if (toolName === "email2ai") {
+        return data
+          .map(
+            (log) => `
+        <div class="data-item">
+          <div><strong>ID:</strong> ${log.id || "N/A"}</div>
+          <div><strong>Sender Email:</strong> ${log.sender_email || "N/A"}</div>
+          <div><strong>Subject:</strong> ${escapeHtml(log.subject || "N/A")}</div>
+          <div><strong>Attachment Name:</strong> ${escapeHtml(log.attachment_name || "N/A")}</div>
+          <div><strong>Attachment Type:</strong> ${log.attachment_type || "N/A"}</div>
+          <div><strong>Input Tokens:</strong> ${log.input_tokens != null ? log.input_tokens : "N/A"}</div>
+          <div><strong>Output Tokens:</strong> ${log.output_tokens != null ? log.output_tokens : "N/A"}</div>
+          <div><strong>Input Cost (USD):</strong> ${log.input_cost_usd != null ? log.input_cost_usd : "N/A"}</div>
+          <div><strong>Output Cost (USD):</strong> ${log.output_cost_usd != null ? log.output_cost_usd : "N/A"}</div>
+          <div><strong>Response Time:</strong> ${log.response_time != null ? log.response_time + "s" : "N/A"}</div>
+          <div><strong>Status:</strong> ${log.status || "N/A"}</div>
+          <div><strong>Created At:</strong> ${log.created_at ? new Date(log.created_at).toLocaleString() : "N/A"}</div>
+        </div>
+      `,
+          )
+          .join("");
+      }
+
+      return data
+        .map((log) => {
+          // only include feedback field when viewing Playbook Chatbot logs
+          const feedbackHtml =
+            toolName === "Playbook_Chatbot"
+              ? `<div><strong>Feedback:</strong> ${log.response_feedback != null ? log.response_feedback : "N/A"}</div>`
+              : "";
+
+          return `
+        <div class="data-item">
+          <div><strong>ID:</strong> ${log.id || "N/A"}</div>
+          <div><strong>User Email:</strong> ${log.user_email || "N/A"}</div>
+          <div><strong>Prompt Text:</strong>
+            ${log.prompt_text
+              ? log.prompt_text.length > 200
+                ? `<span class="short-prompt">${escapeHtml(log.prompt_text.substring(0, 200))}...</span><span class="full-prompt" style="display:none;">${escapeHtml(log.prompt_text)}</span><strong class='view-prompt-btn' onclick="togglePrompt(this)">View full prompt</strong>`
+                : escapeHtml(log.prompt_text)
+              : "N/A"
+            }
+          </div>
+          <div><strong>Prompt Type:</strong> ${log.prompt_type || "N/A"}</div>
+          <div><strong>Model:</strong> ${log.model || "N/A"}</div>
+          <div><strong>Input Tokens:</strong> ${log.input_tokens != null ? log.input_tokens : "N/A"}</div>
+          <div><strong>Output Tokens:</strong> ${log.output_tokens != null ? log.output_tokens : "N/A"}</div>
+          <div><strong>Input Cost (USD):</strong> ${log.input_cost_usd != null ? log.input_cost_usd : "N/A"}</div>
+          <div><strong>Output Cost (USD):</strong> ${log.output_cost_usd != null ? log.output_cost_usd : "N/A"}</div>
+          ${feedbackHtml}
+          <div><strong>Timestamp:</strong> ${log.timestamp ? new Date(log.timestamp).toLocaleString() : "N/A"}</div>
+        </div>
+      `;
+        })
+        .join("");
+    }
+
+    // Toggle between short and full prompt text when user clicks the button
+    function togglePrompt(button) {
+      try {
+        const container = button.closest(".data-item");
+        if (!container) return;
+        const shortEl = container.querySelector(".short-prompt");
+        const fullEl = container.querySelector(".full-prompt");
+        if (!shortEl || !fullEl) return;
+
+        const isHidden = shortEl.style.display === "none";
+        if (isHidden) {
+          // currently showing full, switch to short
+          shortEl.style.display = "";
+          fullEl.style.display = "none";
+          button.textContent = "View full prompt";
+        } else {
+          // show full
+          shortEl.style.display = "none";
+          fullEl.style.display = "";
+          button.textContent = "View less";
+        }
+      } catch (e) {
+        console.error("togglePrompt error", e);
+      }
+    }
+
+    // Simple escape to avoid breaking HTML when inserting prompt text
+    function escapeHtml(str) {
+      if (typeof str !== "string") return str;
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    // Format object keys for display
+    function formatKey(key) {
+      return key
+        .split("_")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+    }
+
+    // Close modal
+    function closeModal(event) {
+      if (!event || event.target.id === "data-modal") {
+        document.getElementById("data-modal").classList.remove("active");
+      }
+    }
+
+    // Initialize password toggle buttons
+    function initPasswordToggles() {
+      document.querySelectorAll(".password-wrapper").forEach((wrapper) => {
+        const input = wrapper.querySelector("input");
+        const btn = wrapper.querySelector(".toggle-password");
+        const eyeOpen = btn.querySelector(".eye-open");
+        const eyeClosed = btn.querySelector(".eye-closed");
+
+        if (!input || !btn) return;
+
+        btn.addEventListener("click", () => {
+          if (input.type === "password") {
+            input.type = "text";
+            btn.setAttribute("aria-label", "Hide password");
+            btn.title = "Hide password";
+            btn.classList.add("show-closed");
+          } else {
+            input.type = "password";
+            btn.setAttribute("aria-label", "Show password");
+            btn.title = "Show password";
+            btn.classList.remove("show-closed");
+          }
+        });
+      });
+    }
+
+    // Global variables to store Playbook upload state
+    let lastPlaybookUploadedFile = null;
+    let lastPlaybookUploadedDepartment = null;
+
+    // Handle Playbook file upload
+    async function handlePlaybookUpload() {
+      const fileInput = document.getElementById("playbook-file-input");
+      const departmentInput = document.getElementById(
+        "playbook-department-input",
+      );
+      const uploadBtn = document.getElementById("playbook-upload-btn");
+      const uploadMessage = document.getElementById(
+        "playbook-upload-message",
+      );
+
+      const file = fileInput.files[0];
+      const department = departmentInput.value.trim();
+
+      // Validation - file is required
+      if (!file) {
+        uploadMessage.style.display = "block";
+        uploadMessage.style.color = "#e74c3c";
+        uploadMessage.textContent = "Please select a file";
+        return;
+      }
+
+      try {
+        // Disable button and show loading
+        uploadBtn.disabled = true;
+        uploadBtn.textContent = "Uploading...";
+        uploadMessage.style.display = "none";
+
+        // Create FormData
+        const formData = new FormData();
+        formData.append("file", file);
+        if (department) {
+          formData.append("department", department);
+        }
+
+        // Get auth token
+        const token = localStorage.getItem("adminToken");
+        if (!token) {
+          throw new Error("Not authenticated. Please login again.");
+        }
+
+        // Call upload API
+        const response = await fetch(
+          `${API_BASE_URL}/admin/Playbook_Chatbot/upload`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "ngrok-skip-browser-warning": "true",
+            },
+            body: formData,
+          },
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(
+            errorData.detail || errorData.message || "Upload failed",
+          );
+        }
+
+        const data = await response.json();
+
+        // Check if response has indexed status or file already exists
+        if (
+          data.result &&
+          (data.result.status === "indexed" ||
+            data.result.status.includes("file is already present"))
+        ) {
+          // Store the uploaded file and department for regenerate
+          lastPlaybookUploadedFile = file;
+          lastPlaybookUploadedDepartment = department;
+
+          // Show the status message (either indexed or file already present)
+          uploadMessage.style.display = "block";
+          uploadMessage.style.color = "#4dd2ff";
+          uploadMessage.textContent = data.result.status;
+
+          // Change button to Regenerate
+          uploadBtn.disabled = false;
+          uploadBtn.textContent = "Regenerate";
+          uploadBtn.onclick = handlePlaybookRegenerate;
+
+          // Disable file and department inputs
+          fileInput.disabled = true;
+          departmentInput.disabled = true;
+        } else {
+          // Success message for other responses
+          uploadMessage.style.display = "block";
+          uploadMessage.style.color = "#2ecc71";
+          uploadMessage.textContent = "âœ“ File uploaded successfully!";
+
+          // Reset form after 2 seconds
+          setTimeout(() => {
+            fileInput.value = "";
+            departmentInput.value = "";
+            uploadMessage.style.display = "none";
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = "Upload";
+            uploadBtn.onclick = handlePlaybookUpload;
+            fileInput.disabled = false;
+            departmentInput.disabled = false;
+          }, 2000);
+        }
+
+      } catch (error) {
+        uploadMessage.style.display = "block";
+        uploadMessage.style.color = "#e74c3c";
+        uploadMessage.textContent = `Error: ${error.message}`;
+
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = "Upload";
+        uploadBtn.onclick = handlePlaybookUpload;
+      }
+    }
+
+    // Handle Playbook file regenerate
+    async function handlePlaybookRegenerate() {
+      const fileInput = document.getElementById("playbook-file-input");
+      const departmentInput = document.getElementById(
+        "playbook-department-input",
+      );
+      const uploadBtn = document.getElementById("playbook-upload-btn");
+      const uploadMessage = document.getElementById(
+        "playbook-upload-message",
+      );
+
+      if (!lastPlaybookUploadedFile) {
+        uploadMessage.style.display = "block";
+        uploadMessage.style.color = "#e74c3c";
+        uploadMessage.textContent = "No file to regenerate";
+        return;
+      }
+
+      try {
+        // Disable button and show loading
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML = '<span class="login-btn-spinner"><span class="spinner"></span>Regenerating...</span>';
+        uploadMessage.style.display = "none";
+
+        // Enable file and department inputs during regenerate
+        fileInput.disabled = true;
+        departmentInput.disabled = false;
+
+        // Create FormData
+        const formData = new FormData();
+        formData.append("file", lastPlaybookUploadedFile);
+        if (lastPlaybookUploadedDepartment) {
+          formData.append("department", lastPlaybookUploadedDepartment);
+        }
+
+        // Get auth token
+        const token = localStorage.getItem("adminToken");
+        if (!token) {
+          throw new Error("Not authenticated. Please login again.");
+        }
+
+        // Call regenerate API with ?regenerate=true
+        const response = await fetch(`${API_BASE_URL}/admin/Playbook_Chatbot/upload?regenerate=true`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "ngrok-skip-browser-warning": "true",
+          },
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.detail || errorData.message || "Regenerate failed");
+        }
+
+        const data = await response.json();
+
+        // Success message
+        uploadMessage.style.display = "block";
+        uploadMessage.style.color = "#2ecc71";
+        uploadMessage.textContent = "âœ“ File regenerated successfully!";
+
+        // Reset to Upload state
+        lastPlaybookUploadedFile = null;
+        lastPlaybookUploadedDepartment = null;
+
+        // Enable inputs
+        fileInput.disabled = false;
+        departmentInput.disabled = false;
+
+        // Clear inputs
+        fileInput.value = "";
+        departmentInput.value = "";
+
+        // Reset button
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = "Upload";
+        uploadBtn.onclick = handlePlaybookUpload;
+
+      } catch (error) {
+        uploadMessage.style.display = "block";
+        uploadMessage.style.color = "#e74c3c";
+        uploadMessage.textContent = `Error: ${error.message}`;
+
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = "Regenerate";
+      }
+    }
+
+    // â”€â”€ INTAKEOPS HELPERS â”€â”€
+
+    async function fetchSpecialists() {
+      const resultsDiv = document.getElementById("specialists-results");
+      if (!resultsDiv) return;
+
+      const practiceArea = (document.getElementById("filter-practice-area")?.value || "").trim();
+      const group = (document.getElementById("filter-group")?.value || "").trim();
+
+      // Build query string
+      const params = new URLSearchParams();
+      if (practiceArea) params.append("practice_area", practiceArea);
+      if (group) params.append("group", group);
+      const query = params.toString() ? `?${params.toString()}` : "";
+
+      resultsDiv.innerHTML = '<div class="modal-loading"><div class="spinner"></div><p>Loading specialists...</p></div>';
+
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/admin/intakeops/intake_specialists${query}`,
+          { method: "GET", headers: getAuthHeaders() },
+        );
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          resultsDiv.innerHTML = `<div class="data-item" style="color:#e74c3c;">${escapeHtml(data.detail || "Failed to load specialists")}</div>`;
+          return;
+        }
+
+        resultsDiv.innerHTML = formatSpecialists(data);
+      } catch (err) {
+        resultsDiv.innerHTML = `<div class="data-item" style="color:#e74c3c;">${escapeHtml(err.message || "Error loading specialists")}</div>`;
+      }
+    }
+
+    function formatSpecialists(data) {
+      if (!Array.isArray(data?.data) || data?.data?.length === 0) {
+        return '<div class="data-item">No specialists found</div>';
+      }
+
+      const rows = data?.data
+        .map(
+          (s, i) => `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${escapeHtml(s.practice_area || "N/A")}</td>
+            <td>${escapeHtml(s.email || "N/A")}</td>
+            <td>${s.position || "N/A"}</td>
+          </tr>`,
+        )
+        .join("");
+
+      return `
+          <table class="data-table">
+            <thead>
+              <tr><th>#</th><th>Practice Area</th><th>Email</th><th>Position</th></tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>`;
+    }
+
+    function showSpecialistForm(mode) {
+      const choiceScreen = document.getElementById(
+        "specialist-choice-screen",
+      );
+      const formContainer = document.getElementById(
+        "specialist-form-container",
+      );
+
+      choiceScreen.style.display = "none";
+      formContainer.style.display = "block";
+
+      if (mode === "single") {
+        formContainer.innerHTML = `
+            <div style="margin-bottom: 16px;">
+              <label style="display:block; color:#4dd2ff; margin-bottom:6px; font-size:13px;">Practice Area</label>
+              <input id="spec-practice-area" type="text" placeholder="e.g., MVA" style="width:100%; padding:10px; border-radius:6px; background:rgba(0,0,0,0.6); border:1px solid rgba(241,196,15,0.2); color:#fff; font-family:'Montserrat',sans-serif;" />
+            </div>
+            <div style="margin-bottom: 16px;">
+              <label style="display:block; color:#4dd2ff; margin-bottom:6px; font-size:13px;">Email</label>
+              <input id="spec-email" type="email" placeholder="email@zanewestlaw.com" style="width:100%; padding:10px; border-radius:6px; background:rgba(0,0,0,0.6); border:1px solid rgba(241,196,15,0.2); color:#fff; font-family:'Montserrat',sans-serif;" />
+            </div>
+            <div style="margin-bottom: 16px;">
+              <label style="display:block; color:#4dd2ff; margin-bottom:6px; font-size:13px;">Position</label>
+              <input id="spec-position" type="number" placeholder="1" style="width:100%; padding:10px; border-radius:6px; background:rgba(0,0,0,0.6); border:1px solid rgba(241,196,15,0.2); color:#fff; font-family:'Montserrat',sans-serif;" />
+            </div>
+            <div id="spec-result" style="margin-bottom:12px; font-size:14px;"></div>
+            <button onclick="handleSpecialistSubmit('single')" id="spec-submit-btn" style="width:100%; padding:12px; background: linear-gradient(135deg, #4dd2ff, #1ab2ff); color: #000; border: none; border-radius: 6px; font-weight:700; cursor:pointer; font-family:'Montserrat',sans-serif;">Add Specialist</button>
+            <button onclick="showSpecialistChoice()" style="width:100%; margin-top: 12px; padding: 8px; background: transparent; color: #aaa; border: none; cursor: pointer; font-size: 13px;">&larr; Back to Choice</button>
+          `;
+      } else {
+        formContainer.innerHTML = `
+            <div id="bulk-rows-container">
+              <!-- Rows will be added here -->
+            </div>
+            <button onclick="addSpecialistRow()" style="width:100%; margin-bottom: 20px; padding: 10px; background: rgba(77, 210, 255, 0.1); color: #4dd2ff; border: 1px dashed #4dd2ff; border-radius: 6px; cursor: pointer; font-weight: 600; font-family:'Montserrat',sans-serif;">+ Add Another Specialist</button>
+            <div id="spec-result" style="margin-bottom:12px; font-size:14px;"></div>
+            <button onclick="handleSpecialistSubmit('bulk')" id="spec-submit-btn" style="width:100%; padding:12px; background: linear-gradient(135deg, #4dd2ff, #1ab2ff); color: #000; border: none; border-radius: 6px; font-weight:700; cursor:pointer; font-family:'Montserrat',sans-serif;">Submit All Specialists</button>
+            <button onclick="showSpecialistChoice()" style="width:100%; margin-top: 12px; padding: 8px; background: transparent; color: #aaa; border: none; cursor: pointer; font-size: 13px;">&larr; Back to Choice</button>
+          `;
+        // Add first row automatically
+        addSpecialistRow();
+      }
+    }
+
+    function addSpecialistRow() {
+      const container = document.getElementById("bulk-rows-container");
+      if (!container) return;
+
+      const rowId = Date.now() + Math.random();
+      const row = document.createElement("div");
+      row.className = "bulk-row";
+      row.id = `row-${rowId}`;
+      row.style.cssText =
+        "background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid rgba(77, 210, 255, 0.1); position: relative;";
+
+      row.innerHTML = `
+          <button onclick="removeSpecialistRow('${rowId}')" style="position: absolute; top: 8px; right: 8px; background: transparent; color: #e74c3c; border: none; cursor: pointer; font-size: 20px; line-height: 1; padding: 0;">&times;</button>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 80px; gap: 10px; margin-top: 10px;">
+            <div>
+              <label style="display:block; color:#4dd2ff; margin-bottom:4px; font-size:11px;">Practice Area</label>
+              <input type="text" class="spec-practice-area-bulk" placeholder="MVA" style="width:100%; padding:8px; border-radius:4px; background:rgba(0,0,0,0.6); border:1px solid rgba(241,196,15,0.2); color:#fff; font-size:13px; font-family:'Montserrat',sans-serif;" />
+            </div>
+            <div>
+              <label style="display:block; color:#4dd2ff; margin-bottom:4px; font-size:11px;">Email</label>
+              <input type="email" class="spec-email-bulk" placeholder="email@zanewestlaw.com" style="width:100%; padding:8px; border-radius:4px; background:rgba(0,0,0,0.6); border:1px solid rgba(241,196,15,0.2); color:#fff; font-size:13px; font-family:'Montserrat',sans-serif;" />
+            </div>
+            <div>
+              <label style="display:block; color:#4dd2ff; margin-bottom:4px; font-size:11px;">Pos</label>
+              <input type="number" class="spec-position-bulk" placeholder="1" style="width:100%; padding:8px; border-radius:4px; background:rgba(0,0,0,0.6); border:1px solid rgba(241,196,15,0.2); color:#fff; font-size:13px; font-family:'Montserrat',sans-serif;" />
+            </div>
+          </div>
+        `;
+      container.appendChild(row);
+    }
+
+    function removeSpecialistRow(id) {
+      const row = document.getElementById(`row-${id}`);
+      if (row) row.remove();
+    }
+
+    function showSpecialistChoice() {
+      document.getElementById("specialist-choice-screen").style.display =
+        "block";
+      document.getElementById("specialist-form-container").style.display =
+        "none";
+    }
+
+    async function handleSpecialistSubmit(mode) {
+      const resultDiv = document.getElementById("spec-result");
+      const submitBtn = document.getElementById("spec-submit-btn");
+      resultDiv.innerHTML = "";
+
+      let body = null;
+      let endpoint =
+        mode === "bulk"
+          ? "/admin/intakeops/intake_specialists/bulk"
+          : "/admin/intakeops/intake_specialists";
+
+      if (mode === "single") {
+        const practice_area = document
+          .getElementById("spec-practice-area")
+          .value.trim();
+        const email = document.getElementById("spec-email").value.trim();
+        const position = parseInt(
+          document.getElementById("spec-position").value,
+        );
+
+        if (!practice_area || !email || isNaN(position)) {
+          resultDiv.innerHTML =
+            '<div class="data-item" style="color:#e74c3c;">All fields are required</div>';
+          return;
+        }
+        body = JSON.stringify({ practice_area, email, position });
+      } else {
+        const rows = document.querySelectorAll(".bulk-row");
+        const specialists = [];
+        let hasError = false;
+
+        rows.forEach((row) => {
+          const practice_area = row
+            .querySelector(".spec-practice-area-bulk")
+            .value.trim();
+          const email = row.querySelector(".spec-email-bulk").value.trim();
+          const positionInput = row.querySelector(".spec-position-bulk");
+          const position = parseInt(positionInput.value);
+
+          if (!practice_area || !email || isNaN(position)) {
+            hasError = true;
+            row.style.borderColor = "#e74c3c";
+            row.style.background = "rgba(231, 76, 60, 0.05)";
+          } else {
+            row.style.borderColor = "rgba(77, 210, 255, 0.1)";
+            row.style.background = "rgba(255, 255, 255, 0.05)";
+            specialists.push({ practice_area, email, position });
+          }
+        });
+
+        if (hasError) {
+          resultDiv.innerHTML =
+            '<div class="data-item" style="color:#e74c3c;">Please fill all fields for each row</div>';
+          return;
+        }
+
+        if (specialists.length === 0) {
+          resultDiv.innerHTML =
+            '<div class="data-item" style="color:#e74c3c;">Please add at least one specialist</div>';
+          return;
+        }
+
+        body = JSON.stringify(specialists);
+      }
+
+      submitBtn.disabled = true;
+      const prevText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<span class="spinner"></span> Processing...';
+
+      try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+          method: "POST",
+          headers: getAuthHeaders(),
+          body: body,
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(data.detail || data.message || "Request failed");
+        }
+
+        resultDiv.innerHTML = `<div class="data-item" style="color:#2ecc71;">âœ“ ${escapeHtml(data.message || "Success!")}</div>`;
+        // Close modal after a short delay to let user see the success message
+        setTimeout(() => {
+          document.getElementById("data-modal").classList.remove("active");
+        }, 1200);
+      } catch (err) {
+        resultDiv.innerHTML = `<div class="data-item" style="color:#e74c3c;">${escapeHtml(err.message || "Something went wrong")}</div>`;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = prevText;
+      }
+    }
+
+    // Run on load to wire up toggles (safe to have multiple DOMContentLoaded listeners)
+    window.addEventListener("DOMContentLoaded", function () {
+      initPasswordToggles();
+    });
+  </script>
+</body>
+
+</html>

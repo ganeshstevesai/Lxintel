@@ -1,0 +1,1613 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CaseValue</title>
+    <link rel="icon" type="image/webp" href="/Designer.png" />
+    <link rel="stylesheet" href="index.css" />
+    <!-- Marked.js -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: { fontFamily: { sans: ["Montserrat", "system-ui"] } },
+        },
+      };
+    </script>
+    <script
+      defer
+      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  </head>
+
+  <body class="min-h-screen p-4 text-white">
+    <div class="video-background"></div>
+    <div class="overlay"></div>
+
+    <!-- LOGIN PAGE CONTAINER -->
+    <div
+      class="w-full max-w-[40rem] relative z-10 mx-auto mt-10 md:mt-20"
+      x-data="loginApp()"
+      x-show="!loggedIn"
+    >
+      <!-- HEADER WITH LOGO AND TITLE -->
+      <div class="header-text">
+        <img src="/Designer.png" alt="ValuetTab" />
+        <h1>Value Tab</h1>
+        <p>Secure Access for Authorized Users</p>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div class="dark-theme-card p-6 space-y-5">
+        <h2
+          class="text-[36px] font-extrabold uppercase tracking-[0.5px] text-center text-[#4dd2ff] mt-0 mb-0"
+        >
+          Login
+        </h2>
+
+        <!-- Email Input -->
+        <div>
+          <label class="block text-[#4dd2ff] font-semibold mb-2">Email</label>
+          <input
+            type="email"
+            placeholder="Enter your email"
+            x-model="email"
+            @input.debounce.500="verifyEmail()"
+            @keydown.enter="emailValid && login()"
+            class="w-full p-3 dark-theme-input font-medium text-[15px] leading-[28px]"
+          />
+
+          <!-- Email Status -->
+          <div
+            class="email-status"
+            :class="email && email.includes('@') ? 'visible' : ''"
+            x-show="email && email.includes('@')"
+          >
+            <span
+              class="status-icon"
+              :class="emailChecking ? 'checking' : emailValid ? 'valid' : 'invalid'"
+            ></span>
+            <span class="status-text">
+              <span x-show="emailChecking">Checking email...</span>
+              <span x-show="!emailChecking && emailValid" style="color: #4dd2ff"
+                >Email authorized</span
+              >
+              <span
+                x-show="!emailChecking && !emailValid"
+                style="color: #4dd2ff"
+                >Email not authorized</span
+              >
+            </span>
+          </div>
+        </div>
+
+        <!-- Error Message - Above Login Button -->
+        <p x-show="error" x-text="error" class="error-message"></p>
+
+        <!-- Login Button - Always visible, disabled until email is verified -->
+        <button
+          @click="login()"
+          :disabled="!emailValid || !email"
+          class="w-full py-3 font-medium transition"
+          :class="emailValid && email ? 'dark-theme-btn-primary' : 'opacity-50 cursor-not-allowed dark-theme-btn-primary'"
+        >
+          <span x-show="!loggingIn">Login</span>
+          <span x-show="loggingIn" class="flex items-center justify-center">
+            <span
+              class="spinner"
+              style="
+                width: 14px;
+                height: 14px;
+                border-width: 2px;
+                margin-left: 0;
+              "
+            ></span>
+            Logging in...
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- UPLOAD PAGE CONTAINER -->
+    <div
+      class="w-full max-w-[60rem] relative z-10 mx-auto mt-24 pb-12"
+      x-data="caseApp()"
+      x-show="isLoggedIn"
+    >
+      <!-- HEADER BAR -->
+      <div class="header-bar">
+        <div class="flex justify-between items-center header_bar_top">
+          <div
+            style="display: flex; align-items: center; gap: 15px"
+            class="top_logo_area_main"
+          >
+            <img
+              src="/Designer.png"
+              alt="ValuetTab"
+              style="width: 50px; height: auto"
+            />
+            <h2
+              class="mb-0 text-[#4dd2ff]"
+              style="font-size: 20px; font-weight: 600"
+            >
+              Billing Summary Generator
+            </h2>
+            <!-- ACTIVE USERS BUTTON -->
+            <button
+              id="active-users-btn"
+              onclick="toggleActiveUsers()"
+              class="flex items-center gap-2 text-xs font-semibold px-2 py-1 rounded hover:bg-cyan-500/10"
+              title="Active users"
+            >
+              <span class="w-2 h-2 bg-green-500 rounded-full shadow"></span>
+              <span id="active-user-count">0</span>
+              Active Users
+            </button>
+            <!-- Active Users Popover -->
+            <div
+              id="active-users-popover"
+              class="active_user active_user_popover_style"
+              style="display: none"
+            >
+              <div
+                style="
+                  padding: 8px 0;
+                  margin-bottom: 8px;
+                  border-bottom: 1px solid rgba(77, 210, 255, 0.3);
+                  color: #4dd2ff;
+                  font-size: 12px;
+                  font-weight: 600;
+                "
+              >
+                Active Users
+              </div>
+              <div id="active-users-list"></div>
+            </div>
+          </div>
+          <div
+            style="display: flex; align-items: center; gap: 20px"
+            class="top_header_space"
+          >
+            <div style="text-align: right; font-size: 0.9rem; color: #aaa">
+              <span
+                style="display: block; color: #4dd2ff; font-weight: 600"
+                x-text="userEmail"
+                class="heading_top_mail"
+              ></span>
+              <span style="font-size: 0.85rem">Logged in</span>
+            </div>
+            <div class="menu-container" x-data="{ menuOpen: false }">
+              <button class="menu-button" @click="menuOpen = !menuOpen">
+                ⋮
+              </button>
+              <div
+                class="menu-popover"
+                x-show="menuOpen"
+                @click.outside="menuOpen = false"
+              >
+                <button @click="logout()">Logout</button>
+              </div>
+            </div>
+            <button
+              x-show="status === 'completed'"
+              @click="reset()"
+              class="dark-theme-btn-primary px-4 py-2 text-sm"
+            >
+              New Case
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-8 max-w-3xl mx-auto space-y-8">
+        <!-- CASE NUMBER INPUT -->
+        <template x-if="!caseNumber && status !== 'completed'">
+          <div class="dark-theme-card p-10 rounded-2xl text-center space-y-8">
+            <div>
+              <h3 class="text-3xl font-bold text-[#4dd2ff] mb-4">
+                Enter Case Number
+              </h3>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+              <input
+                type="text"
+                placeholder="e.g. 268315"
+                x-model="inputCaseNumber"
+                @keyup.enter="startProcessing()"
+                class="flex-1 px-4 py-3 text-base font-medium text-white bg-black border border-gray-600 rounded-lg focus:border-cyan-500 focus:outline-none transition placeholder-gray-500"
+              />
+
+              <button
+                @click="startProcessing()"
+                :disabled="!inputCaseNumber.trim() || loading"
+                class="px-6 py-3 text-base font-bold rounded-lg transition flex items-center justify-center gap-2 min-w-[140px]"
+                :class="inputCaseNumber.trim() && !loading 
+                      ? 'dark-theme-btn-primary hover:shadow-md hover:shadow-cyan-500/25' 
+                      : 'bg-gray-700 text-gray-500 cursor-not-allowed'"
+              >
+                <span x-show="!loading">START</span>
+
+                <span x-show="loading" class="flex items-center gap-2">
+                  <span class="spinner"></span>
+                  Starting...
+                </span>
+              </button>
+            </div>
+          </div>
+        </template>
+
+        <!-- PROCESSING STATUS -->
+        <template
+          x-if="caseNumber && status !== 'completed' && status !== 'failed'"
+        >
+          <div class="dark-theme-card p-8 rounded-2xl space-y-6">
+            <div class="text-center">
+              <p class="text-gray-400">Case Number</p>
+              <p
+                class="text-3xl font-mono font-bold text-[#4dd2ff]"
+                x-text="caseNumber"
+              ></p>
+            </div>
+
+            <div class="space-y-4">
+              <div class="flex justify-between text-sm">
+                <span style="color: #4dd2ff">Status</span>
+                <span
+                  x-text="status === 'processing' ? 'Processing...' : 'Waiting for result...'"
+                ></span>
+              </div>
+              <div class="w-full bg-gray-800 rounded-full h-4 overflow-hidden">
+                <div
+                  class="bg-gradient-to-r from-blue-600 to-blue-400 h-full rounded-full transition-all duration-1000"
+                  :style="{ width: progress + '%' }"
+                ></div>
+              </div>
+              <p class="text-center text-gray-400 text-sm">
+                Fetching files from SharePoint and generating summary...
+              </p>
+            </div>
+          </div>
+        </template>
+
+        <!-- ERROR STATE -->
+        <template x-if="status === 'failed'">
+          <div class="dark-theme-card p-8 rounded-2xl space-y-6">
+            <div class="text-center">
+              <p class="text-gray-400">Case Number</p>
+              <p
+                class="text-3xl font-mono font-bold text-[#4dd2ff]"
+                x-text="caseNumber"
+              ></p>
+            </div>
+
+            <div class="error-box text-center">
+              <h3 class="text-2xl font-bold mb-3">Processing Failed</h3>
+              <p
+                class="text-base whitespace-pre-line"
+                x-text="errorMessage"
+              ></p>
+            </div>
+
+            <div class="text-center">
+              <button
+                @click="reset()"
+                class="dark-theme-btn-primary px-6 py-3 text-base font-medium rounded-lg"
+              >
+                Try Another Case
+              </button>
+            </div>
+          </div>
+        </template>
+
+        <!-- FINAL RESULT -->
+        <template x-if="status === 'completed'">
+          <div class="space-y-8">
+            <div class="dark-theme-card p-8 text-center">
+              <h3 class="text-4xl font-bold text-green-400 mb-2">
+                Processing Complete!
+              </h3>
+
+              <p
+                class="text-xl text-gray-300"
+                x-text="`Case ${caseNumber} â€¢ Completed in ${duration}s`"
+              ></p>
+              <p
+                class="text-xl text-gray-300"
+                x-show="responseMessage"
+                x-text="responseMessage"
+              ></p>
+            </div>
+
+            <div class="dark-theme-card rounded-2xl overflow-hidden">
+              <div
+                class="border-b border-gray-700 px-8 py-5 flex justify-between items-center heading_billing_report"
+                style="background-color: #222"
+              >
+                <h3 class="text-2xl font-bold" style="color: #4dd2ff">
+                  Final Billing Report
+                </h3>
+                <button
+                  x-show="markdownRaw && !errorMessage"
+                  @click="downloadPDF()"
+                  class="text-lg mr-2 flex items-center gap-2 px-5 py-3 rounded-lg bg-cyan-600 hover:bg-cyan-500 transition font-medium"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                    />
+                  </svg>
+                  Download PDF
+                </button>
+
+                <button
+                  x-show="regenerateMessage"
+                  @click="renegrate()"
+                  :disabled="!inputCaseNumber.trim() || loading"
+                  class="px-6 py-3 text-base font-bold rounded-lg transition flex items-center justify-center gap-2 min-w-[140px]"
+                  :class="inputCaseNumber.trim() && !loading 
+                      ? 'dark-theme-btn-primary hover:shadow-md hover:shadow-blue-500/25' 
+                      : 'bg-gray-700 text-gray-500 cursor-not-allowed'"
+                >
+                  <span x-show="!loading">regenerate</span>
+
+                  <span x-show="loading" class="flex items-center gap-2">
+                    <span class="spinner"></span>
+                    regenerating...
+                  </span>
+                </button>
+              </div>
+              <div
+                id="billing-report-content"
+                class="billing-report-preview"
+                x-html="markdown"
+              ></div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE_URL = "https://slimy-leonia-kyphotic.ngrok-free.dev";
+
+      // Shared state between login and upload
+      const appState = {
+        loggedIn: false,
+        email: "",
+      };
+
+      // ============ AUTH GUARD HELPERS ============
+      function requireToken() {
+        const token = localStorage.getItem("casevalueToken");
+        if (!token) {
+          alert(
+            "Your session has expired or you are not logged in. Please log in first.",
+          );
+          localStorage.removeItem("casevalueToken");
+          localStorage.removeItem("casevalueEmail");
+          window.dispatchEvent(new Event("logout-success"));
+          location.reload();
+          return null;
+        }
+        return token;
+      }
+
+      function handle401() {
+        alert("Your session has expired. Please log in again.");
+        localStorage.removeItem("casevalueToken");
+        localStorage.removeItem("casevalueEmail");
+        window.dispatchEvent(new Event("logout-success"));
+        location.reload();
+      }
+
+      function loginApp() {
+        return {
+          email: "",
+          emailValid: false,
+          emailChecking: false,
+          error: "",
+          loggedIn: false,
+          loggingIn: false,
+
+          init() {
+            // Check if already logged in
+            const token = localStorage.getItem("casevalueToken");
+            const savedEmail = localStorage.getItem("casevalueEmail");
+            if (token && savedEmail) {
+              this.loggedIn = true;
+              appState.loggedIn = true;
+              this.email = savedEmail;
+              appState.email = savedEmail;
+            }
+
+            // Listen for logout success event
+            window.addEventListener("logout-success", () => {
+              this.loggedIn = false;
+              this.email = "";
+              this.emailValid = false;
+              this.error = "";
+            });
+          },
+
+          // Backend Email Verification
+          verifyEmail() {
+            if (!this.email.includes("@")) {
+              this.emailValid = false;
+              this.error = "";
+              return;
+            }
+
+            this.emailChecking = true;
+            this.error = "";
+            fetch(
+              `${API_BASE_URL}/casevalue/verify-email?email=${encodeURIComponent(this.email)}`,
+              {
+                headers: { "ngrok-skip-browser-warning": "true" },
+              },
+            )
+              .then((res) => res.json())
+              .then((json) => {
+                this.emailValid = json.valid;
+                this.emailChecking = false;
+                if (!json.valid) {
+                  this.error =
+                    "Access denied: Your email is not on the authorized list.";
+                }
+              })
+              .catch(() => {
+                this.emailValid = false;
+                this.emailChecking = false;
+                this.error =
+                  "Access denied: Your email is not on the authorized list.";
+              });
+          },
+
+          // Login only after email is validated
+          login() {
+            if (!this.emailValid) {
+              this.error = "Email not authorized";
+              return;
+            }
+
+            if (!this.email || !this.email.includes("@")) {
+              this.error = "Please enter a valid email";
+              return;
+            }
+
+            this.loggingIn = true;
+
+            const data = new URLSearchParams();
+            data.append("username", this.email);
+            data.append("password", "not-used-but-required"); // password ignored by backend
+
+            fetch(`${API_BASE_URL}/casevalue/login`, {
+              method: "POST",
+              body: data,
+              headers: { "ngrok-skip-browser-warning": "true" },
+            })
+              .then((res) => {
+                if (!res.ok) throw new Error("Unauthorized email");
+                return res.json();
+              })
+              .then((json) => {
+                localStorage.setItem("casevalueToken", json.access_token);
+                localStorage.setItem("casevalueEmail", this.email);
+                this.loggedIn = true;
+                appState.loggedIn = true;
+                appState.email = this.email;
+                this.error = "";
+                this.loggingIn = false;
+
+                // Trigger custom event to notify upload component
+                window.dispatchEvent(new CustomEvent("login-success"));
+              })
+              .catch((err) => {
+                this.error = err.message;
+                this.loggingIn = false;
+              });
+          },
+
+          logout() {
+            localStorage.removeItem("casevalueToken");
+            localStorage.removeItem("casevalueEmail");
+            this.loggedIn = false;
+            appState.loggedIn = false;
+            this.email = "";
+            appState.email = "";
+            this.emailValid = false;
+          },
+        };
+      }
+    </script>
+
+    <script>
+      function toggleActiveUsers() {
+        const popover = document.getElementById("active-users-popover");
+        const isOpening = popover.style.display !== "block";
+        if (isOpening) {
+          loadActiveUsers();
+        }
+        popover.style.display = isOpening ? "block" : "none";
+      }
+
+      async function loadActiveUsers() {
+        const token = requireToken();
+        if (!token) return;
+        try {
+          const res = await fetch(`${API_BASE_URL}/casevalue/active-today`, {
+            headers: {
+              Authorization: token ? `Bearer ${token}` : "",
+              "ngrok-skip-browser-warning": "true",
+            },
+          });
+          if (res.status === 401 || res.status === 403) {
+            handle401();
+            return;
+          }
+          if (!res.ok) throw new Error("Failed to fetch active users");
+          const data = await res.json();
+
+          const users = Array.isArray(data) ? data : [];
+
+          document.getElementById("active-user-count").innerText = users.length;
+
+          const list = document.getElementById("active-users-list");
+          list.innerHTML = "";
+
+          if (users.length === 0) {
+            list.innerHTML =
+              "<p style='color:#aaa; font-size:13px'>No active users</p>";
+            return;
+          }
+
+          users.forEach((user) => {
+            const div = document.createElement("div");
+            div.style.padding = "10px 8px";
+            div.style.fontSize = "13px";
+            div.style.borderBottom = "1px solid #333";
+            div.style.display = "flex";
+            div.style.justifyContent = "space-between";
+            div.style.alignItems = "center";
+            div.style.gap = "16px";
+
+            const emailSpan = document.createElement("span");
+            emailSpan.style.color = "#4dd2ff";
+            emailSpan.style.fontWeight = "500";
+            emailSpan.style.flex = "1";
+            emailSpan.innerText = user.email;
+
+            const timeSpan = document.createElement("span");
+            timeSpan.style.color = "#aaa";
+            timeSpan.style.fontSize = "12px";
+            timeSpan.style.whiteSpace = "nowrap";
+            timeSpan.style.flexShrink = "0";
+            timeSpan.innerText = formatLastActive(user.last_active);
+
+            div.appendChild(emailSpan);
+            div.appendChild(timeSpan);
+            list.appendChild(div);
+          });
+        } catch (err) {
+          console.error("Active users fetch failed", err);
+        }
+      }
+
+      function formatLastActive(dateStr) {
+        try {
+          const date = new Date(dateStr);
+          const now = new Date();
+          const diffMs = now - date;
+          const diffMins = Math.floor(diffMs / 60000);
+          const diffHours = Math.floor(diffMs / 3600000);
+          const diffDays = Math.floor(diffMs / 86400000);
+
+          if (diffMins < 1) return "just now";
+          if (diffMins < 60) return `${diffMins}m ago`;
+          if (diffHours < 24) return `${diffHours}h ago`;
+          return `${diffDays}d ago`;
+        } catch (e) {
+          return "";
+        }
+      }
+
+      window.addEventListener("login-success", () => {
+        loadActiveUsers();
+      });
+
+      window.addEventListener("logout-success", () => {});
+    </script>
+
+    <script>
+      function caseApp() {
+        return {
+          markdown: "",
+          markdownRaw: "", // Store raw markdown for PDF conversion
+          isLoggedIn: false,
+          userEmail: "",
+          inputCaseNumber: "",
+          caseNumber: null,
+          status: null,
+          progress: 0,
+          duration: 0,
+          loading: false,
+          pollInterval: null,
+          startTime: 0,
+          errorMessage: "",
+          regenerateMessage: false,
+          responseMessage: "",
+
+          init() {
+            // Load login state
+            const token = localStorage.getItem("casevalueToken");
+            const email = localStorage.getItem("casevalueEmail");
+            if (token && email) {
+              this.isLoggedIn = true;
+              this.userEmail = email;
+              loadActiveUsers();
+            }
+
+            window.addEventListener("login-success", () => {
+              this.isLoggedIn = true;
+              this.userEmail = localStorage.getItem("casevalueEmail");
+            });
+          },
+
+          async startProcessing() {
+            console.log("startProcessing case:", this.inputCaseNumber);
+            if (this.loading || !this.inputCaseNumber.trim()) return;
+
+            const token = requireToken();
+            if (!token) return;
+
+            this.caseNumber = this.inputCaseNumber.trim();
+            this.loading = true;
+            this.status = "processing";
+            this.progress = 50;
+            this.startTime = Date.now();
+            this.errorMessage = "";
+
+            try {
+              const response = await fetch(
+                `${API_BASE_URL}/casevalue/start-case`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: token ? `Bearer ${token}` : "",
+                    "ngrok-skip-browser-warning": "true",
+                  },
+                  body: JSON.stringify({ caseNumber: this.caseNumber }),
+                },
+              );
+
+              if (response.status === 401 || response.status === 403) {
+                handle401();
+                return;
+              }
+
+              if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || "Failed to start case");
+              }
+
+              const json = await response.json();
+              console.log("Start case response:", json);
+
+              if (
+                json.message &&
+                json.message.includes("Summary retrieved from blob storage")
+              ) {
+                this.regenerateMessage = true;
+                this.responseMessage = json.message;
+              } else {
+                this.regenerateMessage = false;
+                this.responseMessage = json.message;
+              }
+
+              // Start polling backend
+              this.startPolling();
+            } catch (error) {
+              console.error(error);
+              this.loading = false;
+              this.status = "failed";
+              this.errorMessage =
+                error.message || "An unexpected error occurred";
+            }
+          },
+
+          async renegrate() {
+            console.log("Regenerating case:", this.inputCaseNumber);
+            if (this.loading || !this.inputCaseNumber.trim()) return;
+
+            const token = requireToken();
+            if (!token) return;
+
+            this.caseNumber = this.inputCaseNumber.trim();
+            this.loading = true;
+            this.status = "processing";
+            this.progress = 50;
+            this.startTime = Date.now();
+            this.errorMessage = "";
+
+            try {
+              const response = await fetch(
+                `${API_BASE_URL}/casevalue/start-case`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: token ? `Bearer ${token}` : "",
+                    "ngrok-skip-browser-warning": "true",
+                  },
+                  body: JSON.stringify({
+                    caseNumber: this.caseNumber,
+                    regenerate: "true",
+                  }),
+                },
+              );
+
+              if (response.status === 401 || response.status === 403) {
+                handle401();
+                return;
+              }
+
+              if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || "Failed to start case");
+              }
+
+              this.regenerateMessage = false;
+              this.responseMessage = "";
+
+              // Start polling backend
+              this.startPolling();
+            } catch (error) {
+              console.error(error);
+              this.loading = false;
+              this.status = "failed";
+              this.errorMessage =
+                error.message || "An unexpected error occurred";
+            }
+          },
+
+          startPolling() {
+            this.pollInterval = setInterval(async () => {
+              try {
+                const token = requireToken();
+                if (!token) {
+                  clearInterval(this.pollInterval);
+                  return;
+                }
+                const res = await fetch(
+                  `${API_BASE_URL}/casevalue/case-result/${this.caseNumber}`,
+                  {
+                    headers: {
+                      Authorization: token ? `Bearer ${token}` : "",
+                      "ngrok-skip-browser-warning": "true",
+                    },
+                  },
+                );
+
+                if (res.status === 401 || res.status === 403) {
+                  clearInterval(this.pollInterval);
+                  handle401();
+                  return;
+                }
+                const data = await res.json();
+
+                if (data.status === "failed") {
+                  clearInterval(this.pollInterval);
+                  this.status = "failed";
+                  this.loading = false;
+                  this.errorMessage = data.error || "Case not found";
+                  return;
+                }
+                // Check for PDF status error
+                if (data.pdf_status?.value) {
+                  clearInterval(this.pollInterval);
+                  this.status = "failed";
+                  this.loading = false;
+                  this.errorMessage = data.pdf_status.value;
+                  return;
+                }
+                // Check for billing status error
+                if (data.billing_status?.value) {
+                  clearInterval(this.pollInterval);
+                  this.status = "failed";
+                  this.loading = false;
+                  this.errorMessage = data.billing_status.value;
+                  return;
+                }
+
+                // Update progress bar just for UI feels
+                if (this.progress < 95) {
+                  this.progress += Math.random() * 5;
+                }
+
+                // Check if processing completed successfully
+                if (data.final_summary) {
+                  clearInterval(this.pollInterval);
+                  this.status = "completed";
+                  this.markdownRaw = data.final_summary;
+                  this.markdown = this.renderFinalSummary(data.final_summary);
+                  this.loading = false;
+                  this.progress = 100;
+                  this.duration = Math.round(
+                    (Date.now() - this.startTime) / 1000,
+                  );
+                }
+              } catch (err) {
+                console.error("Polling error:", err);
+                clearInterval(this.pollInterval);
+                this.status = "failed";
+                this.loading = false;
+                this.errorMessage =
+                  "Failed to fetch case status. Please try again.";
+              }
+            }, 3000);
+          },
+
+          escapeHtml(value) {
+            return (value || "")
+              .replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;")
+              .replace(/"/g, "&quot;")
+              .replace(/'/g, "&#39;");
+          },
+
+          renderFinalSummary(summaryText) {
+            const lines = (summaryText || "").split(/\r?\n/);
+            const meta = { date: "", client: "", caseNumber: "" };
+            const contentLines = [];
+
+            lines.forEach((line) => {
+              const trimmed = line.trim();
+              if (!meta.date && trimmed.startsWith("Date:")) {
+                meta.date = trimmed.replace(/^Date:\s*/, "");
+                return;
+              }
+              if (!meta.client && trimmed.startsWith("Client:")) {
+                meta.client = trimmed.replace(/^Client:\s*/, "");
+                return;
+              }
+              if (!meta.caseNumber && trimmed.startsWith("Case Number:")) {
+                meta.caseNumber = trimmed.replace(/^Case Number:\s*/, "");
+                return;
+              }
+              contentLines.push(line);
+            });
+
+            // Track current section context for smart rendering
+            let currentSection = "";
+            let pendingAttyLabel = false;
+
+            const renderedLines = contentLines
+              .map((line, index) => {
+                const e = (s) => this.escapeHtml(s);
+                // Strip [REDACTED] tokens globally before any processing
+                const trimmed = line
+                  .trim()
+                  .replace(/\[REDACTED\]/gi, "")
+                  .replace(/\s{2,}/g, " ")
+                  .trim();
+
+                if (!trimmed) {
+                  return '<div class="billing-spacer"></div>';
+                }
+
+                if (trimmed === "SETTLEMENT MEMORANDUM") {
+                  return '<div class="billing-title">SETTLEMENT MEMORANDUM</div>';
+                }
+
+                // CLIENT ACKNOWLEDGEMENT â€” new page, centered
+                if (/^CLIENT ACKNOWLEDGEMENT\s*$/i.test(trimmed)) {
+                  currentSection = "CLIENT ACK";
+                  return `<div style="page-break-before:always; margin-top:0;"><div class="billing-title" style="text-align:center; font-size:14px; font-weight:700; margin-top:16px;">${e(trimmed)}</div></div>`;
+                }
+
+                // Sub-headings inside CLIENT ACK section: GENERAL ACKNOWLEDGEMENTS, FULL â€“ FINAL â€“, PAYMENT OF...
+                if (
+                  currentSection === "CLIENT ACK" &&
+                  /^(GENERAL ACKNOWLEDGEMENTS|FULL\s*[â€“\-]+|PAYMENT OF ATTORNEYS)/i.test(
+                    trimmed,
+                  )
+                ) {
+                  return `<div style="font-size:14px; font-weight:700; text-decoration:underline; margin-top:10px; font-family:Arial,Helvetica,sans-serif;">${e(trimmed)}</div>`;
+                }
+
+                // Detect ALL-CAPS section headers
+                if (
+                  /^[A-Z][A-Z\s&\'\-\u2013]+$/.test(trimmed) &&
+                  trimmed.length <= 60 &&
+                  !trimmed.includes(":")
+                ) {
+                  currentSection = trimmed.trim();
+                  return `<div class="billing-section">${e(trimmed)}</div>`;
+                }
+
+                // "Deduct and Retain to Pay The Ramos Injury Firm" label (attorney fees section)
+                if (
+                  /^Deduct\s+(and|And)\s+Retain\s+to\s+Pay\s+The/i.test(trimmed)
+                ) {
+                  currentSection = "DEDUCT";
+                  return `<div class="billing-label" style="text-decoration:underline;font-size:10px;font-weight:700;margin-top:8px;">${e(trimmed)}</div>`;
+                }
+
+                // "Deduct And Retain To Pay To Others:" label (other debits section)
+                if (
+                  /^Deduct\s+(and|And)\s+Retain\s+To\s+Pay\s+To\s+Others/i.test(
+                    trimmed,
+                  )
+                ) {
+                  currentSection = "OTHER DEBITS";
+                  return `<div class="billing-label" style="text-decoration:underline;font-size:10px;font-weight:700;margin-top:8px;">${e(trimmed)}</div>`;
+                }
+
+                // "Other Debits" sub-label
+                if (
+                  currentSection === "OTHER DEBITS" &&
+                  /^Other Debits\s*$/i.test(trimmed)
+                ) {
+                  return `<div class="billing-label" style="font-size:10px;font-weight:700;margin-top:4px;">${e(trimmed)}</div>`;
+                }
+
+                // RECOVERY section column header row
+                // Header row
+                if (
+                  currentSection === "RECOVERY" &&
+                  /Collected\s+Balance/i.test(trimmed)
+                ) {
+                  return '<div class="billing-header-row"><span class="col-label"></span><span class="col-desc"></span><span class="col-collected"><u>Collected</u></span><span class="col-balance"><u>Balance</u></span></div>';
+                }
+
+                // âœ… TOTAL RECOVERY (must come BEFORE data rows)
+                if (
+                  currentSection === "RECOVERY" &&
+                  /^Total Recovery:/i.test(trimmed)
+                ) {
+                  const match = trimmed.match(
+                    /Total Recovery:\s*(\$[\d,]+\.\d{2})/i,
+                  );
+                  const value = match ? e(match[1]) : "";
+
+                  return `
+              <div class="billing-data-row" style="font-weight:700; margin-top:4px;">
+                <span class="col-label">Total Recovery:</span>
+                <span class="col-desc"></span>
+                <span class="col-collected"></span>
+                <span class="col-balance">${value}</span>
+              </div>
+            `;
+                }
+
+                // Data rows (MEDPAY, SETTLE, etc.)
+                if (
+                  currentSection === "RECOVERY" &&
+                  /^\S+.*\$\d{1,3}(,\d{3})*\.\d{2}/.test(trimmed)
+                ) {
+                  const parts = trimmed.split(/\s{2,}/);
+
+                  // fallback if spacing is messy
+                  if (parts.length < 3) {
+                    const match = trimmed.match(
+                      /^(.*?)\s+(\$[\d,]+\.\d{2})\s+(\$[\d,]+\.\d{2})$/,
+                    );
+                    if (match) {
+                      return `
+                  <div class="billing-data-row">
+                    <span class="col-label">${e(match[1])}</span>
+                    <span class="col-desc"></span>
+                    <span class="col-collected">${e(match[2])}</span>
+                    <span class="col-balance">${e(match[3])}</span>
+                  </div>
+                `;
+                    }
+                  }
+
+                  const label = e(parts[0] || "");
+                  const desc = e(parts[1] || "");
+                  const collected = e(parts[2] || "");
+                  const balance = e(parts[3] || collected);
+
+                  return `
+              <div class="billing-data-row">
+                <span class="col-label">${label}</span>
+                <span class="col-desc">${desc}</span>
+                <span class="col-collected">${collected}</span>
+                <span class="col-balance">${balance}</span>
+              </div>
+            `;
+                }
+
+                // Attorney Fees label & dynamic header logic
+                if (/^Attorney Fees:/i.test(trimmed)) {
+                  // Check if next line is dynamic headers to combine them
+                  const nextLine = (contentLines[index + 1] || "")
+                    .trim()
+                    .replace(/\[REDACTED\]/gi, "")
+                    .replace(/\s{2,}/g, " ")
+                    .trim();
+                  if (
+                    /^(Fee|Reduced|Billed)(\s*(Fee|Reduced|Billed))*$/i.test(
+                      nextLine,
+                    )
+                  ) {
+                    pendingAttyLabel = true;
+                    return null;
+                  }
+                  return '<div class="billing-label" style="font-weight:700; margin-top:6px;">Attorney Fees:</div>';
+                }
+
+                // Attorney Fees dynamic header row (handles combination with label)
+                if (
+                  currentSection === "DEDUCT" &&
+                  /^(Fee|Reduced|Billed)(\s*(Fee|Reduced|Billed))*$/i.test(
+                    trimmed,
+                  )
+                ) {
+                  const hasFee = /Fee/i.test(trimmed);
+                  const hasReduced = /Reduced/i.test(trimmed);
+                  const hasBilled = /Billed/i.test(trimmed);
+
+                  const labelContent = pendingAttyLabel ? "Attorney Fees:" : "";
+                  pendingAttyLabel = false;
+
+                  return `
+                <div style="margin-top:6px;">
+                  <div class="billing-atty-header">
+                    <span class="col-name"><span style="font-weight:700;">${labelContent}</span></span>
+                    <span class="col-fee">${hasFee ? "<u>Fee</u>" : ""}</span>
+                    <span class="col-reduced">${hasReduced ? "<u>Reduced</u>" : ""}</span>
+                    <span class="col-billed">${hasBilled ? "<u>Billed</u>" : ""}</span>
+                  </div>
+                </div>
+              `;
+                }
+
+                // Attorney fee data row: $26,000.00   $2,305.00   $23,695.00
+                if (currentSection === "DEDUCT" && /^/i.test(trimmed)) {
+                  const amounts = trimmed.match(/\$[\d,]+\.\d{2}/g) || [];
+
+                  const name = "";
+                  const fee = amounts[0] || "";
+                  const billed = amounts[amounts.length - 1] || "";
+                  const reduced = amounts.length === 3 ? amounts[1] : ""; // optional
+
+                  return `
+                  <div class="billing-atty-row">
+                    <span class="col-name">${name}</span>
+                    <span class="col-fee">${e(fee)}</span>
+                    <span class="col-reduced">${e(reduced)}</span>
+                    <span class="col-billed">${e(billed)}</span>
+                  </div>
+                `;
+                }
+
+                if (
+                  currentSection === "DEDUCT" &&
+                  /^Total Attorney Fees:/i.test(trimmed)
+                ) {
+                  const match = trimmed.match(/\(?\$[\d,]+\.\d{2}\)?/);
+                  const value = match ? e(match[0]) : "";
+
+                  return `
+                <div class="billing-atty-row" style="font-weight:700; margin-top:4px;">
+                  <span class="col-name">Total Attorney Fees:</span>
+                  <span class="col-fee"></span>
+                  <span class="col-reduced"></span>
+                  <span class="col-billed">${value}</span>
+                </div>
+              `;
+                }
+
+                // CASE EXPENSES header row
+                if (
+                  currentSection === "CASE EXPENSES" &&
+                  /^Provider\s*[;:]\s*Memo/i.test(trimmed)
+                ) {
+                  return `
+    <div class="billing-expense-header">
+      <span class="col-provider">Provider ; Memo</span>
+      <span class="col-date">Date</span>
+      <span class="col-due">Due</span>
+    </div>
+  `;
+                }
+
+                // CASE EXPENSES data rows (ROBUST PARSING)
+                if (
+                  currentSection === "CASE EXPENSES" &&
+                  /\$[\d,\-]+\.\d{2}\s*$/.test(trimmed)
+                ) {
+                  // Extract DATE (MM/DD/YYYY)
+                  const dateMatch = trimmed.match(/\d{2}\/\d{2}\/\d{4}/);
+
+                  // Extract AMOUNT (handles $ and ($...))
+                  const amountMatch = trimmed.match(/\(?-?\$[\d,]+\.\d{2}\)?$/);
+
+                  const date = dateMatch ? dateMatch[0] : "";
+                  const due = amountMatch ? amountMatch[0] : "";
+
+                  // Remove date and amount â†’ remaining is provider/memo
+                  let provider = trimmed;
+
+                  if (date) provider = provider.replace(date, "");
+                  if (due) provider = provider.replace(due, "");
+
+                  provider = provider.trim();
+
+                  return `
+    <div class="billing-expense-row">
+      <span class="col-provider">${e(provider)}</span>
+      <span class="col-date">${e(date)}</span>
+      <span class="col-due">${e(due)}</span>
+    </div>
+  `;
+                }
+
+                // CASE EXPENSES TOTAL (ALIGNED UNDER DUE)
+                if (
+                  currentSection === "CASE EXPENSES" &&
+                  /^Total Case Expenses:/i.test(trimmed)
+                ) {
+                  const match = trimmed.match(/\(?\$[\d,]+\.\d{2}\)?/);
+                  const value = match ? e(match[0]) : "";
+
+                  return `
+            <div class="billing-expense-row" style="font-weight:700; margin-top:4px;">
+              <span class="col-provider">Total Case Expenses:</span>
+              <span class="col-date"></span>
+              <span class="col-due">${value}</span>
+            </div>
+          `;
+                }
+
+                // Other Debits column header line
+                if (/^Provider\s+Date\s+Total/i.test(trimmed)) {
+                  return '<div class="billing-debits-header"><span class="col-provider"><u>Provider</u></span><span class="col-date"><u>Date</u></span><span class="col-total"><u>Total Paid</u></span><span class="col-paid"><u>Paid</u></span><span class="col-balance"><u>Balance</u></span><span class="col-reduction"><u>Reduction</u></span><span class="col-due"><u>Due</u></span></div>';
+                }
+
+                // Other Debits data rows
+                // Format: ProviderName  MM/DD/YYYY  $X.XX  $X.XX  $X.XX  $X.XX  $X.XX
+                if (
+                  currentSection === "OTHER DEBITS" &&
+                  /\$[\d,]+\.\d{2}/.test(trimmed) &&
+                  !/^Total Other Debits/i.test(trimmed)
+                ) {
+                  const amounts = [];
+                  const amountRegex = /\$[\d,]+\.\d{2}/g;
+                  let m;
+                  while ((m = amountRegex.exec(trimmed)) !== null) {
+                    amounts.push(m[0]);
+                  }
+                  const dateMatch = trimmed.match(/\d{2}\/\d{2}\/\d{4}/);
+                  const date = dateMatch ? dateMatch[0] : "";
+
+                  // Remove all amounts and date from provider name
+                  let provider = trimmed;
+                  if (date) provider = provider.replace(date, "");
+                  amounts.forEach((a) => {
+                    provider = provider.replace(a, "");
+                  });
+                  provider = provider.trim().replace(/\s{2,}/g, " ");
+
+                  // amounts order: Total Paid, Paid, Balance, Reduction, Due
+                  const totalPaid = e(amounts[0] || "");
+                  const paid = e(amounts[1] || "");
+                  const balance = e(amounts[2] || "");
+                  const reduction = e(amounts[3] || "");
+                  const due = e(amounts[4] || "");
+
+                  return `
+                <div class="billing-debits-row">
+                  <span class="col-provider">${e(provider)}</span>
+                  <span class="col-date">${e(date)}</span>
+                  <span class="col-total">${totalPaid}</span>
+                  <span class="col-paid">${paid}</span>
+                  <span class="col-balance">${balance}</span>
+                  <span class="col-reduction">${reduction}</span>
+                  <span class="col-due">${due}</span>
+                </div>
+              `;
+                }
+
+                // Total Other Debits line
+                if (/^Total Other Debits:/i.test(trimmed)) {
+                  const match = trimmed.match(/\(?\$[\d,]+\.\d{2}\)?/);
+                  const value = match ? e(match[0]) : "";
+                  return `
+                <div class="billing-debits-row" style="font-weight:700; margin-top:4px;">
+                  <span class="col-provider">Total Other Debits:</span>
+                  <span class="col-date"></span>
+                  <span class="col-total"></span>
+                  <span class="col-paid"></span>
+                  <span class="col-balance"></span>
+                  <span class="col-reduction"></span>
+                  <span class="col-due">${value}</span>
+                </div>
+              `;
+                }
+
+                // CLEAN + FIXED TOTAL / NET / DUE ROWS
+                if (
+                  /^(Total Deductions:|Net Amount Due to Client:|Total Amount Due to Client:|Less Previously Paid to Client:)/i.test(
+                    trimmed,
+                  )
+                ) {
+                  let cleaned = trimmed
+                    .replace(/\[REDACTED\]/gi, "")
+                    .replace(/\s{2,}/g, " ")
+                    .trim();
+
+                  let label = cleaned.split(":")[0].trim() + ":";
+
+                  let valMatch = cleaned.match(/\(?\$[\d,]+\.\d{2}\)?/);
+                  let value = valMatch ? valMatch[0] : "";
+
+                  if (!value) {
+                    const fallback = cleaned.match(/[\d,]+\.\d{2}/);
+                    if (fallback) value = "$" + fallback[0].replace(/^,/, "");
+                  }
+
+                  // FINAL fallback (like your "Details are not found..." case)
+                  if (!value) {
+                    value = "Details are not found in given case folder";
+                  }
+
+                  // âœ… SPECIAL: inject into parentheses for Total Deductions
+                  let displayLabel = label;
+                  if (/^Total Deductions:/i.test(label)) {
+                    displayLabel = `Total Deductions: (${value})`;
+                  }
+
+                  return `
+              <div class="billing-debits-row" style="font-weight:700; margin-top:4px; ${/^Total Deductions:/i.test(label) ? "background:#f5f5f5;" : ""}">
+                <span class="col-provider">${e(displayLabel)}</span>
+                <span class="col-date"></span>
+                <span class="col-due" style="margin-right: -20px;">${e(value)}</span>
+                <span class="col-total"></span>
+                <span class="col-paid"></span>
+                <span class="col-balance"></span>
+                <span class="col-reduction"></span>
+                
+              </div>
+            `;
+                }
+
+                // Label-only lines
+                if (
+                  /^[A-Za-z][A-Za-z\s\'\-&]+:\s*$/.test(trimmed) &&
+                  !/\$/.test(trimmed)
+                ) {
+                  return `<div class="billing-label">${e(trimmed)}</div>`;
+                }
+
+                // Bullet / note
+                if (/^(\u2022|\*)/.test(trimmed)) {
+                  const className = trimmed.startsWith("*")
+                    ? "billing-note"
+                    : "billing-bullet";
+                  return `<div class="${className}">${e(trimmed)}</div>`;
+                }
+
+                return `<div class="billing-line">${e(trimmed)}</div>`;
+              })
+              .filter((l) => l !== null);
+
+            const logoMarkup = `
+            <div class="billing-logo-wrap">
+              <img src="/Designer.png" alt="INJURY DIVISION" />
+            </div>
+          `;
+
+            const metaMarkup = `
+            <div class="billing-meta">
+              <div><span>Date:</span><span>${this.escapeHtml(meta.date || "Details are not found in given case folder")}</span></div>
+              <div><span>Client:</span><span>${this.escapeHtml(meta.client || "Details are not found in given case folder")}</span></div>
+              <div><span>Case Number:</span><span>${this.escapeHtml(meta.caseNumber || "Details are not found in given case folder")}</span></div>
+            </div>
+          `;
+
+            return `
+            <div class="billing-report-page">
+              ${logoMarkup}
+              ${metaMarkup}
+              ${renderedLines.join("")}
+            </div>
+          `;
+          },
+
+          async downloadPDF() {
+            if (!this.markdownRaw) {
+              alert("No report data available");
+              return;
+            }
+
+            const source = document.getElementById("billing-report-content");
+            if (!source) {
+              alert("Report preview not found.");
+              return;
+            }
+
+            const page = source.querySelector(".billing-report-page");
+            if (!page) {
+              alert("Report content not ready yet.");
+              return;
+            }
+
+            // ── Strategy: open a hidden iframe with 100% self-contained print CSS.
+            const logoImg = page.querySelector(".billing-logo-wrap img");
+            let logoBase64 = "";
+            if (logoImg && logoImg.src) {
+              try {
+                const resp = await fetch(logoImg.src);
+                const blob = await resp.blob();
+                logoBase64 = await new Promise((res) => {
+                  const r = new FileReader();
+                  r.onload = () => res(r.result);
+                  r.readAsDataURL(blob);
+                });
+              } catch (_) {
+                /* logo fetch failed — skip it */
+              }
+            }
+
+            // Clone inner HTML but replace any img src with base64 version
+            let bodyInner = page.innerHTML;
+            if (logoBase64 && logoImg) {
+              bodyInner = bodyInner.replace(
+                /(<img[^>]*src=")[^"]*(")/i,
+                `$1${logoBase64}$2`,
+              );
+            }
+
+            const printDoc =
+              `<!DOCTYPE html>` +
+              `<html>` +
+              `<head>` +
+              `<meta charset="UTF-8" />` +
+              `<style>` +
+              `  /* ── Reset ── */` +
+              `  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }` +
+              `  /* ── Page size: A4, zero browser chrome margins ── */` +
+              `  @page {` +
+              `    size: A4 portrait;` +
+              `    margin: 0;` +
+              `  }` +
+              `  html, body {` +
+              `    width: 210mm;` +
+              `    background: #fff;` +
+              `    font-family: Arial, Helvetica, sans-serif;` +
+              `    font-size: 10pt;` +
+              `    line-height: 1.4;` +
+              `    color: #000;` +
+              `    -webkit-print-color-adjust: exact;` +
+              `    print-color-adjust: exact;` +
+              `  }` +
+              `  /* ── Page wrapper ── */` +
+              `  .billing-report-page {` +
+              `    width: 210mm;` +
+              `    padding: 14mm 16mm 14mm 16mm;` +
+              `    background: #fff;` +
+              `    color: #000;` +
+              `  }` +
+              `  /* ── Logo ── */` +
+              `  .billing-logo-wrap { margin-bottom: 8pt; }` +
+              `  .billing-logo-wrap img { width: 100%; display: block; }` +
+              `  /* ── Meta block (Date / Client / Case Number) ── */` +
+              `  .billing-meta {` +
+              `    margin: 6pt 0 10pt;` +
+              `    font-size: 10pt;` +
+              `    font-weight: 700;` +
+              `    line-height: 1.6;` +
+              `    display: block;` +
+              `  }` +
+              `  .billing-meta div { display: flex; gap: 8pt; flex-wrap: wrap; }` +
+              `  /* ── Document title ── */` +
+              `  .billing-title {` +
+              `    text-align: center;` +
+              `    font-size: 14pt;` +
+              `    font-weight: 700;` +
+              `    margin: 6pt 0 10pt;` +
+              `    text-decoration: underline;` +
+              `  }` +
+              `  /* ── Section headers (RECOVERY, CASE EXPENSES …) ── */` +
+              `  .billing-section {` +
+              `    font-size: 14pt;` +
+              `    font-weight: 700;` +
+              `    text-transform: uppercase;` +
+              `    text-decoration: underline;` +
+              `    margin: 10pt 0 3pt;` +
+              `  }` +
+              `  .billing-header-row {` +
+              `    display: flex; font-size: 10pt; font-weight: 700;` +
+              `    text-decoration: underline; margin-top: 2pt; margin-bottom: 2pt;` +
+              `  }` +
+              `  .billing-header-row .col-label { flex: 0 0 50mm; }` +
+              `  .billing-header-row .col-desc  { flex: 1; }` +
+              `  .billing-header-row .col-collected { flex: 0 0 35mm; text-align: right; }` +
+              `  .billing-header-row .col-balance   { flex: 0 0 35mm; text-align: right; }` +
+              `  .billing-data-row {` +
+              `    display: flex; font-size: 10pt; margin-top: 1pt;` +
+              `  }` +
+              `  .billing-data-row .col-label { flex: 0 0 50mm; }` +
+              `  .billing-data-row .col-desc  { flex: 1; }` +
+              `  .billing-data-row .col-collected { flex: 0 0 35mm; text-align: right; }` +
+              `  .billing-data-row .col-balance   { flex: 0 0 35mm; text-align: right; }` +
+              `  .billing-atty-header {` +
+              `    display: flex; font-size: 10pt; font-weight: 700;` +
+              `    text-decoration: underline; margin-top: 2pt;` +
+              `  }` +
+              `  .billing-atty-header .col-name    { flex: 1; }` +
+              `  .billing-atty-header .col-fee     { flex: 0 0 30mm; text-align: right; }` +
+              `  .billing-atty-header .col-reduced { flex: 0 0 30mm; text-align: right; }` +
+              `  .billing-atty-header .col-billed  { flex: 0 0 35mm; text-align: right; }` +
+              `  .billing-atty-row {` +
+              `    display: flex; font-size: 10pt; margin-top: 1pt;` +
+              `  }` +
+              `  .billing-atty-row .col-name    { flex: 1; }` +
+              `  .billing-atty-row .col-fee     { flex: 0 0 30mm; text-align: right; }` +
+              `  .billing-atty-row .col-reduced { flex: 0 0 30mm; text-align: right; }` +
+              `  .billing-atty-row .col-billed  { flex: 0 0 35mm; text-align: right; }` +
+              `  .billing-expense-header {` +
+              `    display: flex; font-size: 10pt; font-style: italic;` +
+              `    text-decoration: underline; margin-top: 4pt; margin-bottom: 2pt;` +
+              `  }` +
+              `  .billing-expense-header .col-provider { flex: 1; }` +
+              `  .billing-expense-header .col-date     { flex: 0 0 28mm; text-align: right; }` +
+              `  .billing-expense-header .col-due      { flex: 0 0 25mm; text-align: right; }` +
+              `  .billing-expense-row {` +
+              `    display: flex; font-size: 10pt; margin-top: 1pt; padding-left: 4mm;` +
+              `  }` +
+              `  .billing-expense-row .col-provider { flex: 1; }` +
+              `  .billing-expense-row .col-date     { flex: 0 0 28mm; text-align: right; }` +
+              `  .billing-expense-row .col-due      { flex: 0 0 25mm; text-align: right; }` +
+              `  .billing-debits-header {` +
+              `    display: flex; font-size: 10pt; text-decoration: underline;` +
+              `    font-style: italic; margin-top: 4pt;` +
+              `  }` +
+              `  .billing-debits-header .col-provider  { flex: 1; }` +
+              `  .billing-debits-header .col-date      { flex: 0 0 22mm; text-align: right; }` +
+              `  .billing-debits-header .col-total     { flex: 0 0 26mm; text-align: right; }` +
+              `  .billing-debits-header .col-paid      { flex: 0 0 20mm; text-align: right; }` +
+              `  .billing-debits-header .col-balance   { flex: 0 0 24mm; text-align: right; }` +
+              `  .billing-debits-header .col-reduction { flex: 0 0 24mm; text-align: right; }` +
+              `  .billing-debits-header .col-due       { flex: 0 0 20mm; text-align: right; }` +
+              `  .billing-debits-row {` +
+              `    display: flex; font-size: 10pt; margin-top: 1pt;` +
+              `  }` +
+              `  .billing-debits-row .col-provider  { flex: 1; }` +
+              `  .billing-debits-row .col-date      { flex: 0 0 22mm; text-align: right; }` +
+              `  .billing-debits-row .col-total     { flex: 0 0 26mm; text-align: right; }` +
+              `  .billing-debits-row .col-paid      { flex: 0 0 20mm; text-align: right; }` +
+              `  .billing-debits-row .col-balance   { flex: 0 0 24mm; text-align: right; }` +
+              `  .billing-debits-row .col-reduction { flex: 0 0 24mm; text-align: right; }` +
+              `  .billing-debits-row .col-due       { flex: 0 0 20mm; text-align: right; }` +
+              `  .billing-label {` +
+              `    font-size: 10pt; font-weight: 700; margin-top: 4pt;` +
+              `  }` +
+              `  .billing-line {` +
+              `    font-size: 10pt; margin-top: 2pt;` +
+              `    white-space: pre-wrap; word-break: break-word;` +
+              `  }` +
+              `  .billing-total {` +
+              `    font-size: 10pt; font-weight: 700; margin-top: 4pt;` +
+              `    white-space: pre-wrap; word-break: break-word;` +
+              `  }` +
+              `  .billing-bullet {` +
+              `    font-size: 10pt; margin-top: 4pt;` +
+              `    padding-left: 12pt; text-indent: -12pt;` +
+              `    white-space: pre-wrap; word-break: break-word;` +
+              `  }` +
+              `  .billing-note {` +
+              `    font-size: 10pt; margin-top: 4pt;` +
+              `    font-style: italic; white-space: pre-wrap; word-break: break-word;` +
+              `  }` +
+              `  .billing-spacer { height: 5pt; }` +
+              `  .page-break-before { page-break-before: always; }` +
+              `  body { display: block; }` +
+              `<\/style>` +
+              `<\/head>` +
+              `<body>` +
+              `<div class="billing-report-page">${bodyInner}<\/div>` +
+              `<\/body>` +
+              `<\/html>`;
+
+            // Open a hidden iframe, write the print document into it, then trigger print.
+            const iframe = document.createElement("iframe");
+            iframe.style.cssText = [
+              "position:fixed",
+              "top:-10000px",
+              "left:-10000px",
+              "width:210mm",
+              "height:297mm",
+              "border:none",
+              "opacity:0",
+              "pointer-events:none",
+            ].join(";");
+            document.body.appendChild(iframe);
+
+            await new Promise((resolve) => {
+              iframe.onload = resolve;
+              iframe.contentDocument.open();
+              iframe.contentDocument.write(printDoc);
+              iframe.contentDocument.close();
+            });
+
+            // Wait for images inside the iframe to finish loading
+            const imgs = Array.from(
+              iframe.contentDocument.querySelectorAll("img"),
+            );
+            await Promise.all(
+              imgs.map((img) =>
+                img.complete
+                  ? Promise.resolve()
+                  : new Promise((res) => {
+                      img.onload = res;
+                      img.onerror = res;
+                    }),
+              ),
+            );
+
+            // Extra paint tick for layout settle
+            await new Promise((res) => setTimeout(res, 300));
+
+            // Trigger the browser's native Save as PDF dialog
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+
+            // Clean up after a short delay (gives print dialog time to open)
+            setTimeout(() => {
+              try {
+                document.body.removeChild(iframe);
+              } catch (_) {}
+            }, 2000);
+          },
+
+          reset() {
+            this.inputCaseNumber = "";
+            this.caseNumber = null;
+            this.status = null;
+            this.progress = 0;
+            this.duration = 0;
+            this.loading = false;
+            this.errorMessage = "";
+            this.markdown = "";
+            this.markdownRaw = "";
+            if (this.pollInterval) clearInterval(this.pollInterval);
+          },
+
+          logout() {
+            localStorage.removeItem("casevalueToken");
+            localStorage.removeItem("casevalueEmail");
+            window.dispatchEvent(new Event("logout-success"));
+            location.reload();
+          },
+        };
+      }
+    </script>
+  </body>
+</html>

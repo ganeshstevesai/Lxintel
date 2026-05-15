@@ -1,0 +1,14 @@
+# Python utility scripts
+*.py
+
+# Python build/cache artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt

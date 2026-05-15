@@ -1,0 +1,2558 @@
+<!doctype html>
+<html lang="en" class="hub-panel-cursor">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ramos Law Playbook Chatbot</title>
+    <link
+      rel="icon"
+      type="image/webp"
+      href="https://www.ramoslaw.com/wp-content/uploads/2024/02/ramos-law-injury-intelligence-cross.webp"
+    />
+    <link rel="stylesheet" href="index.css" />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="/static/common-cursor.js" defer></script>
+    <script
+      defer
+      src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+
+    <script>
+      const Translator = {
+        cache: new Map(),
+        async translate(text, targetLang) {
+          if (!text || targetLang === "en") return text;
+          const cacheKey = `${targetLang}:${text}`;
+          if (this.cache.has(cacheKey)) return this.cache.get(cacheKey);
+
+          try {
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            let translatedText = "";
+            if (data && data[0]) {
+              translatedText = data[0].map((x) => x[0]).join("");
+            } else {
+              translatedText = text;
+            }
+            this.cache.set(cacheKey, translatedText);
+            return translatedText;
+          } catch (e) {
+            console.error("Translation error", e);
+            return text;
+          }
+        },
+      };
+
+      window.currentLang = localStorage.getItem("appLang") || "en";
+
+      async function applyTranslations(lang) {
+        document.querySelectorAll("[data-i18n]").forEach(async (el) => {
+          if (el.dataset.originalTranslationText === undefined) {
+            el.dataset.originalTranslationText = el.textContent;
+          }
+          el.textContent = await Translator.translate(
+            el.dataset.originalTranslationText,
+            lang,
+          );
+        });
+
+        document
+          .querySelectorAll("[data-i18n-placeholder]")
+          .forEach(async (el) => {
+            if (el.dataset.originalTranslationPlaceholder === undefined) {
+              el.dataset.originalTranslationPlaceholder = el.placeholder;
+            }
+            el.placeholder = await Translator.translate(
+              el.dataset.originalTranslationPlaceholder,
+              lang,
+            );
+          });
+
+        document.querySelectorAll("[data-i18n-title]").forEach(async (el) => {
+          if (el.dataset.originalTranslationTitle === undefined) {
+            el.dataset.originalTranslationTitle = el.title;
+          }
+          el.title = await Translator.translate(
+            el.dataset.originalTranslationTitle,
+            lang,
+          );
+        });
+
+        document
+          .querySelectorAll(".translateable-message")
+          .forEach(async (msg) => {
+            const raw = msg.dataset.originalContent;
+            if (!raw) return;
+            const translatedRaw = await Translator.translate(raw, lang);
+            const bodyDiv = msg.querySelector(".message-body");
+            if (bodyDiv) {
+              if (
+                msg.classList.contains("assistant") &&
+                !msg.classList.contains("welcome")
+              ) {
+                let processed =
+                  typeof processTableContent === "function"
+                    ? processTableContent(translatedRaw)
+                    : translatedRaw;
+                bodyDiv.innerHTML = marked.parse(processed);
+                bodyDiv.querySelectorAll("a").forEach((link) => {
+                  link.setAttribute("target", "_blank");
+                  link.setAttribute("rel", "noopener noreferrer");
+                });
+              } else {
+                bodyDiv.textContent = translatedRaw;
+              }
+            }
+          });
+      }
+
+      async function changeLanguage(lang) {
+        window.currentLang = lang;
+        localStorage.setItem("appLang", lang);
+        await applyTranslations(lang);
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const sel = document.getElementById("lang-selector");
+        if (sel) sel.value = window.currentLang;
+        applyTranslations(window.currentLang);
+      });
+    </script>
+  </head>
+
+  <body>
+    <!-- Login Page -->
+    <div id="login-page-wrapper" class="login-page-wrapper" x-data="loginApp()">
+      <div class="login-page-content">
+        <div class="login-logo-section">
+          <h1 data-i18n="appTitle">Ramos Law Playbook Chatbot</h1>
+          <p data-i18n="appSubtitle">
+            Secure Chatbot Platform for Ramos Law Users
+          </p>
+        </div>
+        <div class="login-form-card">
+          <h2 data-i18n="loginH2">LOGIN</h2>
+          <div x-show="error" class="login-error-message" x-text="error"></div>
+          <form @submit.prevent="login()">
+            <div class="login-form-group">
+              <label for="login-email" data-i18n="emailLabel"
+                >Email Address</label
+              >
+              <input
+                type="email"
+                id="login-email"
+                x-model="email"
+                @input.debounce.500="verifyEmail()"
+                @keydown.enter="emailValid && login()"
+                placeholder="Enter your email"
+                data-i18n-placeholder="emailPlaceholder"
+                required
+              />
+              <div
+                class="login-email-status"
+                :class="{ visible: emailChecking || emailValid !== null }"
+              >
+                <span
+                  class="status-icon"
+                  :class="emailChecking ? 'checking' : (emailValid ? 'valid' : 'invalid')"
+                ></span>
+                <span
+                  x-text="emailChecking ? 'Checking...' : (emailValid ? 'Email verified' : 'Email not found')"
+                ></span>
+              </div>
+            </div>
+            <button
+              type="submit"
+              class="login-btn"
+              :disabled="emailValid !== true || loggingIn"
+            >
+              <span x-show="!loggingIn" data-i18n="loginBtn">LOGIN</span>
+              <span x-show="loggingIn" class="login-btn-spinner">
+                <span class="spinner"></span>
+                <span data-i18n="loggingIn">Logging in...</span>
+              </span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div
+      id="main-app-wrapper"
+      class="app-container"
+      x-data="sopApp()"
+      x-init="init()"
+      style="display: none"
+    >
+      <div class="app-header">
+        <div class="header-left">
+          <img
+            src="https://www.ramoslaw.com/wp-content/uploads/2024/02/ramos-law-injury-intelligence-cross.webp"
+            alt="Ramos Law"
+            class="logo"
+          />
+          <div class="header-title">
+            <h1 data-i18n="appTitle">Ramos Law Playbook Chatbot</h1>
+            <div style="display: flex; align-items: center; gap: 12px">
+              <p data-i18n="appSubtitle2">
+                Secure Chatbot Service for Ramos Law Users
+              </p>
+              <!-- Active Users Count -->
+              <button
+                id="active-users-btn"
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 6px;
+                  background: none;
+                  border: none;
+                  cursor: pointer;
+                  padding: 4px 10px;
+                  border-radius: 6px;
+                  transition: all 0.3s;
+                  color: var(--gold);
+                  font-size: 12px;
+                  font-weight: 600;
+                "
+                onclick="toggleActiveUsersPopover()"
+                title="Active users on this tool"
+              >
+                <span
+                  style="
+                    display: inline-block;
+                    width: 8px;
+                    height: 8px;
+                    background: #2ecc71;
+                    border-radius: 50%;
+                    box-shadow: 0 0 8px #2ecc71;
+                  "
+                ></span>
+                <span id="active-count">0</span>
+                <span style="margin-left: 4px" data-i18n="activeUsersLabel"
+                  >Active Users</span
+                >
+              </button>
+            </div>
+          </div>
+        </div>
+        <div
+          class="header-right"
+          style="display: flex; align-items: center; gap: 8px"
+        >
+          <!-- LANGUAGE SELECTOR -->
+          <select
+            id="lang-selector"
+            onchange="changeLanguage(this.value)"
+            style="
+              background-color: #222;
+              color: var(--gold);
+              border: 1px solid #444;
+              padding: 8px 12px;
+              border-radius: 6px;
+              font-family: inherit;
+              font-size: 13px;
+              cursor: pointer;
+            "
+            title="Select Language"
+          >
+            <option value="en">English</option>
+            <option value="es">Spanish</option>
+          </select>
+
+          <!-- CLOSE TUTORIAL BUTTON (Shows only during NAFI tutorial) -->
+          <button
+            id="close-tutorial-btn-header"
+            class="new-chat-btn"
+            onclick="closeNafiTutorial()"
+            style="
+              display: none;
+              align-items: center;
+              gap: 6px;
+              background-color: var(--gold);
+              color: var(--bg);
+              border: none;
+              padding: 10px 12px;
+              border-radius: 6px;
+              font-weight: 600;
+              cursor: pointer;
+              font-size: 14px;
+            "
+            title="Close NAFI Tutorial"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            <span>CLOSE TUTORIAL</span>
+          </button>
+
+          <!-- TUTORIAL BUTTON (Shows in NAFI mode) -->
+          <button
+            id="tutorial-btn-header"
+            class="new-chat-btn"
+            onclick="startNafiTutorial()"
+            style="
+              display: none;
+              align-items: center;
+              gap: 6px;
+              background-color: var(--gold);
+              color: var(--bg);
+              border: none;
+              padding: 10px 12px;
+              border-radius: 6px;
+              font-weight: 600;
+              cursor: pointer;
+              font-size: 14px;
+            "
+            title="NAFI Screening Tutorial"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+            </svg>
+            <span>Tutorial</span>
+          </button>
+
+          <!-- BACK TO CHAT BUTTON (Shows in NAFI mode) -->
+          <button
+            id="back-to-chat-btn"
+            class="new-chat-btn"
+            onclick="backToChat()"
+            style="
+              display: none;
+              align-items: center;
+              gap: 6px;
+              background-color: var(--gold);
+              color: var(--bg);
+              border: none;
+              padding: 10px 12px;
+              border-radius: 6px;
+              font-weight: 600;
+              cursor: pointer;
+              font-size: 14px;
+            "
+            title="Return to chat"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            <span data-i18n="backToChat">Back to Playbook Chat</span>
+          </button>
+
+          <!-- GENERAL AI CHATBOT BUTTON -->
+          <button
+            id="general-ai-btn-header"
+            class="new-chat-btn"
+            onclick="startGeneralAiChat()"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              background-color: var(--gold);
+              color: var(--bg);
+              border: none;
+              padding: 10px 12px;
+              border-radius: 6px;
+              font-weight: 600;
+              cursor: pointer;
+              font-size: 14px;
+            "
+            title="Open General AI Chatbot"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+              ></path>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+            <span data-i18n="generalAiChatbot">GENERAL AI CHATBOT</span>
+          </button>
+
+          <!-- NAFI CASE SCREEN BUTTON (Hidden in NAFI mode) -->
+          <button
+            id="nafi-case-btn-header"
+            class="nafi-case-btn"
+            onclick="startNafiChat()"
+            title="Open NAFI Case Screen"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M9 12h6M9 16h6M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"
+              ></path>
+              <polyline points="13 2 13 9 20 9"></polyline>
+            </svg>
+            <span data-i18n="nafiCaseScreen">NAFI Case Screen</span>
+          </button>
+
+          <!-- NEW CHAT BUTTON (Hidden in NAFI mode) -->
+          <button
+            id="new-chat-btn-header"
+            class="new-chat-btn"
+            onclick="startNewChat()"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              background-color: var(--gold);
+              color: var(--bg);
+              border: none;
+              padding: 10px 12px;
+              border-radius: 6px;
+              font-weight: 600;
+              cursor: pointer;
+              font-size: 14px;
+            "
+            title="Start a new conversation"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+              ></path>
+            </svg>
+            <span id="new-chat-btn-header-label">NEW PLAYBOOK CHAT</span>
+          </button>
+
+          <!-- MENU ICON -->
+          <button
+            id="user-menu-btn"
+            style="
+              background: none;
+              border: none;
+              cursor: pointer;
+              padding: 8px;
+              position: relative;
+            "
+            onclick="toggleUserMenu()"
+            title="User menu"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--gold)"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="4" y1="6" x2="20" y2="6"></line>
+              <line x1="4" y1="12" x2="20" y2="12"></line>
+              <line x1="4" y1="18" x2="20" y2="18"></line>
+            </svg>
+          </button>
+
+          <!-- USER MENU POPOVER -->
+          <div
+            id="user-menu-popover"
+            style="
+              position: absolute;
+              top: 70px;
+              right: 20px;
+              background-color: #222;
+              border: 1px solid #444;
+              border-radius: 8px;
+              padding: 12px;
+              min-width: 200px;
+              display: none;
+              z-index: 1000;
+              box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            "
+          >
+            <div
+              style="
+                padding: 8px 12px;
+                border-bottom: 1px solid #444;
+                margin-bottom: 8px;
+                color: #bbb;
+                font-size: 13px;
+              "
+            >
+              <span x-text="userEmail"></span>
+            </div>
+            <button
+              onclick="logout()"
+              data-i18n="logout"
+              style="
+                width: 100%;
+                padding: 10px 12px;
+                background-color: #e74c3c;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 14px;
+              "
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-container">
+        <!-- GENERAL AI HEADER -->
+        <div
+          id="general-ai-header"
+          class="general-ai-header"
+          style="display: none"
+        >
+          <div class="header-msg">
+            Do not upload PHI, medical records, or sensitive client information.
+            This workspace is not approved for medical-summary generation or raw
+            medical-record analysis. Upload only non-medical, non-PHI,
+            non-sensitive work documents.
+          </div>
+          <div class="model-selector-container">
+            <select
+              id="model-selector"
+              onchange="handleModelChange(this.value)"
+            >
+              <option value="default" data-i18n="defaultModel">
+                Default Model
+              </option>
+              <option value="latest" data-i18n="latestModel">
+                Latest Model
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+          <div id="general-ai-welcome" class="general-ai-welcome">
+            Use this tool only for Ramos Law work-related tasks. Write in clear,
+            full sentences and describe the specific work task you want help
+            with. Include the goal, key facts, and what kind of help you want,
+            such as drafting, rewriting, reviewing, organizing, or explaining.
+            Important confidentiality restriction: Do not paste or upload PHI,
+            medical records, bills, charts, imaging reports, lab reports,
+            treatment records, dates of birth, medical record numbers, Social
+            Security numbers, addresses, account numbers, or other sensitive
+            client identifiers. This tool is not for generating medical
+            summaries, summarizing raw medical records, extracting diagnoses,
+            medications, or providers from patient files, analyzing raw client
+            treatment records, personal or non-work requests. Best way to prompt
+            Use full sentences, not fragments State the work goal clearly
+            Include relevant business context Say exactly what you want done
+            with any uploaded file Avoid vague prompts, shorthand, jargon, and
+            unexplained acronyms Good examples "Draft a professional follow-up
+            email to a client who has not responded in two weeks." "Rewrite this
+            internal message so it is clearer, more concise, and professional."
+            "Analyze this uploaded non-medical document and identify the top
+            issues I should review before sending it to an attorney." "Turn
+            these notes into a clean internal summary for staff review."
+          </div>
+        </div>
+      </div>
+
+      <div class="input-container">
+        <div id="general-ai-input-warning" class="general-ai-input-warning">
+          Do not upload PHI, medical records, or sensitive client information.
+          Upload only non-medical, non-PHI, non-sensitive work documents.
+        </div>
+        <!-- FILE UPLOAD TRAY -->
+        <div id="file-upload-tray" class="file-upload-tray"></div>
+
+        <div class="input-wrapper" id="input-wrapper">
+          <label
+            id="upload-btn-label"
+            for="file-input"
+            class="upload-btn"
+            title="Upload files"
+            data-i18n-title="uploadFiles"
+            style="display: none"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </label>
+          <input
+            type="file"
+            id="file-input"
+            multiple
+            style="display: none"
+            onchange="
+              handleFiles(this.files);
+              this.value = '';
+            "
+          />
+          <textarea
+            id="message-input"
+            data-i18n-placeholder="typeMessage"
+            placeholder="Type your message here..."
+            onkeydown="handleKeyPress(event)"
+          ></textarea>
+          <button
+            class="send-btn"
+            onclick="handleSendBtnClick()"
+            id="send-btn"
+            data-i18n="send"
+          >
+            Send
+          </button>
+        </div>
+      </div>
+
+      <!-- MODEL SECURITY MODAL -->
+      <div id="model-security-modal">
+        <div class="modal-content">
+          <div class="modal-header" data-i18n="enterSecurityCode">
+            Enter Security Code
+          </div>
+          <div class="modal-body">
+            <input
+              type="number"
+              id="security-code-input"
+              placeholder="Enter number here"
+              data-i18n-placeholder="enterNumberHere"
+            />
+          </div>
+          <div class="modal-footer">
+            <button
+              class="close-modal-btn"
+              onclick="closeSecurityModal()"
+              data-i18n="cancel"
+            >
+              Cancel
+            </button>
+            <button
+              class="save-modal-btn"
+              onclick="saveSecurityCode()"
+              data-i18n="save"
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Active Users Popover (Outside header) -->
+      <div id="active-users-popover" class="active_user">
+        <div
+          data-i18n="activeUsersLabel"
+          style="
+            padding: 8px 0;
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(201, 168, 76, 0.3);
+            color: var(--gold);
+            font-size: 12px;
+            font-weight: 600;
+          "
+        >
+          Active Users
+        </div>
+        <div id="active-users-list" style="color: #aaa; font-size: 13px">
+          <div style="padding: 8px 0; color: #666">Loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE_URL = window.location.origin;
+      let isProcessing = false;
+
+      // ---- NAFI mode state ----
+      let currentMode = "chat"; // 'chat' | 'nafi' | 'general_ai'
+      let nafiLastIntakeDescription = "";
+      let nafiAwaitingFollowUp = false;
+      // ---- NAFI Tutorial mode state ----
+      let nafiTutorialActive = false;
+      let nafiTutorialLastAnswer = null;
+      let nafiTutorialProcessing = false;
+
+      // ---- GENERAL AI mode state ----
+      let generalAiResponseId = null;
+      let selectedFiles = [];
+      let generalAiModel = "default";
+      // -------------------------
+
+      marked.setOptions({
+        gfm: true,
+        breaks: true,
+        tables: true,
+      });
+
+      function handleKeyPress(event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+          event.preventDefault();
+          handleSendBtnClick();
+        }
+      }
+
+      function handleSendBtnClick() {
+        if (currentMode === "nafi") {
+          sendNafiMessage();
+        } else if (currentMode === "general_ai") {
+          sendGeneralAiMessage();
+        } else {
+          sendMessage();
+        }
+      }
+
+      // Close menu when clicking outside
+      document.addEventListener("click", function (event) {
+        const popover = document.getElementById("user-menu-popover");
+        const menuBtn = event.target.closest(
+          "button[onclick='toggleUserMenu()']",
+        );
+        if (!menuBtn && !popover.contains(event.target)) {
+          popover.style.display = "none";
+        }
+      });
+
+      function toggleUserMenu() {
+        const popover = document.getElementById("user-menu-popover");
+        if (popover.style.display === "none" || popover.style.display === "") {
+          popover.style.display = "block";
+        } else {
+          popover.style.display = "none";
+        }
+      }
+
+      function logout() {
+        localStorage.removeItem("jwtsopchatbot");
+        localStorage.removeItem("playbookEmail");
+        window.dispatchEvent(new Event("logout-success"));
+      }
+
+      async function startNewChat() {
+        if (
+          confirm(
+            await Translator.translate(
+              "Are you sure you want to start a new chat?",
+              window.currentLang,
+            ),
+          )
+        ) {
+          if (currentMode === "nafi") {
+            startNafiChat();
+          } else if (currentMode === "general_ai") {
+            generalAiResponseId = null;
+            selectedFiles = [];
+            updateFileTrayUI();
+            startGeneralAiChat();
+          } else {
+            try {
+              const token = localStorage.getItem("jwtsopchatbot");
+              await fetch(`${API_BASE_URL}/Playbook_Chatbot/chat/clear`, {
+                method: "DELETE",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "ngrok-skip-browser-warning": "true",
+                },
+              });
+            } catch (error) {
+              console.error("Failed to clear chat:", error);
+            }
+
+            const messagesDiv = document.getElementById("chat-messages");
+            messagesDiv.innerHTML = "";
+            document.getElementById("message-input").value = "";
+
+            addWelcomeMessage();
+          }
+        }
+      }
+
+      async function backToChat() {
+        currentMode = "chat";
+        // Stop tutorial UI if it was open
+        nafiTutorialActive = false;
+        nafiTutorialLastAnswer = null;
+        nafiTutorialProcessing = false;
+
+        // Restore input UI for chat mode
+        const inputContainer = document.querySelector(".input-container");
+        if (inputContainer) inputContainer.style.display = "block";
+
+        updateHeaderUI();
+        nafiLastIntakeDescription = "";
+        nafiAwaitingFollowUp = false;
+        generalAiResponseId = null;
+        selectedFiles = [];
+        updateFileTrayUI();
+        document.getElementById("general-ai-header").style.display = "none";
+
+        document.getElementById("message-input").placeholder =
+          await Translator.translate(
+            "Type your message here...",
+            window.currentLang,
+          );
+
+        const messagesDiv = document.getElementById("chat-messages");
+        messagesDiv.innerHTML = "";
+        document.getElementById("message-input").value = "";
+
+        addWelcomeMessage();
+        loadChatHistory();
+      }
+
+      async function sendMessage() {
+        if (isProcessing) return;
+
+        const input = document.getElementById("message-input");
+        const message = input.value.trim();
+
+        if (!message) return;
+
+        isProcessing = true;
+        const sendBtn = document.getElementById("send-btn");
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '<span class="spinner"></span>';
+
+        addMessage("user", message);
+        input.value = "";
+        showTypingIndicator();
+
+        try {
+          const response = await fetch(
+            API_BASE_URL + "/Playbook_Chatbot/chat",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("jwtsopchatbot")}`,
+                "ngrok-skip-browser-warning": "true",
+              },
+              body: JSON.stringify({ question: message }),
+            },
+          );
+
+          const data = await response.json();
+          const references = data.references || [];
+
+          if (data.success) {
+            const assistantMessages = data.chat_history.filter(
+              (m) => m.role === "assistant",
+            );
+            if (assistantMessages.length > 0) {
+              const lastMessage =
+                assistantMessages[assistantMessages.length - 1];
+              const mid = lastMessage.prompt_log_id || null;
+              addMessage("assistant", lastMessage.content, mid, references);
+            }
+          } else {
+            const mid = data.prompt_log_id || null;
+            addMessage("assistant", `${data.answer}`, mid, references);
+          }
+        } catch (error) {
+          addMessage("assistant", `${error.message}`);
+        } finally {
+          hideTypingIndicator();
+          isProcessing = false;
+          sendBtn.disabled = false;
+          const baseText = sendBtn.dataset.originalTranslationText || "Send";
+          if (window.currentLang === "en") {
+            sendBtn.textContent = baseText;
+          } else {
+            Translator.translate(baseText, window.currentLang).then((txt) => {
+              sendBtn.textContent = txt;
+            });
+          }
+          scrollToBottom();
+        }
+      }
+
+      function addMessage(
+        role,
+        content,
+        prompt_log_id = null,
+        references = [],
+      ) {
+        const messagesDiv = document.getElementById("chat-messages");
+
+        const emptyState = messagesDiv.querySelector(".empty-state");
+        if (emptyState) emptyState.remove();
+
+        const wrapper = document.createElement("div");
+        wrapper.className = `message-wrapper ${role}`;
+
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `message ${role}`;
+        messageDiv.dataset.originalContent = content;
+        messageDiv.classList.add("translateable-message");
+
+        const bodyDiv = document.createElement("div");
+        bodyDiv.className = "message-body";
+        messageDiv.appendChild(bodyDiv);
+
+        wrapper.appendChild(messageDiv);
+
+        // Add feedback buttons (thumbs up/down) for assistant messages that are not the welcome message
+        if (role === "assistant" && prompt_log_id) {
+          // ensure we don't add feedback to welcome messages
+          if (!messageDiv.classList.contains("welcome")) {
+            const fb = document.createElement("div");
+            fb.className = "feedback-buttons";
+
+            const upBtn = document.createElement("button");
+            upBtn.className = "feedback-btn";
+            upBtn.title = "Helpful";
+            upBtn.innerHTML = `
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 21h4V9H1v12zM23 10c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 2 7.59 8.59C7.22 8.95 7 9.45 7 10v8c0 1.1.9 2 2 2h7c.83 0 1.54-.5 1.84-1.22L23 12.5c.11-.33.16-.68.16-1z"/>
+              </svg>
+            `;
+
+            const downBtn = document.createElement("button");
+            downBtn.className = "feedback-btn";
+            downBtn.title = "Not helpful";
+            downBtn.innerHTML = `
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M23 3h-4v12h4V3zM1 14c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 22l6.58-6.59c.37-.36.59-.86.59-1.41V6c0-1.1-.9-2-2-2H7c-.83 0-1.54.5-1.84 1.22L1 11.5C.89 11.83.84 12.18.84 12.5c0 .33.05.68.16 1z"/>
+              </svg>
+            `;
+
+            upBtn.addEventListener("click", function (e) {
+              e.stopPropagation();
+              if (upBtn.classList.contains("disabled")) return;
+              sendFeedback(prompt_log_id, "up", upBtn, downBtn);
+            });
+
+            downBtn.addEventListener("click", function (e) {
+              e.stopPropagation();
+              if (downBtn.classList.contains("disabled")) return;
+              sendFeedback(prompt_log_id, "down", upBtn, downBtn);
+            });
+
+            fb.appendChild(upBtn);
+            fb.appendChild(downBtn);
+            messageDiv.appendChild(fb);
+          }
+        }
+
+        // Render references (source files) below the answer
+        if (role === "assistant" && references && references.length > 0) {
+          const refSection = document.createElement("div");
+          refSection.className = "references-section";
+
+          const refLabel = document.createElement("div");
+          refLabel.className = "references-label";
+          refLabel.textContent = "Reference Files:";
+          refSection.appendChild(refLabel);
+
+          const chipsRow = document.createElement("div");
+          chipsRow.className = "references-chips";
+
+          references.forEach((ref) => {
+            const fileIcon = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="12" y1="11" x2="12" y2="17"></line>
+            <polyline points="9 14 12 17 15 14"></polyline>
+          </svg>`;
+
+            const chip = document.createElement("button");
+            chip.className = "reference-chip";
+            chip.title = `Download ${ref.filename}`;
+            chip.type = "button";
+            chip.innerHTML = `${fileIcon} ${ref.filename}`;
+
+            chip.addEventListener("click", async function (e) {
+              e.preventDefault();
+              e.stopPropagation();
+
+              if (chip.classList.contains("loading")) return;
+
+              // Show loading spinner
+              chip.classList.add("loading");
+              chip.innerHTML = `<span class="chip-spinner"></span> Downloading...`;
+
+              try {
+                const resp = await fetch(ref.url, { mode: "cors" });
+                if (!resp.ok) throw new Error("Fetch failed");
+                const blob = await resp.blob();
+                const objectURL = URL.createObjectURL(blob);
+
+                // Trigger download invisibly — no new tab, no navigation
+                const a = document.createElement("a");
+                a.href = objectURL;
+                a.download = ref.filename;
+                a.style.display = "none";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(objectURL), 10000);
+
+                // Show success state
+                chip.classList.remove("loading");
+                chip.classList.add("done");
+                chip.innerHTML = `✓ ${ref.filename}`;
+
+                // Reset after 2.5s
+                setTimeout(() => {
+                  chip.classList.remove("done");
+                  chip.innerHTML = `${fileIcon} ${ref.filename}`;
+                }, 2500);
+              } catch (err) {
+                // Fallback: open in new tab if fetch fails (e.g. CORS blocked)
+                chip.classList.remove("loading");
+                chip.innerHTML = `${fileIcon} ${ref.filename}`;
+                window.open(ref.url, "_blank", "noopener,noreferrer");
+              }
+            });
+
+            chipsRow.appendChild(chip);
+          });
+
+          refSection.appendChild(chipsRow);
+          messageDiv.appendChild(refSection);
+        }
+
+        messagesDiv.appendChild(wrapper);
+
+        (async () => {
+          const translatedContent = await Translator.translate(
+            content,
+            window.currentLang,
+          );
+          if (role === "assistant") {
+            let processedContent =
+              typeof processTableContent === "function"
+                ? processTableContent(translatedContent)
+                : translatedContent;
+            bodyDiv.innerHTML = marked.parse(processedContent);
+            const links = bodyDiv.querySelectorAll("a");
+            links.forEach((link) => {
+              link.setAttribute("target", "_blank");
+              link.setAttribute("rel", "noopener noreferrer");
+            });
+          } else {
+            bodyDiv.textContent = translatedContent;
+          }
+          scrollToBottom();
+        })();
+
+        scrollToBottom();
+      }
+
+      function addPlainAssistantMessage(content) {
+        const messagesDiv = document.getElementById("chat-messages");
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "message-wrapper assistant";
+
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "message assistant welcome";
+        messageDiv.dataset.originalContent = content;
+        messageDiv.classList.add("translateable-message");
+
+        const inner = document.createElement("div");
+        inner.className = "welcome-content message-body";
+
+        messageDiv.appendChild(inner);
+
+        wrapper.appendChild(messageDiv);
+        messagesDiv.appendChild(wrapper);
+
+        (async () => {
+          inner.textContent = await Translator.translate(
+            content,
+            window.currentLang,
+          );
+          scrollToBottom();
+        })();
+      }
+
+      async function sendFeedback(prompt_log_id, feedback, upBtn, downBtn) {
+        try {
+          // disable buttons during request
+          upBtn.classList.add("disabled");
+          downBtn.classList.add("disabled");
+
+          const resp = await fetch(
+            API_BASE_URL + "/Playbook_Chatbot/chat/feedback",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("jwtsopchatbot")}`,
+                "ngrok-skip-browser-warning": "true",
+              },
+              body: JSON.stringify({
+                prompt_log_id: String(prompt_log_id),
+                feedback,
+              }),
+            },
+          );
+
+          if (!resp.ok) {
+            // re-enable to allow retry
+            upBtn.classList.remove("disabled");
+            downBtn.classList.remove("disabled");
+            upBtn.disabled = false;
+            downBtn.disabled = false;
+            console.warn("Feedback request failed", resp.status);
+            return;
+          }
+
+          // Parse response and show message below the buttons
+          let json = {};
+          try {
+            json = await resp.json();
+          } catch (e) {
+            json = {};
+          }
+          const respText = json.message;
+
+          // Keep buttons disabled after successful feedback
+          upBtn.classList.add("disabled");
+          downBtn.classList.add("disabled");
+          upBtn.disabled = true;
+          downBtn.disabled = true;
+
+          // Visual confirmation: highlight selected
+          if (feedback === "up") {
+            upBtn.style.background = "rgba(46, 204, 113, 0.12)";
+            upBtn.style.borderColor = "rgba(46, 204, 113, 0.25)";
+          } else {
+            downBtn.style.background = "rgba(231, 76, 60, 0.08)";
+            downBtn.style.borderColor = "rgba(231, 76, 60, 0.2)";
+          }
+
+          // Append or update feedback response element under the buttons
+          const fbContainer = upBtn.parentElement; // .feedback-buttons
+          if (fbContainer) {
+            let existing = fbContainer.querySelector(".feedback-response");
+            if (!existing) {
+              existing = document.createElement("div");
+              existing.className = "feedback-response";
+              // append after the buttons container
+              fbContainer.appendChild(existing);
+            }
+            existing.textContent = respText;
+          }
+        } catch (err) {
+          upBtn.classList.remove("disabled");
+          downBtn.classList.remove("disabled");
+          console.error("Feedback error", err);
+        }
+      }
+
+      const welcomeText = `Hello, I’m the Ramos Law Playbook Chatbot Assistant. Please Ask your Questions.
+Below are some example questions to get you started:
+
+1. How should client account reconciliations be performed?
+2. How should vendor payment discrepancies be handled?
+3. What steps are involved in preparing client account statements?
+4. How should invoices be reviewed before approval?
+5. What should I do if I forgot my login password?
+6. How do I ask a client for a Google review?
+7. What information goes into a demand letter?
+8. What information do I need to gather during an MVA intake?
+9. Do we take COVID-19 vaccine injury cases?
+10. How do I request paid time off?`;
+
+      function addWelcomeMessage() {
+        addPlainAssistantMessage(welcomeText);
+      }
+
+      function showTypingIndicator() {
+        const messagesDiv = document.getElementById("chat-messages");
+        const wrapper = document.createElement("div");
+        wrapper.className = "typing-wrapper";
+        wrapper.id = "typing-wrapper";
+
+        const indicator = document.createElement("div");
+        indicator.className = "typing-indicator active";
+        indicator.innerHTML =
+          '<div class="typing-dots"><span></span><span></span><span></span></div>';
+
+        // wrapper.appendChild(avatar);
+        wrapper.appendChild(indicator);
+        messagesDiv.appendChild(wrapper);
+        scrollToBottom();
+      }
+
+      function hideTypingIndicator() {
+        const wrapper = document.getElementById("typing-wrapper");
+        if (wrapper) wrapper.remove();
+      }
+
+      function processTableContent(content) {
+        const lines = content.split("\n");
+        let processedContent = [];
+        let i = 0;
+
+        while (i < lines.length) {
+          let line = lines[i].trim();
+
+          if (line.startsWith("|") && line.endsWith("|")) {
+            const tableLines = [];
+            while (i < lines.length && lines[i].trim().startsWith("|")) {
+              const tableLine = lines[i].trim();
+              if (tableLine.length > 0) {
+                tableLines.push(tableLine);
+              }
+              i++;
+            }
+
+            if (tableLines.length > 0) {
+              const markdownTable = convertToMarkdownTable(tableLines);
+              processedContent.push(markdownTable);
+            }
+            continue;
+          }
+
+          processedContent.push(line);
+          i++;
+        }
+
+        return processedContent.join("\n");
+      }
+
+      function convertToMarkdownTable(tableLines) {
+        const rows = tableLines.map((line) => {
+          const cells = line
+            .slice(1, -1)
+            .split("|")
+            .map((cell) => cell.trim());
+          return cells;
+        });
+
+        if (rows.length === 0) return "";
+
+        let separatorIndex = rows.findIndex((row) =>
+          row.every((cell) => /^[\s\-]+$/.test(cell) || cell === ""),
+        );
+
+        let headerRow, dataRows;
+
+        if (separatorIndex !== -1) {
+          headerRow = rows[0];
+          dataRows = rows
+            .slice(1)
+            .filter((_, idx) => idx !== separatorIndex - 1);
+        } else {
+          headerRow = rows[0];
+          dataRows = rows.slice(1);
+        }
+
+        const numCols = Math.max(
+          headerRow.length,
+          ...dataRows.map((row) => row.length),
+        );
+
+        while (headerRow.length < numCols) {
+          headerRow.push("");
+        }
+
+        dataRows = dataRows.map((row) => {
+          const newRow = [...row];
+          while (newRow.length < numCols) newRow.push("");
+          return newRow;
+        });
+
+        let markdown = "\n\n";
+        markdown += "| " + headerRow.join(" | ") + " |\n";
+        markdown += "| " + headerRow.map(() => "---").join(" | ") + " |\n";
+        dataRows.forEach((row) => {
+          markdown += "| " + row.join(" | ") + " |\n";
+        });
+        markdown += "\n";
+
+        return markdown;
+      }
+
+      function scrollToBottom() {
+        const messagesDiv = document.getElementById("chat-messages");
+        setTimeout(() => {
+          messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }, 100);
+      }
+
+      // Alpine.js Components
+      function loginApp() {
+        return {
+          email: "",
+          emailValid: null,
+          emailChecking: false,
+          error: "",
+          loggedIn: localStorage.getItem("jwtsopchatbot") ? true : false,
+          loggingIn: false,
+
+          verifyEmail() {
+            if (!this.email) {
+              this.emailValid = null;
+              this.emailChecking = false;
+              return;
+            }
+
+            this.emailChecking = true;
+            this.error = "";
+            fetch(
+              `${API_BASE_URL}/Playbook_Chatbot/verify-email?email=${encodeURIComponent(this.email)}`,
+              {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                  "ngrok-skip-browser-warning": "true",
+                },
+              },
+            )
+              .then((res) => res.json())
+              .then((json) => {
+                this.emailValid = json.valid;
+                this.emailChecking = false;
+                if (!json.valid) {
+                  this.error =
+                    "Access denied: Your email is not on the authorized list.";
+                }
+              })
+              .catch(() => {
+                this.emailValid = false;
+                this.emailChecking = false;
+                this.error =
+                  "Access denied: Your email is not on the authorized list.";
+              });
+          },
+
+          login() {
+            if (!this.emailValid) {
+              this.error = "Email not authorized";
+              return;
+            }
+
+            if (!this.email || !this.email.includes("@")) {
+              this.error = "Please enter a valid email";
+              return;
+            }
+
+            this.loggingIn = true;
+
+            fetch(`${API_BASE_URL}/Playbook_Chatbot/login`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "ngrok-skip-browser-warning": "true",
+              },
+              body: `username=${encodeURIComponent(this.email)}&password=${encodeURIComponent(" ")}`,
+            })
+              .then((res) => {
+                if (!res.ok) throw new Error("Unauthorized email");
+                return res.json();
+              })
+              .then((json) => {
+                localStorage.setItem("jwtsopchatbot", json.access_token);
+                localStorage.setItem("playbookEmail", this.email);
+                this.loggedIn = true;
+                this.error = "";
+                this.loggingIn = false;
+                window.dispatchEvent(
+                  new CustomEvent("login-success", {
+                    detail: { email: this.email },
+                  }),
+                );
+              })
+              .catch((err) => {
+                this.error = "Invalid credentials";
+                this.loggingIn = false;
+              });
+          },
+        };
+      }
+
+      function sopApp() {
+        return {
+          isLoggedIn: false,
+          userEmail: "",
+
+          init() {
+            this.checkAuth();
+            if (typeof setupDragAndDrop === "function") setupDragAndDrop();
+            window.addEventListener("login-success", (e) => {
+              this.userEmail = e.detail.email;
+              this.isLoggedIn = true;
+            });
+          },
+
+          checkAuth() {
+            const token = localStorage.getItem("jwtsopchatbot");
+            const userEmail = localStorage.getItem("playbookEmail");
+            if (token && userEmail) {
+              this.isLoggedIn = true;
+              this.userEmail = userEmail;
+            }
+          },
+
+          logout() {
+            localStorage.removeItem("jwtsopchatbot");
+            localStorage.removeItem("playbookEmail");
+            window.dispatchEvent(new Event("logout-success"));
+          },
+        };
+      }
+    </script>
+
+    <script>
+      // ============ NAFI CASE SCREEN ============
+
+      function updateHeaderUI() {
+        const backBtn = document.getElementById("back-to-chat-btn");
+        const closeTutorialBtn = document.getElementById(
+          "close-tutorial-btn-header",
+        );
+        const tutorialBtn = document.getElementById("tutorial-btn-header");
+        const nafiBtn = document.getElementById("nafi-case-btn-header");
+        const genAiBtn = document.getElementById("general-ai-btn-header");
+        const newChatBtn = document.getElementById("new-chat-btn-header");
+        const newChatBtnLabel = document.getElementById(
+          "new-chat-btn-header-label",
+        );
+        const langSel = document.getElementById("lang-selector");
+        const menuBtn = document.getElementById("user-menu-btn");
+        const uploadBtn = document.getElementById("upload-btn-label");
+        const generalAiHeader = document.getElementById("general-ai-header");
+        const generalAiWelcome = document.getElementById("general-ai-welcome");
+        const generalAiInputWarning = document.getElementById(
+          "general-ai-input-warning",
+        );
+
+        if (currentMode === "nafi") {
+          if (closeTutorialBtn)
+            closeTutorialBtn.style.display = nafiTutorialActive
+              ? "flex"
+              : "none";
+          if (backBtn) backBtn.style.display = "flex";
+          if (tutorialBtn) tutorialBtn.style.display = "flex";
+          if (nafiBtn) nafiBtn.style.display = "none";
+          if (genAiBtn) genAiBtn.style.display = "none";
+          if (newChatBtn) newChatBtn.style.display = "none";
+          if (langSel) langSel.style.display = "none";
+          if (menuBtn) menuBtn.style.display = "none";
+          if (uploadBtn) uploadBtn.style.display = "none";
+        } else if (currentMode === "general_ai") {
+          if (closeTutorialBtn) closeTutorialBtn.style.display = "none";
+          if (backBtn) backBtn.style.display = "flex";
+          if (tutorialBtn) tutorialBtn.style.display = "none";
+          if (newChatBtn) newChatBtn.style.display = "flex";
+          if (newChatBtnLabel)
+            newChatBtnLabel.textContent = "NEW GENERAL AI CHAT";
+          if (nafiBtn) nafiBtn.style.display = "none";
+          if (genAiBtn) genAiBtn.style.display = "none";
+          if (langSel) langSel.style.display = "none";
+          if (menuBtn) menuBtn.style.display = "none";
+          if (uploadBtn) uploadBtn.style.display = "flex";
+          if (generalAiHeader) generalAiHeader.style.display = "flex";
+          if (generalAiWelcome) generalAiWelcome.style.display = "block";
+          if (generalAiInputWarning)
+            generalAiInputWarning.style.display = "block";
+        } else {
+          if (closeTutorialBtn) closeTutorialBtn.style.display = "none";
+          if (backBtn) backBtn.style.display = "none";
+          if (tutorialBtn) tutorialBtn.style.display = "none";
+          if (nafiBtn) nafiBtn.style.display = "flex";
+          if (genAiBtn) genAiBtn.style.display = "flex";
+          if (newChatBtn) newChatBtn.style.display = "flex";
+          if (newChatBtnLabel)
+            newChatBtnLabel.textContent = "NEW PLAYBOOK CHAT";
+          if (langSel) langSel.style.display = "block";
+          if (menuBtn) menuBtn.style.display = "block";
+          if (uploadBtn) uploadBtn.style.display = "none";
+          if (generalAiHeader) generalAiHeader.style.display = "none";
+          if (generalAiWelcome) generalAiWelcome.style.display = "none";
+          if (generalAiInputWarning)
+            generalAiInputWarning.style.display = "none";
+        }
+      }
+
+      async function startGeneralAiChat() {
+        currentMode = "general_ai";
+        generalAiResponseId = null;
+        selectedFiles = [];
+        updateHeaderUI();
+        updateFileTrayUI();
+
+        const messagesDiv = document.getElementById("chat-messages");
+        let generalAiWelcome = document.getElementById("general-ai-welcome");
+        if (!generalAiWelcome) {
+          generalAiWelcome = document.createElement("div");
+          generalAiWelcome.id = "general-ai-welcome";
+          generalAiWelcome.className = "general-ai-welcome";
+          generalAiWelcome.textContent = `Use this tool only for Ramos Law work-related tasks. Write in clear, full sentences and describe the specific work task you want help with. Include the goal, key facts, and what kind of help you want, such as drafting, rewriting, reviewing, organizing, or explaining.
+
+Important confidentiality restriction:
+Do not paste or upload PHI, medical records, bills, charts, imaging reports, lab reports, treatment records, dates of birth, medical record numbers, Social Security numbers, addresses, account numbers, or other sensitive client identifiers.
+
+This tool is not for generating medical summaries, summarizing raw medical records, extracting diagnoses, medications, or providers from patient files, analyzing raw client treatment records, personal or non-work requests.
+
+Best way to prompt
+Use full sentences, not fragments
+State the work goal clearly
+Include relevant business context
+Say exactly what you want done with any uploaded file
+Avoid vague prompts, shorthand, jargon, and unexplained acronyms
+
+Good examples
+"Draft a professional follow-up email to a client who has not responded in two weeks."
+"Rewrite this internal message so it is clearer, more concise, and professional."
+"Analyze this uploaded non-medical document and identify the top issues I should review before sending it to an attorney."
+"Turn these notes into a clean internal summary for staff review."`;
+          messagesDiv.prepend(generalAiWelcome);
+        }
+        Array.from(messagesDiv.children).forEach((child) => {
+          if (child.id !== "general-ai-welcome") child.remove();
+        });
+        generalAiWelcome.style.display = "block";
+        document.getElementById("message-input").value = "";
+        const input = document.getElementById("message-input");
+        input.placeholder =
+          "Describe the work task, goal, and what you want help with...";
+      }
+
+      function handleModelChange(val) {
+        if (val === "latest") {
+          document.getElementById("model-security-modal").style.display =
+            "flex";
+        } else {
+          generalAiModel = "default";
+          generalAiResponseId = null; // reset context on model change
+          startGeneralAiChat();
+        }
+      }
+
+      function closeSecurityModal() {
+        document.getElementById("model-security-modal").style.display = "none";
+        if (generalAiModel !== "latest") {
+          document.getElementById("model-selector").value = "default";
+        }
+      }
+
+      function saveSecurityCode() {
+        const code = document.getElementById("security-code-input").value;
+        if (!code) {
+          alert("Please enter a security code");
+          return;
+        }
+        localStorage.setItem("general_ai_security_code", code);
+        generalAiModel = "latest";
+        generalAiResponseId = null; // reset context on model change
+        document.getElementById("model-security-modal").style.display = "none";
+        document.getElementById("model-selector").value = "latest";
+        startGeneralAiChat();
+      }
+
+      // Drag and Drop
+      function setupDragAndDrop() {
+        const inputWrapper = document.getElementById("input-wrapper");
+        if (!inputWrapper) return;
+
+        inputWrapper.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          inputWrapper.classList.add("drag-over");
+        });
+        inputWrapper.addEventListener("dragleave", () =>
+          inputWrapper.classList.remove("drag-over"),
+        );
+        inputWrapper.addEventListener("drop", (e) => {
+          e.preventDefault();
+          inputWrapper.classList.remove("drag-over");
+          if (currentMode !== "general_ai") return;
+          handleFiles(e.dataTransfer.files);
+        });
+      }
+
+      function handleFiles(files) {
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const isDuplicate = selectedFiles.some(
+            (f) => f.name === file.name && f.size === file.size,
+          );
+          if (!isDuplicate) {
+            selectedFiles.push(file);
+          }
+        }
+        updateFileTrayUI();
+      }
+
+      function removeFile(index) {
+        selectedFiles.splice(index, 1);
+        updateFileTrayUI();
+      }
+
+      function updateFileTrayUI() {
+        const tray = document.getElementById("file-upload-tray");
+        if (!tray) return;
+
+        if (selectedFiles.length === 0) {
+          tray.classList.remove("active");
+          tray.innerHTML = "";
+          return;
+        }
+        tray.classList.add("active");
+        tray.innerHTML = selectedFiles
+          .map(
+            (file, index) => `
+        <div class="file-pill">
+          <span>${file.name}</span>
+          <div class="remove-file" onclick="removeFile(${index})">×</div>
+        </div>
+      `,
+          )
+          .join("");
+      }
+
+      async function sendGeneralAiMessage() {
+        if (isProcessing) return;
+
+        const input = document.getElementById("message-input");
+        const message = input.value.trim();
+        if (!message && selectedFiles.length === 0) return;
+
+        isProcessing = true;
+        const sendBtn = document.getElementById("send-btn");
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '<span class="spinner"></span>';
+
+        addMessage("user", message);
+        input.value = "";
+        showTypingIndicator();
+
+        const formData = new FormData();
+        formData.append("message", message);
+
+        if (generalAiModel === "latest") {
+          const securityCode = localStorage.getItem("general_ai_security_code");
+          if (securityCode) {
+            formData.append("security_code", securityCode);
+          }
+        }
+
+        if (generalAiResponseId) {
+          formData.append("previous_response_id", generalAiResponseId);
+        }
+
+        selectedFiles.forEach((file) => {
+          formData.append("files", file);
+        });
+
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/Playbook_Chatbot/general/chat`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("jwtsopchatbot")}`,
+                "ngrok-skip-browser-warning": "true",
+              },
+              body: formData,
+            },
+          );
+
+          const data = await response.json();
+          hideTypingIndicator();
+
+          if (data.answer) {
+            addMessage("assistant", data.answer, data.prompt_log_id);
+            generalAiResponseId = data.response_id;
+          } else {
+            addMessage(
+              "assistant",
+              "Sorry, I couldn't process that general request.",
+            );
+          }
+        } catch (error) {
+          console.error("General AI error:", error);
+          hideTypingIndicator();
+          addMessage(
+            "assistant",
+            "An error occurred while contacting the General AI service.",
+          );
+        } finally {
+          isProcessing = false;
+          sendBtn.disabled = false;
+          sendBtn.innerHTML = await Translator.translate(
+            "send",
+            window.currentLang,
+          );
+          selectedFiles = [];
+          updateFileTrayUI();
+        }
+      }
+
+      async function startNafiChat() {
+        nafiTutorialActive = false;
+        nafiTutorialLastAnswer = null;
+        nafiTutorialProcessing = false;
+
+        // Ensure NAFI chat input is visible when entering normal NAFI mode
+        const inputContainer = document.querySelector(".input-container");
+        if (inputContainer) inputContainer.style.display = "block";
+
+        currentMode = "nafi";
+        updateHeaderUI();
+        nafiLastIntakeDescription = "";
+        nafiAwaitingFollowUp = false;
+        document.getElementById("general-ai-header").style.display = "none";
+
+        const messagesDiv = document.getElementById("chat-messages");
+        messagesDiv.innerHTML = "";
+        document.getElementById("message-input").value = "";
+
+        // Update placeholder to guide user
+        const input = document.getElementById("message-input");
+        input.placeholder = await Translator.translate(
+          "Enter your NAFI case details...",
+          window.currentLang,
+        );
+
+        // Show NAFI welcome message
+        await addNafiWelcomeMessage();
+      }
+
+      async function addNafiWelcomeMessage() {
+        const messagesDiv = document.getElementById("chat-messages");
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "message-wrapper assistant";
+
+        const messageDiv = document.createElement("div");
+        messageDiv.className =
+          "message assistant welcome translateable-message";
+        const nafiText = `Describe the matter in clear, full sentences, as if you were briefly explaining it to an intake specialist. Include what happened, when it happened, who was involved, and what kind of injury, harm, or dispute is being reported. Avoid vague prompts, shorthand, jargon, and unexplained acronyms. The more specific your description, the more accurate the screening result will be.
+Good example:
+“The caller says she was injured in a rear-end crash last month, went to urgent care the same day, and now has neck and back pain.”
+Avoid:
+“MVA soft tissue”
+“med mal?”
+“WC issue”
+“bad provider case”
+Tip: If you are unsure about details, say that directly rather than guessing.`;
+
+        messageDiv.dataset.originalContent = nafiText;
+
+        const inner = document.createElement("div");
+        inner.className = "welcome-content message-body";
+        inner.textContent = await Translator.translate(
+          nafiText,
+          window.currentLang,
+        );
+
+        messageDiv.appendChild(inner);
+        wrapper.appendChild(messageDiv);
+        messagesDiv.appendChild(wrapper);
+        scrollToBottom();
+      }
+
+      // ============ NAFI TUTORIAL UI ============
+      async function startNafiTutorial() {
+        if (nafiTutorialProcessing) return;
+        if (nafiTutorialActive) return;
+
+        nafiTutorialActive = true;
+        updateHeaderUI();
+        nafiTutorialLastAnswer = null;
+        nafiTutorialProcessing = true;
+        let success = false;
+
+        const tutorialBtn = document.getElementById("tutorial-btn-header");
+        if (tutorialBtn) tutorialBtn.disabled = true;
+
+        // Hide chat input UI (no typing / send buttons during tutorial)
+        const inputContainer = document.querySelector(".input-container");
+        if (inputContainer) inputContainer.style.display = "none";
+
+        const messagesDiv = document.getElementById("chat-messages");
+        messagesDiv.innerHTML = "";
+
+        showTypingIndicator();
+        try {
+          const data = await callNafiTutorialApi({ action: "start" });
+          await renderNafiTutorialStep(data);
+          success = true;
+        } catch (error) {
+          addMessage("assistant", "Error: " + error.message);
+        } finally {
+          hideTypingIndicator();
+          nafiTutorialProcessing = false;
+          if (tutorialBtn) tutorialBtn.disabled = false;
+          if (!success) {
+            nafiTutorialActive = false;
+            nafiTutorialLastAnswer = null;
+            updateHeaderUI();
+            if (inputContainer) inputContainer.style.display = "block";
+          }
+        }
+      }
+
+      async function closeNafiTutorial() {
+        if (nafiTutorialProcessing) return;
+        await startNafiChat();
+      }
+
+      async function callNafiTutorialApi(payload) {
+        const response = await fetch(
+          `${API_BASE_URL}/Playbook_Chatbot/chat/nafi/tutorial`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("jwtsopchatbot")}`,
+              "ngrok-skip-browser-warning": "true",
+            },
+            body: JSON.stringify(payload),
+          },
+        );
+
+        if (!response.ok) {
+          const text = await response.text().catch(() => "");
+          throw new Error(
+            `NAFI tutorial API failed (${response.status}) ${text}`,
+          );
+        }
+
+        return await response.json();
+      }
+
+      async function renderNafiTutorialStep(data) {
+        const messagesDiv = document.getElementById("chat-messages");
+
+        let ui = document.getElementById("nafi-tutorial-ui");
+        if (!ui) {
+          ui = document.createElement("div");
+          ui.id = "nafi-tutorial-ui";
+          messagesDiv.appendChild(ui);
+        }
+        ui.innerHTML = "";
+
+        const message = data?.message || "";
+        const expectedFields = Array.isArray(data?.expected_fields)
+          ? data.expected_fields
+          : [];
+        const needsFollowup = expectedFields.includes("followup_questions");
+
+        const card = document.createElement("div");
+        card.className = "nafi-tutorial-card";
+
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "nafi-tutorial-message";
+        messageDiv.textContent = await Translator.translate(
+          message,
+          window.currentLang,
+        );
+        card.appendChild(messageDiv);
+
+        // Final summary: show only the message (no options / submit).
+        const isFinalScore = /Final\s*Score/i.test(message);
+        if (isFinalScore) {
+          ui.appendChild(card);
+          scrollToBottom();
+          return;
+        }
+
+        if (needsFollowup) {
+          const options = [
+            { value: "yes_nafi", label: "Nafi" },
+            { value: "no_not_nafi", label: "Not Nafi" },
+            { value: "more_info_needed", label: "More Info Needed" },
+          ];
+
+          const disabledSelectedValue =
+            nafiTutorialLastAnswer || "more_info_needed";
+
+          const optionsBlock = document.createElement("div");
+          optionsBlock.className = "nafi-tutorial-options";
+
+          options.forEach((opt) => {
+            const row = document.createElement("label");
+            row.className = "nafi-tutorial-option disabled";
+
+            const input = document.createElement("input");
+            input.type = "radio";
+            input.name = "nafi-tutorial-answer";
+            input.value = opt.value;
+            input.disabled = true;
+            if (opt.value === disabledSelectedValue) input.checked = true;
+
+            const label = document.createElement("div");
+            label.textContent = opt.label;
+
+            row.appendChild(input);
+            row.appendChild(label);
+            optionsBlock.appendChild(row);
+          });
+
+          card.appendChild(optionsBlock);
+
+          const actionRow = document.createElement("div");
+          actionRow.className = "nafi-tutorial-action-row";
+
+          const submitBtn = document.createElement("button");
+          submitBtn.id = "nafi-tutorial-submit-btn";
+          submitBtn.className = "nafi-tutorial-action-btn";
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Submit";
+
+          actionRow.appendChild(submitBtn);
+          card.appendChild(actionRow);
+
+          const followupsBlock = document.createElement("div");
+          followupsBlock.className = "nafi-tutorial-followups";
+
+          const q1Label = document.createElement("div");
+          q1Label.className = "nafi-tutorial-followup-label";
+          q1Label.textContent = "Question 1";
+
+          const q1 = document.createElement("textarea");
+          q1.id = "nafi-tutorial-followup-q1";
+          q1.className = "nafi-tutorial-textarea";
+
+          const q2Label = document.createElement("div");
+          q2Label.className = "nafi-tutorial-followup-label";
+          q2Label.textContent = "Question 2";
+
+          const q2 = document.createElement("textarea");
+          q2.id = "nafi-tutorial-followup-q2";
+          q2.className = "nafi-tutorial-textarea";
+
+          followupsBlock.appendChild(q1Label);
+          followupsBlock.appendChild(q1);
+          followupsBlock.appendChild(q2Label);
+          followupsBlock.appendChild(q2);
+
+          card.appendChild(followupsBlock);
+
+          const saveRow = document.createElement("div");
+          saveRow.className = "nafi-tutorial-action-row";
+
+          const saveBtn = document.createElement("button");
+          saveBtn.id = "nafi-tutorial-save-btn";
+          saveBtn.className = "nafi-tutorial-action-btn";
+          saveBtn.disabled = true;
+          saveBtn.textContent = "Save Question";
+          saveBtn.addEventListener("click", saveNafiTutorialFollowupQuestions);
+
+          const updateSaveEnabled = () => {
+            const q1Val = q1.value.trim();
+            const q2Val = q2.value.trim();
+            saveBtn.disabled = !(q1Val && q2Val);
+          };
+
+          q1.addEventListener("input", updateSaveEnabled);
+          q2.addEventListener("input", updateSaveEnabled);
+
+          saveRow.appendChild(saveBtn);
+          card.appendChild(saveRow);
+        } else {
+          const options = [
+            { value: "yes_nafi", label: "Nafi" },
+            { value: "no_not_nafi", label: "Not Nafi" },
+            { value: "more_info_needed", label: "More Info Needed" },
+          ];
+
+          const optionsBlock = document.createElement("div");
+          optionsBlock.className = "nafi-tutorial-options";
+
+          options.forEach((opt) => {
+            const row = document.createElement("label");
+            row.className = "nafi-tutorial-option";
+
+            const input = document.createElement("input");
+            input.type = "radio";
+            input.name = "nafi-tutorial-answer";
+            input.value = opt.value;
+
+            const label = document.createElement("div");
+            label.textContent = opt.label;
+
+            row.appendChild(input);
+            row.appendChild(label);
+            optionsBlock.appendChild(row);
+          });
+
+          card.appendChild(optionsBlock);
+
+          const actionRow = document.createElement("div");
+          actionRow.className = "nafi-tutorial-action-row";
+
+          const submitBtn = document.createElement("button");
+          submitBtn.id = "nafi-tutorial-submit-btn";
+          submitBtn.className = "nafi-tutorial-action-btn";
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Submit";
+          submitBtn.addEventListener("click", submitNafiTutorialAnswer);
+
+          optionsBlock.addEventListener("change", () => {
+            const checked = ui.querySelector(
+              'input[name="nafi-tutorial-answer"]:checked',
+            );
+            submitBtn.disabled = !checked;
+          });
+
+          actionRow.appendChild(submitBtn);
+          card.appendChild(actionRow);
+        }
+
+        ui.appendChild(card);
+        scrollToBottom();
+      }
+
+      function getSelectedNafiTutorialAnswer() {
+        const checked = document.querySelector(
+          'input[name="nafi-tutorial-answer"]:checked',
+        );
+        return checked ? checked.value : null;
+      }
+
+      async function submitNafiTutorialAnswer() {
+        if (nafiTutorialProcessing) return;
+
+        const selected = getSelectedNafiTutorialAnswer();
+        if (!selected) return;
+
+        nafiTutorialLastAnswer = selected;
+        nafiTutorialProcessing = true;
+
+        const submitBtn = document.getElementById("nafi-tutorial-submit-btn");
+        if (submitBtn) submitBtn.disabled = true;
+
+        showTypingIndicator();
+        let success = false;
+        try {
+          const data = await callNafiTutorialApi({ answer: selected });
+          await renderNafiTutorialStep(data);
+          success = true;
+        } catch (error) {
+          addMessage("assistant", "Error: " + error.message);
+        } finally {
+          hideTypingIndicator();
+          nafiTutorialProcessing = false;
+          if (!success && submitBtn) submitBtn.disabled = false;
+        }
+      }
+
+      async function saveNafiTutorialFollowupQuestions() {
+        if (nafiTutorialProcessing) return;
+
+        const q1El = document.getElementById("nafi-tutorial-followup-q1");
+        const q2El = document.getElementById("nafi-tutorial-followup-q2");
+        const q1 = q1El ? q1El.value.trim() : "";
+        const q2 = q2El ? q2El.value.trim() : "";
+
+        if (!q1 || !q2) return;
+
+        nafiTutorialProcessing = true;
+
+        const saveBtn = document.getElementById("nafi-tutorial-save-btn");
+        if (saveBtn) saveBtn.disabled = true;
+
+        showTypingIndicator();
+        let success = false;
+        try {
+          const data = await callNafiTutorialApi({
+            followup_questions: [q1, q2],
+          });
+          nafiTutorialLastAnswer = null;
+          await renderNafiTutorialStep(data);
+          success = true;
+        } catch (error) {
+          addMessage("assistant", "Error: " + error.message);
+        } finally {
+          hideTypingIndicator();
+          nafiTutorialProcessing = false;
+          if (!success && saveBtn) saveBtn.disabled = false;
+        }
+      }
+
+      async function sendNafiMessage() {
+        if (isProcessing) return;
+
+        const input = document.getElementById("message-input");
+        const message = input.value.trim();
+        if (!message) return;
+
+        isProcessing = true;
+        const sendBtn = document.getElementById("send-btn");
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = '<span class="spinner"></span>';
+
+        addMessage("user", message);
+        input.value = "";
+        showTypingIndicator();
+
+        let payload;
+        if (nafiAwaitingFollowUp) {
+          // Follow-up answer: send original intake + followup_answers
+          payload = {
+            intake_description: nafiLastIntakeDescription,
+            followup_answers: [message],
+          };
+        } else {
+          // First message
+          nafiLastIntakeDescription = message;
+          payload = { intake_description: message };
+        }
+
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/Playbook_Chatbot/chat/nafi`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("jwtsopchatbot")}`,
+                "ngrok-skip-browser-warning": "true",
+              },
+              body: JSON.stringify(payload),
+            },
+          );
+
+          const data = await response.json();
+          await renderNafiResponse(data);
+        } catch (error) {
+          addMessage("assistant", "Error: " + error.message);
+          nafiAwaitingFollowUp = false;
+        } finally {
+          hideTypingIndicator();
+          isProcessing = false;
+          sendBtn.disabled = false;
+          sendBtn.innerHTML = `<span data-i18n="send">${await Translator.translate("Send", window.currentLang)}</span>`;
+          scrollToBottom();
+        }
+      }
+
+      async function renderNafiResponse(data) {
+        const result = data.result || "";
+        const confidence = data.confidence || "";
+        const why = data.why || "";
+        const nextQuestions = data.next_questions || [];
+        const hasQuestions = nextQuestions.length > 0;
+        const prompt_log_id = data.prompt_log_id || null;
+
+        // Determine card type
+        let cardClass = "nafi-more-info";
+        let icon = "⚠️";
+        let headerLabel = await Translator.translate(
+          result,
+          window.currentLang,
+        );
+
+        if (result === "Likely NAFI") {
+          cardClass = "nafi-likely";
+          icon = "🚫";
+        } else if (result === "Not NAFI") {
+          cardClass = "nafi-not";
+          icon = "✅";
+        } else {
+          // More Information Needed
+          cardClass = "nafi-more-info";
+          icon = "⚠️";
+        }
+
+        // Set follow-up state
+        nafiAwaitingFollowUp = hasQuestions;
+        if (hasQuestions) {
+          document.getElementById("message-input").placeholder =
+            await Translator.translate(
+              "Type your answers to the questions above...",
+              window.currentLang,
+            );
+        } else {
+          document.getElementById("message-input").placeholder =
+            await Translator.translate(
+              "Enter your NAFI case details...",
+              window.currentLang,
+            );
+        }
+
+        // Build the card HTML
+        const messagesDiv = document.getElementById("chat-messages");
+        const emptyState = messagesDiv.querySelector(".empty-state");
+        if (emptyState) emptyState.remove();
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "message-wrapper assistant";
+
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "message assistant";
+        messageDiv.style.padding = "0";
+        messageDiv.style.background = "transparent";
+        messageDiv.style.border = "none";
+        messageDiv.style.boxShadow = "none";
+        messageDiv.style.maxWidth = "85%";
+
+        // Card wrapper
+        const card = document.createElement("div");
+        card.className = `nafi-response-card ${cardClass}`;
+        card.style.position = "relative"; // Anchor feedback buttons internally
+
+        // Header
+        const header = document.createElement("div");
+        header.className = "nafi-card-header";
+        header.innerHTML = `<span>${icon}</span><span>${headerLabel}</span>`;
+        card.appendChild(header);
+
+        // Body
+        const body = document.createElement("div");
+        body.className = "nafi-card-body";
+        if (prompt_log_id) {
+          body.style.paddingBottom = "40px"; // Space for buttons inside the card
+        }
+
+        // Result row
+        const resultRow = document.createElement("div");
+        resultRow.className = "nafi-field-row";
+        resultRow.innerHTML = `
+        <span class="nafi-field-label" data-i18n="resultLabel">${await Translator.translate("Result:", window.currentLang)}</span>
+        <span class="nafi-field-value translateable-message" data-original-content="${result}">
+          <span class="message-body">${await Translator.translate(result, window.currentLang)}</span>
+        </span>`;
+        body.appendChild(resultRow);
+
+        // Confidence row
+        const confRow = document.createElement("div");
+        confRow.className = "nafi-field-row";
+        confRow.innerHTML = `
+        <span class="nafi-field-label" data-i18n="confidenceLabel">${await Translator.translate("Confidence:", window.currentLang)}</span>
+        <span class="nafi-field-value translateable-message" data-original-content="${confidence}">
+          <span class="message-body">${await Translator.translate(confidence, window.currentLang)}</span>
+        </span>`;
+        body.appendChild(confRow);
+
+        // Why row
+        const whyRow = document.createElement("div");
+        whyRow.className = "nafi-field-row";
+        whyRow.innerHTML = `
+        <span class="nafi-field-label" data-i18n="whyLabel">${await Translator.translate("Why:", window.currentLang)}</span>
+        <span class="nafi-field-value translateable-message" data-original-content="${why.replace(/"/g, "&quot;")}">
+          <span class="message-body">${await Translator.translate(why, window.currentLang)}</span>
+        </span>`;
+        body.appendChild(whyRow);
+
+        // Next Questions (only when result === 'More Information Needed')
+        if (result === "More Information Needed" && hasQuestions) {
+          const qSection = document.createElement("div");
+          qSection.className = "nafi-questions-section";
+
+          const qTitle = document.createElement("div");
+          qTitle.className = "nafi-questions-title";
+          qTitle.textContent = await Translator.translate(
+            "Follow-up Questions:",
+            window.currentLang,
+          );
+          qSection.appendChild(qTitle);
+
+          for (const q of nextQuestions) {
+            const idx = nextQuestions.indexOf(q);
+            const qItem = document.createElement("div");
+            qItem.className = "nafi-question-item";
+            const translatedQ = await Translator.translate(
+              q,
+              window.currentLang,
+            );
+            qItem.innerHTML = `
+            <span class="nafi-question-num">${idx + 1}.</span>
+            <span class="translateable-message" data-original-content="${q.replace(/"/g, "&quot;")}">
+              <span class="message-body">${translatedQ}</span>
+            </span>`;
+            qSection.appendChild(qItem);
+          }
+
+          body.appendChild(qSection);
+        }
+
+        card.appendChild(body);
+
+        // Add feedback buttons if prompt_log_id is present
+        if (prompt_log_id) {
+          const fb = document.createElement("div");
+          fb.className = "feedback-buttons";
+          fb.style.position = "absolute";
+          fb.style.bottom = "8px";
+          fb.style.left = "18px"; // Match card body horizontal padding
+
+          const upBtn = document.createElement("button");
+          upBtn.className = "feedback-btn";
+          upBtn.title = await Translator.translate(
+            "Helpful",
+            window.currentLang,
+          );
+          upBtn.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 21h4V9H1v12zM23 10c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 2 7.59 8.59C7.22 8.95 7 9.45 7 10v8c0 1.1.9 2 2 2h7c.83 0 1.54-.5 1.84-1.22L23 12.5c.11-.33.16-.68.16-1z"/>
+            </svg>
+          `;
+
+          const downBtn = document.createElement("button");
+          downBtn.className = "feedback-btn";
+          downBtn.title = await Translator.translate(
+            "Not helpful",
+            window.currentLang,
+          );
+          downBtn.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path d="M23 3h-4v12h4V3zM1 14c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 22l6.58-6.59c.37-.36.59-.86.59-1.41V6c0-1.1-.9-2-2-2H7c-.83 0-1.54.5-1.84 1.22L1 11.5C.89 11.83.84 12.18.84 12.5c0 .33.05.68.16 1z"/>
+            </svg>
+          `;
+
+          upBtn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            if (upBtn.classList.contains("disabled")) return;
+            sendFeedback(prompt_log_id, "up", upBtn, downBtn);
+          });
+
+          downBtn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            if (downBtn.classList.contains("disabled")) return;
+            sendFeedback(prompt_log_id, "down", upBtn, downBtn);
+          });
+
+          fb.appendChild(upBtn);
+          fb.appendChild(downBtn);
+          card.appendChild(fb); // Attach inside the card
+        }
+
+        messageDiv.appendChild(card);
+        wrapper.appendChild(messageDiv);
+        messagesDiv.appendChild(wrapper);
+        scrollToBottom();
+      }
+
+      // ============ END NAFI CASE SCREEN ============
+    </script>
+
+    <script>
+      // Check token on page load and toggle UIs accordingly
+      function checkAuthToken() {
+        const token = localStorage.getItem("jwtsopchatbot");
+        const loginPageWrapper = document.getElementById("login-page-wrapper");
+        const mainAppWrapper = document.getElementById("main-app-wrapper");
+        const messagesDiv = document.getElementById("chat-messages");
+
+        if (token) {
+          // User is logged in
+          loginPageWrapper.style.display = "none";
+          mainAppWrapper.style.display = "flex";
+
+          // Show welcome/history when there are no actual chat items yet.
+          // Ignore helper UI blocks like the hidden general-ai welcome container.
+          const hasChatItems = !!messagesDiv?.querySelector(
+            ".message-wrapper, .typing-wrapper, .empty-state",
+          );
+          if (messagesDiv && !hasChatItems) {
+            addWelcomeMessage();
+            loadChatHistory();
+          }
+          // Always refresh active users when authenticated
+          loadActiveUsers();
+        } else {
+          // User is not logged in
+          loginPageWrapper.style.display = "flex";
+          mainAppWrapper.style.display = "none";
+        }
+      }
+
+      // Check on page load
+      document.addEventListener("DOMContentLoaded", checkAuthToken);
+
+      // Re-check when logout-success event fires
+      window.addEventListener("logout-success", () => {
+        setTimeout(checkAuthToken, 100);
+      });
+
+      // Also check after login
+      window.addEventListener("login-success", () => {
+        setTimeout(() => {
+          checkAuthToken();
+        }, 100);
+      });
+
+      // ============ FEATURE: CHAT HISTORY ============
+      async function loadChatHistory() {
+        try {
+          const token = localStorage.getItem("jwtsopchatbot");
+          if (!token) return;
+
+          const response = await fetch(
+            `${API_BASE_URL}/Playbook_Chatbot/chat/latest`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true",
+              },
+            },
+          );
+
+          const data = await response.json();
+
+          if (data.history && Array.isArray(data.history)) {
+            data.history.forEach((chat) => {
+              addMessage("user", chat.question);
+              addMessage("assistant", chat.answer);
+            });
+          }
+        } catch (error) {
+          console.error("Failed to load chat history:", error);
+        }
+      }
+
+      // ============ FEATURE: ACTIVE USERS COUNT ============
+      async function loadActiveUsers() {
+        try {
+          const token = localStorage.getItem("jwtsopchatbot");
+          if (!token) return;
+
+          const response = await fetch(
+            `${API_BASE_URL}/Playbook_Chatbot/active-today`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "ngrok-skip-browser-warning": "true",
+              },
+            },
+          );
+
+          const data = await response.json();
+
+          if (Array.isArray(data)) {
+            const count = data.length;
+            const countElement = document.getElementById("active-count");
+            if (countElement) {
+              countElement.textContent = count;
+            }
+
+            const usersList = document.getElementById("active-users-list");
+            if (usersList) {
+              if (count === 0) {
+                usersList.innerHTML =
+                  '<div style="padding: 8px 0; color: #666;">No active users</div>';
+              } else {
+                usersList.innerHTML = data
+                  .map(
+                    (user) => `
+                  <div style="
+                    padding: 10px 8px;
+                    border-bottom: 1px solid rgba(201, 168, 76, 0.2);
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 16px;
+                  ">
+                    <span style="color: var(--gold); font-weight: 500; flex: 1;">${user.email}</span>
+                    <span style="color: #aaa; font-size: 12px; white-space: nowrap; flex-shrink: 0;">${formatLastActive(user.last_active)}</span>
+                  </div>
+                `,
+                  )
+                  .join("");
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Failed to load active users:", error);
+        }
+      }
+
+      function formatLastActive(dateStr) {
+        try {
+          const date = new Date(dateStr);
+          const now = new Date();
+          const diffMs = now - date;
+          const diffMins = Math.floor(diffMs / 60000);
+          const diffHours = Math.floor(diffMs / 3600000);
+          const diffDays = Math.floor(diffMs / 86400000);
+
+          if (diffMins < 1) return "just now";
+          if (diffMins < 60) return `${diffMins}m ago`;
+          if (diffHours < 24) return `${diffHours}h ago`;
+          if (diffDays < 7) return `${diffDays}d ago`;
+
+          return date.toLocaleDateString();
+        } catch (e) {
+          return dateStr;
+        }
+      }
+
+      function toggleActiveUsersPopover() {
+        const popover = document.getElementById("active-users-popover");
+        if (!popover) return;
+        if (popover.style.display === "none" || popover.style.display === "") {
+          popover.style.display = "block";
+          loadActiveUsers();
+        } else {
+          popover.style.display = "none";
+        }
+      }
+
+      // Close active users popover when clicking outside
+      document.addEventListener("click", function (event) {
+        const popover = document.getElementById("active-users-popover");
+        const btn = document.getElementById("active-users-btn");
+        if (!popover || !btn) return;
+        if (!btn.contains(event.target) && !popover.contains(event.target)) {
+          popover.style.display = "none";
+        }
+      });
+    </script>
+    <script defer src="/static/js/common-cursor.js"></script>
+  </body>
+</html>
